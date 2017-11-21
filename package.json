@@ -1,0 +1,19 @@
+{
+  "name": "gembro",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "react-scripts": "1.0.17"
+  },
+  "scripts": {
+    "start": "react-scripts-with-sass start",
+    "build": "react-scripts-with-sass build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "create-react-app-sass": "^1.1.0"
+  }
+}
