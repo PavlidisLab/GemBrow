@@ -1,0 +1,15 @@
+@import "Const.scss";
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
+}
+
+main {
+  margin: $dim3;
+}
