@@ -37,14 +37,20 @@ const NavBar = () => {
     return (
         <Navbar dark expand id="navbar-my">
             <NavbarToggler onClick={toggle()}/>
-            <NavbarBrand tag={Link} to='/'>GemBrow</NavbarBrand>
+            <Switch>
+                <Route exact path='/'/>
+                <Route path="/*">
+                    <NavbarBrand tag={Link} to='/' id="navbar-brand-my">GemBrow</NavbarBrand>
+                </Route>
+            </Switch>
+
             <Collapse isOpen={isOpen} navbar>
                 <Nav className="ml-auto" navbar>
                     <NavItem>
-                        <NavLink tag={Link} to='/'>Home</NavLink>
+                        <NavLink tag={Link} to='/' className="nav-link-my">Home</NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink tag={Link} to='/datasets'>Datasets</NavLink>
+                        <NavLink tag={Link} to='/datasets' className="nav-link-my">Datasets</NavLink>
                     </NavItem>
                 </Nav>
             </Collapse>

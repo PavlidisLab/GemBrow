@@ -3,6 +3,7 @@
 html, body {
   height: 100%;
   margin: 0;
+
 }
 
 body {
@@ -11,5 +12,12 @@ body {
 }
 
 main {
-  margin: $dim3;
+  color: $dark1;
+  margin: $dim4;
+  font-family: 'Montserrat', sans-serif;
+}
+
+main h1, main h2, main h3, main h4 {
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
 }
