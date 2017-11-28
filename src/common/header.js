@@ -12,7 +12,7 @@ import {
     NavItem,
     NavLink
 } from 'reactstrap';
-import '../styles/Header.css';
+import './header.css';
 
 const Header = () => (
 

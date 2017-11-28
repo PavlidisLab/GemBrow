@@ -1,11 +1,15 @@
+import './index.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import React from 'react';
 import WebFont from 'webfontloader';
 import {render} from 'react-dom'
+import {Provider} from "react-redux";
 import {BrowserRouter} from 'react-router-dom'
-import App from './components/App';
-import './styles/index.css';
-import 'bootstrap/dist/css/bootstrap.css';
-import registerServiceWorker from './registerServiceWorker';
+import App from './app';
+import registerServiceWorker from './common/registerServiceWorker';
+import configureStore from './common/configureStore';
+
+const store = configureStore();
 
 WebFont.load({
     google: {
@@ -14,9 +18,11 @@ WebFont.load({
 });
 
 render((
-    <BrowserRouter>
-        <App/>
-    </BrowserRouter>
+    <Provider store={store}>
+        <BrowserRouter>
+            <App/>
+        </BrowserRouter>
+    </Provider>
 ), document.getElementById('root'));
 
 registerServiceWorker();

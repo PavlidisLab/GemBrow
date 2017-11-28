@@ -1,4 +1,4 @@
-@import "Const.scss";
+@import "const.scss";
 
 .header {
   background: linear-gradient(to -70deg, $blue2, $yellowGreen);
@@ -7,7 +7,7 @@
 }
 
 #jumbotron-my {
-  background: transparent url("../images/logoNew2.png") no-repeat 5% 40%/200px 200px;
+  background: transparent url("images/logoNew2.png") no-repeat 5% 40%/200px 200px;
   flex: 0 1 auto;
   border-radius: 0;
   box-shadow: inset 0 0-$dim0 $dim0 0-$dim0 $dark3;
@@ -21,7 +21,7 @@
 }
 
 #navbar-brand-my{
-  background: transparent url("../images/logoNew2.png") no-repeat 0 center/50px 50px;
+  background: transparent url("images/logoNew2.png") no-repeat 0 center/50px 50px;
   overflow: visible;
   padding-left: 70px;
 
@@ -39,29 +39,8 @@
   font-weight: 700;
   font-size: 350%;
   color: white;
-  //font-family: 'Roboto', sans-serif;
   font-family: 'Montserrat', sans-serif;
-  //text-shadow: 0 0 $dim0 $dark0;
-  //text-shadow: 0 1px 0 #ccc,
-  //0 2px 0 #c9c9c9,
-  //0 3px 0 #bbb,
-  //0 6px 1px rgba(0, 0, 0, .1),
-  //0 0 5px rgba(0, 0, 0, .1),
-  //0 1px 3px rgba(0, 0, 0, .3),
-  //0 3px 5px rgba(0, 0, 0, .2),
-  //0 5px 10px rgba(0, 0, 0, .25),
-  //0 10px 10px rgba(0, 0, 0, .2),
-  //0 20px 20px rgba(0, 0, 0, .15);
 }
-
-//@keyframes App-logo-spin {
-//  from {
-//    transform: rotate(0deg);
-//  }
-//  to {
-//    transform: rotate(360deg);
-//  }
-//}
 
 @media (max-width: 767px) {
   .jumbotron .container {
