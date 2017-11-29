@@ -1,0 +1,18 @@
+@import "../const.scss";
+
+.error-square {
+  margin: $dim4;
+}
+
+@media (max-width: $xs-max) {
+  .error-square {
+    margin: $dim0;
+  }
+}
+
+.sad-gemma {
+  width: 100%;
+  height: 300px;
+  min-width: 300px;
+  background: url("../images/sadGemma.png") no-repeat 50% 50%/250px;
+}

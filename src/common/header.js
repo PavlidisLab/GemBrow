@@ -52,6 +52,9 @@ const NavBar = () => {
                     <NavItem>
                         <NavLink tag={Link} to='/datasets' className="nav-link-my">Datasets</NavLink>
                     </NavItem>
+                    <NavItem>
+                        <NavLink tag={Link} to='/platforms' className="nav-link-my">Platforms</NavLink>
+                    </NavItem>
                 </Nav>
             </Collapse>
         </Navbar>

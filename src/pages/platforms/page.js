@@ -1,9 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {loadDatasets} from "./actions";
+import {loadPlatforms} from "./actions";
 import ErrorSquare from "../../common/components/errorSquare";
 
-class DatasetsPage extends React.Component {
+class PlatformsPage extends React.Component {
 
     componentDidMount() {
         this.props.fetchData();
@@ -23,7 +23,7 @@ class DatasetsPage extends React.Component {
 
         return (
             <ul>
-                {this.props.datasets.map((item) => (
+                {this.props.platforms.map((item) => (
                     <li key={item.id}>
                         {item.name}
                     </li>
@@ -35,16 +35,16 @@ class DatasetsPage extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        datasets: state.loadDatasetsSuccess,
-        apiError: state.loadDatasetsFailure,
-        loading: state.loadDatasetsLoading
+        platforms: state.loadPlatformsSuccess,
+        apiError: state.loadPlatformsFailure,
+        loading: state.loadPlatformsLoading
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        fetchData: () => dispatch(loadDatasets())
+        fetchData: () => dispatch(loadPlatforms())
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DatasetsPage);
+export default connect(mapStateToProps, mapDispatchToProps)(PlatformsPage);

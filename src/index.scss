@@ -9,15 +9,22 @@ html, body {
 body {
   display: flex;
   flex-flow: column;
+  background-color: $dark0 !important;
+  font-family: 'Montserrat', sans-serif !important;
 }
 
 main {
-  color: $dark1;
+  color: $light1;
   margin: $dim4;
-  font-family: 'Montserrat', sans-serif;
+}
+
+@media (max-width: 767px) {
+  main {
+    margin: $dim3 $dim0 $dim0;
+  }
 }
 
 main h1, main h2, main h3, main h4 {
   font-weight: 700;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto', sans-serif !important;
 }

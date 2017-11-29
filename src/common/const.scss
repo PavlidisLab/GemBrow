@@ -1,3 +1,13 @@
+$xs-max: 767px;
+$sm-min: $xs-max + 1px;
+$sm-max: 991px;
+$md-min: $sm-max + 1px;
+$md-max: 1199px;
+$lg-min: $md-max + 1px;
+$lg-max: 1599px;
+$xl-min: $lg-max + 1px;
+
+
 $dark0: #737373;
 $dark1: #434343;
 $dark2: #2b2b2b;
