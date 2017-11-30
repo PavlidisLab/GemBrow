@@ -1,0 +1,15 @@
+@import "../../common/const.scss";
+
+.dataset-row {
+  display: flex;
+  width: 100%;
+}
+
+.dataset-row span {
+  flex: 0 0 10%;
+  margin: $dim1 $dim2;
+}
+
+.dataset-row .name {
+  flex: 10 0 auto;
+}

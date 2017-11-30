@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {loadPlatforms} from "./actions";
 import ErrorSquare from "../../common/components/errorSquare";
+import FontAwesome from 'react-fontawesome'
 
 class PlatformsPage extends React.Component {
 
@@ -15,20 +16,27 @@ class PlatformsPage extends React.Component {
             return <p>Loading...</p>
         }
 
-        if (this.props.apiError) {
+        if (this.props.apiError && this.props.platforms.length === 0) {
             return (
                 <ErrorSquare code={this.props.apiError.code} message={this.props.apiError.message}/>
             )
         }
 
+        const hasError = this.props.apiError;
         return (
-            <ul>
-                {this.props.platforms.map((item) => (
-                    <li key={item.id}>
-                        {item.name}
-                    </li>
-                ))}
-            </ul>
+            <div>
+                {
+                    hasError &&
+                    <p><FontAwesome name='warning'/> Cached data</p>
+                }
+                <ul>
+                    {this.props.platforms.map((item) => (
+                        <li key={item.id}>
+                            {item.name}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         )
     }
 }

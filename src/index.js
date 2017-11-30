@@ -1,5 +1,6 @@
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.css';
+import 'font-awesome/css/font-awesome.min.css'
 import React from 'react';
 import WebFont from 'webfontloader';
 import {render} from 'react-dom'

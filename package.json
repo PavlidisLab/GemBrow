@@ -4,8 +4,11 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.0.0-beta.2",
+    "font-awesome": "^4.7.0",
+    "prop-types": "latest",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
+    "react-fontawesome": "^1.6.1",
     "react-notification-system": "0.2.x",
     "react-notification-system-redux": "^1.2.0",
     "react-redux": "^5.0.6",
@@ -15,8 +18,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "webfontloader": "^1.6.28",
-    "whatwg-fetch": "^2.0.3",
-    "prop-types": "latest"
+    "whatwg-fetch": "^2.0.3"
   },
   "scripts": {
     "start": "react-scripts-with-sass start",

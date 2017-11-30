@@ -1,8 +1,16 @@
 import React from 'react';
+import FontAwesome from 'react-fontawesome'
+import './style.css'
 
 const Home = () => (
     <div>
-        <h1>This is a home page!</h1>
+        <div className="center">
+            <p className='big'>Welcome to the new web interface for the Gemma database of functional genomic data</p>
+            <p>Work in progress</p>
+            <p>
+                <FontAwesome name="cog" size='2x' spin/>
+            </p>
+        </div>
     </div>
 )
 

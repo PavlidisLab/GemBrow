@@ -1,8 +1,8 @@
 import apiCall from "../../common/components/apiCall";
 
-export const LOAD_PLATFORMS_LOADING = 'LOAD_DATASETS_LOADING';
-export const LOAD_PLATFORMS_FAILURE = 'LOAD_DATASETS_FAILURE';
-export const LOAD_PLATFORMS_SUCCESS = 'LOAD_DATASETS_SUCCESS';
+export const LOAD_PLATFORMS_LOADING = 'LOAD_PLATFORMS_LOADING';
+export const LOAD_PLATFORMS_FAILURE = 'LOAD_PLATFORMS_FAILURE';
+export const LOAD_PLATFORMS_SUCCESS = 'LOAD_PLATFORMS_SUCCESS';
 
 const platformsErrorNotifyOpts = (error) => {
     return {

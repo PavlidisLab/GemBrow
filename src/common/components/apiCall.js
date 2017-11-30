@@ -34,6 +34,7 @@ const ApiCall = (url, dispatch, loadingAction, failureAction, successAction, fai
                 dispatch(failureAction(json.error));
                 dispatch(error(failureNotifyOpts(json.error)));
             } else {
+                dispatch(failureAction(false))
                 dispatch(successAction(json.data));
             }
         })

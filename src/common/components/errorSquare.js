@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import * as React from "react";
 import {Col, Container, Row} from "reactstrap";
 
+
 const ErrorSquare = (props) => (
     <Container className="error-square">
         <Row>
