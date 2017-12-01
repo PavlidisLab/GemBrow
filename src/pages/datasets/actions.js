@@ -15,7 +15,7 @@ const datasetsErrorNotifyOpts = (error) => {
 };
 
 export function loadDatasets() {
-    const url = 'http://localhost:8080/Gemma/rest/v2/datasets/';
+    const url = 'http://gemma.msl.ubc.ca/rest/v2/datasets/';
     return (dispatch) => {
         apiCall(url, dispatch, loadDatasetsLoading, loadDatasetsFailure, loadDatasetsSuccess, datasetsErrorNotifyOpts)
     }

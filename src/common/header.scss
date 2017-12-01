@@ -4,7 +4,6 @@
   background: linear-gradient(to -70deg, $blue2, $yellowGreen);
   flex: 0 1 auto;
   font-family: 'Montserrat', sans-serif;
-
 }
 
 #jumbotron-my {
@@ -21,7 +20,7 @@
   flex: 0 1 auto;
 }
 
-#navbar-brand-my{
+#navbar-brand-my {
   background: transparent url("images/logoNew2.png") no-repeat 0 center/50px 50px;
   overflow: visible;
   padding-left: 70px;
@@ -32,8 +31,8 @@
   margin-bottom: -10px;
 }
 
-.nav-link-my{
-  color: rgba(255, 255, 255, 0.7) !important;
+.nav-link-my {
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .jumbotron .container h1 {

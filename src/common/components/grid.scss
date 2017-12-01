@@ -1,0 +1,26 @@
+@import "../const.scss";
+
+.grid-row {
+  margin: $dim1 $dim2;
+}
+
+.grid-row.row-loading {
+  background: $dark1;
+}
+
+.grid-row.row-loaded {
+  animation: fadein 1s;
+}
+
+@keyframes fadein {
+  from { background: $dark1; color: transparent}
+  to   { background: transparent}
+}
+
+.empty-row {
+  width: 100%;
+  height: 100%;
+  min-height: 1.5em;
+  background: $dark1;
+  transition: background .25s ease-in-out;
+}

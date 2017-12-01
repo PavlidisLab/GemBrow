@@ -1,8 +1,16 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {loadPlatforms} from "./actions";
 import ErrorSquare from "../../common/components/errorSquare";
 import FontAwesome from 'react-fontawesome'
+import PlatformRow from "./platformRow";
+import './style.css'
+import Grid from "../../common/components/Grid";
+import SubHeader from "../../common/components/subHeader";
+import {loadPlatforms} from "./actions";
+import {connect} from "react-redux";
+import LoadingCog from "../../common/components/LoadingCog";
+
+const TITLE = "Platforms overview"
+const PAGE_SIZE = 20;
 
 class PlatformsPage extends React.Component {
 
@@ -12,30 +20,30 @@ class PlatformsPage extends React.Component {
 
     render() {
 
-        if (this.props.loading) {
-            return <p>Loading...</p>
-        }
+        const error = this.props.apiError;
+        const loading = this.props.loading;
+        const hasData = this.props.platforms.length > 0;
 
-        if (this.props.apiError && this.props.platforms.length === 0) {
-            return (
-                <ErrorSquare code={this.props.apiError.code} message={this.props.apiError.message}/>
-            )
-        }
+        const header = loading
+            ? <LoadingCog active={true} refreshing={hasData}/>
+            : error && hasData
+                ? <p><FontAwesome name='warning'/> Cached data</p>
+                : undefined;
 
-        const hasError = this.props.apiError;
+        const rows = this.props.platforms.map((item) => (<PlatformRow vo={item}/>));
+
         return (
             <div>
-                {
-                    hasError &&
-                    <p><FontAwesome name='warning'/> Cached data</p>
+                <SubHeader components={[header]} title={TITLE}/>
+                <hr/>
+                {error && !(loading || hasData) &&
+                <div>
+                    <ErrorSquare code={this.props.apiError.code} message={this.props.apiError.message}/>
+                </div>
                 }
-                <ul>
-                    {this.props.platforms.map((item) => (
-                        <li key={item.id}>
-                            {item.name}
-                        </li>
-                    ))}
-                </ul>
+                {(loading || hasData) &&
+                <Grid rows={rows} size={PAGE_SIZE} loading={loading && !hasData}/>
+                }
             </div>
         )
     }

@@ -3,6 +3,7 @@ import {error} from "react-notification-system-redux";
 const CONN_ERR_TITLE = 'Connection error'
 const CONN_ERR_MSG = 'Can not connect to the Gemma server';
 
+// eslint-disable-next-line
 const linkErrorNotifyOpts = {
     title: CONN_ERR_TITLE,
     message: CONN_ERR_MSG,
@@ -38,10 +39,10 @@ const ApiCall = (url, dispatch, loadingAction, failureAction, successAction, fai
                 dispatch(successAction(json.data));
             }
         })
-        .catch((e) => {
+        .catch(() => {
             dispatch(loadingAction(false));
             dispatch(failureAction({code: CONN_ERR_TITLE, message: CONN_ERR_MSG}));
-            dispatch(error(linkErrorNotifyOpts));
+            //dispatch(error(linkErrorNotifyOpts));
         })
 }
 
