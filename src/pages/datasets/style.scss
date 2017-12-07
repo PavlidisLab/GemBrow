@@ -1,14 +1,10 @@
 @import "../../common/const.scss";
 
-.dataset-row {
-  display: flex;
-  width: 100%;
+.datasets-grid .label-name {
+  flex: 1 0 auto !important;
 }
 
-.dataset-row span {
-  flex: 0 0 10%;
+.datasets-grid .data-name {
+  flex: 1 0 auto !important;
 }
 
-.dataset-row .name {
-  flex: 1 0 auto;
-}

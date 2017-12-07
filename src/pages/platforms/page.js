@@ -1,9 +1,8 @@
 import React from 'react';
 import ErrorSquare from "../../common/components/errorSquare";
 import FontAwesome from 'react-fontawesome'
-import PlatformRow from "./platformRow";
 import './style.css'
-import Grid from "../../common/components/Grid";
+import Grid from "../../common/components/Grid/grid";
 import SubHeader from "../../common/components/subHeader";
 import {loadPlatforms} from "./actions";
 import {connect} from "react-redux";
@@ -30,7 +29,12 @@ class PlatformsPage extends React.Component {
                 ? <p><FontAwesome name='warning'/> Cached data</p>
                 : undefined;
 
-        const rows = this.props.platforms.map((item) => (<PlatformRow vo={item}/>));
+        const gridCols = {
+            labels: ["Id", "Name", "Taxon", "Dataset count", "Tags", "Technology"],
+            data: ["shortName", "name", "taxon", "expressionExperimentCount", "tags", "technology"],
+            hideable: [false, true, true, true, true, true],
+            hidden: [false, false, false, false, true, true]
+        }
 
         return (
             <div>
@@ -42,7 +46,7 @@ class PlatformsPage extends React.Component {
                 </div>
                 }
                 {(loading || hasData) &&
-                <Grid rows={rows} size={PAGE_SIZE} loading={loading && !hasData}/>
+                <Grid className={"platforms-grid"} data={this.props.platforms} size={PAGE_SIZE} loading={loading} cols={gridCols}/>
                 }
             </div>
         )

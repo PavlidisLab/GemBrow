@@ -1,0 +1,102 @@
+@import "../../const.scss";
+
+.grid-params {
+  background: $dark1;
+  padding: 0;
+}
+
+.grid-body {
+  padding: 0;
+}
+
+.grid-row {
+  width: 100%;
+  padding: $dim1 $dim3;
+}
+
+.grid-row-content {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.grid-row-content span {
+  flex: 0 0 10%;
+}
+
+.grid-row:not(:first-child) {
+  margin-top: $dim0;
+}
+
+.grid-row.row-label {
+  background: $light2;
+  margin: 0;
+  padding: $dim2 $dim3;
+}
+
+.grid-row.row-loading {
+  background: $dark1;
+}
+
+.grid-row.row-loaded {
+  animation: fadein 1s;
+}
+
+.grid-row.row-loaded:nth-child(even) {
+  background: transparentize($dark1, 0.9);
+}
+
+.grid-row.row-loaded .empty-row {
+  background: transparentize($dark1, 1);
+}
+
+@keyframes fadein {
+  from {
+    background: $dark1;
+    color: transparent
+  }
+  to {
+  }
+}
+
+.empty-row {
+  width: 100%;
+  height: 100%;
+  min-height: 1.5em;
+  background: $dark1;
+  transition: background .25s ease-in-out;
+}
+
+.grid-settings {
+  background: $light2;
+  margin: 0;
+}
+
+.grid-settings .label {
+  padding: $dim2 $dim3;
+}
+
+.grid-settings-content{
+  background: $dark1;
+  padding: $dim3 $dim2 $dim1 $dim2;
+}
+
+.grid-settings-content .row{
+  margin: 0;
+}
+
+.grid-settings-content h6{
+  margin-top: $dim2;
+  margin-bottom: $dim3;
+}
+
+.input-pg-size{
+  display: inline;
+}
+
+.grid-data-params {
+  padding: $dim2 $dim3;
+  border-top: 1px solid $dark0;
+}
+

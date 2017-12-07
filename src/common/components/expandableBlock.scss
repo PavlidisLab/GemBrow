@@ -1,0 +1,15 @@
+@import "../const.scss";
+
+.expandable-container .label{
+  cursor: pointer;
+}
+
+.expandable-container .label span.fa {
+  transform: rotate(0deg);
+  transition: transform 0.25s;
+}
+
+.expandable-container .label.expanded span.fa {
+  transform: rotate(90deg);
+}
+

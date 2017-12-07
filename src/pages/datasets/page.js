@@ -2,12 +2,12 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {loadDatasets} from "./actions";
 import ErrorSquare from "../../common/components/errorSquare";
-import DatasetRow from "./datasetRow";
 import FontAwesome from 'react-fontawesome'
 import './style.css'
-import Grid from "../../common/components/Grid";
+import Grid from "../../common/components/Grid/grid";
 import LoadingCog from "../../common/components/LoadingCog";
 import SubHeader from "../../common/components/subHeader";
+import "react-toggle/style.css"
 
 const TITLE = "Datasets overview"
 const PAGE_SIZE = 20;
@@ -30,7 +30,12 @@ class DatasetsPage extends React.Component {
                 ? <p><FontAwesome name='warning'/> Cached data</p>
                 : undefined;
 
-        const rows = this.props.datasets.map((item) => (<DatasetRow vo={item}/>));
+        const gridCols = {
+            labels: ["Id", "Name", "Taxon", "Source", "Groups", "Tags"],
+            data: ["shortName", "name", "taxon", "externalDatabase", "groups", "tags"],
+            hideable: [false, true, true, true, true, true],
+            hidden: [false, false, false, false, true, true]
+        }
 
         return (
             <div>
@@ -42,7 +47,8 @@ class DatasetsPage extends React.Component {
                 </div>
                 }
                 {(loading || hasData) &&
-                <Grid rows={rows} size={PAGE_SIZE} loading={loading}/>
+                <Grid className="datasets-grid" data={this.props.datasets} size={PAGE_SIZE} loading={loading}
+                      cols={gridCols}/>
                 }
             </div>
         )

@@ -1,14 +1,9 @@
 @import "../../common/const.scss";
 
-.platform-row {
-  display: flex;
-  width: 100%;
+.platforms-grid .label-name {
+  flex: 1 0 auto !important;
 }
 
-.platform-row span {
-  flex: 0 0 10%;
-}
-
-.platform-row .name {
-  flex: 10 0 auto;
+.platforms-grid .data-name {
+  flex: 1 0 auto !important;
 }
