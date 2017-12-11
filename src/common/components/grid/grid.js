@@ -1,10 +1,12 @@
 import * as React from "react";
 import "./grid.css"
 import {Col, Container, Row} from 'reactstrap';
-import Expandable from "../expandableBlock";
-import InputRow from "../InputRow";
-import Spinner from "../Spinner/spinner";
+import Expandable from "../expandableBlock/expandableBlock";
+import InputRow from "./InputRow/InputRow";
+import Spinner from "../spinner/spinner";
 import Toggle from 'react-toggle'
+import ToggleIcon from "../toggleIcon/toggleIcon";
+import FontAwesome from 'react-fontawesome'
 
 export const EmptyRow = () => (
     <div className="empty-row"/>
@@ -21,7 +23,25 @@ const Grid = (props) => {
                 <Spinner min={10} max={100} start={20} step={10} click={this.onChange}
                          className="input-pg-size"/>
             }/>
-            <h6>Columns</h6>
+
+            <InputRow
+                className="columns-all-row"
+                id="columns-all"
+                label={
+                    <span className="bigger-label">
+                        <h5>Columns</h5>
+                    </span>
+                }
+                input={
+                    <Toggle
+                        icons={{
+                            unchecked: <ToggleIcon r icon={"all"}/>,
+                            checked: <ToggleIcon fa icon={<FontAwesome name="filter"/>}/>
+                        }}
+                        defaultChecked={true}/>
+                }
+            />
+
             {
                 props.cols.data.map(
                     (val, i) => props.cols.hideable[i] ?
@@ -36,7 +56,7 @@ const Grid = (props) => {
 
 
     return (
-        <Container fluid className={"grid "+props.className}>
+        <Container fluid className={"grid " + props.className}>
             <Row>
                 <Col sm={4} lg={2} className="grid-params">
 
@@ -45,7 +65,7 @@ const Grid = (props) => {
                     </div>
 
                     <div className="grid-data-params">
-                        <p>This is where the data selectors will be</p>
+                        {props.selectors}
                     </div>
                 </Col>
                 <Col sm={8} lg={10} className="grid-body">

@@ -30,3 +30,8 @@ $dim1: 5px;
 $dim2: 10px;
 $dim3: 20px;
 $dim4: 50px;
+
+.bigger-label{
+  position: relative;
+  left: -$dim2;
+}

@@ -1,13 +1,17 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {loadDatasets} from "./actions";
-import ErrorSquare from "../../common/components/errorSquare";
+
 import FontAwesome from 'react-fontawesome'
+import 'react-toggle/style.css'
 import './style.css'
-import Grid from "../../common/components/Grid/grid";
-import LoadingCog from "../../common/components/LoadingCog";
-import SubHeader from "../../common/components/subHeader";
-import "react-toggle/style.css"
+
+import {loadDatasets} from './actions';
+import ErrorSquare from '../../common/components/errorSquare/errorSquare';
+import LoadingCog from '../../common/components/LoadingCog';
+import SubHeader from '../../common/components/subHeader/subHeader';
+import Grid from '../../common/components/grid/grid';
+import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
+
 
 const TITLE = "Datasets overview"
 const PAGE_SIZE = 20;
@@ -25,9 +29,9 @@ class DatasetsPage extends React.Component {
         const hasData = this.props.datasets.length > 0;
 
         const header = loading
-            ? <LoadingCog active={true} refreshing={hasData}/>
+            ? <LoadingCog active={true} refreshing={hasData} label="datasets"/>
             : error && hasData
-                ? <p><FontAwesome name='warning'/> Cached data</p>
+                ? <p><FontAwesome name='warning'/> Cached datasets</p>
                 : undefined;
 
         const gridCols = {
@@ -36,6 +40,11 @@ class DatasetsPage extends React.Component {
             hideable: [false, true, true, true, true, true],
             hidden: [false, false, false, false, true, true]
         }
+
+        const selectors =
+            <div className="dataset-selectors">
+                <TaxonSelector/>
+            </div>;
 
         return (
             <div>
@@ -48,7 +57,7 @@ class DatasetsPage extends React.Component {
                 }
                 {(loading || hasData) &&
                 <Grid className="datasets-grid" data={this.props.datasets} size={PAGE_SIZE} loading={loading}
-                      cols={gridCols}/>
+                      cols={gridCols} selectors={selectors}/>
                 }
             </div>
         )

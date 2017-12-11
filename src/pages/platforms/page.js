@@ -1,12 +1,13 @@
 import React from 'react';
-import ErrorSquare from "../../common/components/errorSquare";
+import ErrorSquare from "../../common/components/errorSquare/errorSquare";
 import FontAwesome from 'react-fontawesome'
 import './style.css'
-import Grid from "../../common/components/Grid/grid";
-import SubHeader from "../../common/components/subHeader";
+import Grid from "../../common/components/grid/grid";
+import SubHeader from "../../common/components/subHeader/subHeader";
 import {loadPlatforms} from "./actions";
 import {connect} from "react-redux";
 import LoadingCog from "../../common/components/LoadingCog";
+import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
 
 const TITLE = "Platforms overview"
 const PAGE_SIZE = 20;
@@ -19,15 +20,27 @@ class PlatformsPage extends React.Component {
 
     render() {
 
-        const error = this.props.apiError;
-        const loading = this.props.loading;
-        const hasData = this.props.platforms.length > 0;
+        const platformsError = this.props.apiErrorPlatforms;
+        const platformsLoading = this.props.loadingPlatforms;
+        const platformsHasData = this.props.platforms.length > 0;
 
-        const header = loading
-            ? <LoadingCog active={true} refreshing={hasData}/>
-            : error && hasData
-                ? <p><FontAwesome name='warning'/> Cached data</p>
-                : undefined;
+        const taxaError = this.props.apiErrorTaxa;
+        const taxaLoading = this.props.loadingTaxa;
+        const taxaHasData = this.props.taxa.length > 0;
+
+        const header =
+            <div>
+                {platformsLoading
+                    ? <LoadingCog active={true} refreshing={platformsHasData} label="platforms"/>
+                    : platformsError && platformsHasData
+                        ? <p><FontAwesome name='warning'/> Cached platforms</p>
+                        : undefined}
+                {taxaLoading
+                    ? <LoadingCog active={true} refreshing={taxaHasData} label="taxa"/>
+                    : taxaError && taxaHasData
+                        ? <p><FontAwesome name='warning'/> Cached taxa</p>
+                        : undefined}
+            </div>
 
         const gridCols = {
             labels: ["Id", "Name", "Taxon", "Dataset count", "Tags", "Technology"],
@@ -36,17 +49,23 @@ class PlatformsPage extends React.Component {
             hidden: [false, false, false, false, true, true]
         }
 
+        const selectors =
+            <div className="platform-selectors">
+                <TaxonSelector/>
+            </div>;
+
         return (
             <div>
                 <SubHeader components={[header]} title={TITLE}/>
                 <hr/>
-                {error && !(loading || hasData) &&
+                {platformsError && !(platformsLoading || platformsHasData) &&
                 <div>
-                    <ErrorSquare code={this.props.apiError.code} message={this.props.apiError.message}/>
+                    <ErrorSquare code={this.props.apiErrorPlatforms.code} message={this.props.apiErrorPlatforms.message}/>
                 </div>
                 }
-                {(loading || hasData) &&
-                <Grid className={"platforms-grid"} data={this.props.platforms} size={PAGE_SIZE} loading={loading} cols={gridCols}/>
+                {(platformsLoading || platformsHasData) &&
+                <Grid className={"platforms-grid"} data={this.props.platforms} size={PAGE_SIZE}
+                      loading={platformsLoading} cols={gridCols} selectors={selectors}/>
                 }
             </div>
         )
@@ -56,8 +75,12 @@ class PlatformsPage extends React.Component {
 const mapStateToProps = (state) => {
     return {
         platforms: state.loadPlatformsSuccess,
-        apiError: state.loadPlatformsFailure,
-        loading: state.loadPlatformsLoading
+        apiErrorPlatforms: state.loadPlatformsFailure,
+        loadingPlatforms: state.loadPlatformsLoading,
+
+        taxa: state.loadTaxaSuccess,
+        apiErrorTaxa: state.loadTaxaFailure,
+        loadingTaxa: state.loadTaxaLoading
     };
 };
 

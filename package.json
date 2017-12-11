@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.0.0-beta.2",
-    "font-awesome": "^4.7.0",
+    "font-awesome": "^5.0.0",
     "prop-types": "latest",
     "rc-input-number": "^4.0.0",
     "react": "^16.1.1",

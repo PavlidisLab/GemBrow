@@ -1,0 +1,14 @@
+@import "../../const.scss";
+
+.toggle-icon{
+  position: relative;
+  bottom: -$dim1;
+}
+
+.toggle-icon.fa{
+  bottom: $dim3/5;
+}
+
+.toggle-icon.r{
+  right: 50%;
+}

@@ -2610,8 +2610,8 @@ find-cache-dir@^1.0.0:
     pkg-dir "^2.0.0"
 
 find-remove@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/find-remove/-/find-remove-1.1.0.tgz#3726fce0cd34256f88661e66739a1cc07ebf08fd"
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/find-remove/-/find-remove-1.2.0.tgz#df23dc35df362ada95b1d70600e134e8dad3bf8c"
   dependencies:
     fmerge "1.2.0"
     rimraf "2.6.2"
@@ -2646,7 +2646,7 @@ fmerge@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/fmerge/-/fmerge-1.2.0.tgz#36e99d2ae255e3ee1af666b4df780553671cf692"
 
-font-awesome@^4.7.0:
+font-awesome@^5.0.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
 
@@ -5586,8 +5586,8 @@ regenerate@^1.2.1:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.3.3.tgz#0c336d3980553d755c39b586ae3b20aa49c82b7f"
 
 regenerator-runtime@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.0.tgz#7e54fe5b5ccd5d6624ea6255c3473be090b802e1"
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
 
 regenerator-transform@^0.10.0:
   version "0.10.1"

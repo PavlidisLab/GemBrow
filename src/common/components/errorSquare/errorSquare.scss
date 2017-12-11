@@ -1,4 +1,4 @@
-@import "../const.scss";
+@import "../../const";
 
 .error-square {
   margin: $dim4;
@@ -14,5 +14,5 @@
   width: 100%;
   height: 300px;
   min-width: 300px;
-  background: url("../images/sadGemma.png") no-repeat 50% 50%/250px;
+  background: url("../../images/sadGemma.png") no-repeat 50% 50%/250px;
 }

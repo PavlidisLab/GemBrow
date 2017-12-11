@@ -7,3 +7,8 @@
 .platforms-grid .data-name {
   flex: 1 0 auto !important;
 }
+
+.platform-selectors{
+  background: $dark1;
+  padding: $dim2 $dim2 $dim1 $dim2+$dim1;
+}

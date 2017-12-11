@@ -86,9 +86,9 @@
   margin: 0;
 }
 
-.grid-settings-content h6{
-  margin-top: $dim2;
-  margin-bottom: $dim3;
+.grid-settings-content .columns-all-row{
+  margin-top: $dim3;
+  margin-bottom: $dim1;
 }
 
 .input-pg-size{
@@ -96,7 +96,7 @@
 }
 
 .grid-data-params {
-  padding: $dim2 $dim3;
+  padding: $dim2 $dim2;
   border-top: 1px solid $dark0;
 }
 

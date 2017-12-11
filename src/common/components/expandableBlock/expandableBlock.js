@@ -1,6 +1,7 @@
 import * as React from "react";
 import "./expandableBlock.css"
 import {Collapse} from "react-collapse";
+import FontAwesome from 'react-fontawesome'
 
 class ExpandableBlock extends React.Component {
 
@@ -18,7 +19,7 @@ class ExpandableBlock extends React.Component {
             <div className={"expandable-container " + (this.props.className ? this.props.className : '' )}>
                 <div className={"label " + (this.state.expanded ? 'expanded' : 'collapsed')}
                      onClick={this.expand(!this.state.expanded)}>
-                    <span className="fa fa-fw fa-align-left fa-caret-right"/>
+                    <FontAwesome name="caret-right" fixedWidth/>
                     {this.props.label}
                 </div>
 

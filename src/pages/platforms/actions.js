@@ -15,7 +15,7 @@ const platformsErrorNotifyOpts = (error) => {
 };
 
 export function loadPlatforms() {
-    const url = 'http://localhost:8080/Gemma/rest/v2/platforms/?limit=100';
+    const url = 'http://localhost:8080/Gemma/rest/v2/platforms/?limit=20';
     return (dispatch) => {
         apiCall(url, dispatch, loadPlatformsLoading, loadPlatformsFailure, loadPlatformsSuccess, platformsErrorNotifyOpts)
     }
