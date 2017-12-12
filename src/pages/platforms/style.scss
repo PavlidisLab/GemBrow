@@ -10,5 +10,12 @@
 
 .platform-selectors{
   background: $dark1;
-  padding: $dim2 $dim2 $dim1 $dim2+$dim1;
+}
+
+.platform-selectors .row{
+  margin: 0;
+}
+
+.platform-selectors .selectors-label{
+  margin-top: $dim2;
 }

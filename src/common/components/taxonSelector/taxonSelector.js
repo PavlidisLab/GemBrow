@@ -44,26 +44,29 @@ class TaxonSelector extends React.Component {
 
         const expandLabel = "" + (this.props.taxa.length - TAXA_VISIBLE_AMOUNT) + " more"
 
-        return (
-            <div className="taxon-selector">
+        const taxonSelectorContent =
+            <div className="taxon-selector-content">
                 <InputRow
                     id="taxa-all-toggle"
                     label={
                         <span className="bigger-label">
-                            <h5>Taxa</h5>
+                            All
                         </span>
                     }
                     input={
                         <Toggle
                             icons={{
-                                unchecked: <ToggleIcon r icon={"all"}/>,
-                                checked: <ToggleIcon fa icon={<FontAwesome name="filter"/>}/>
+                                checked: <ToggleIcon fa icon={<FontAwesome name="check"/>}/>,
+                                unchecked: <ToggleIcon fa icon={<FontAwesome name="filter"/>}/>
                             }}
                             defaultChecked={false}/>
                     }/>
                 {visTaxa}
                 <Expandable body={hiddenTaxa} className="taxa-expandable-panel" label={expandLabel}/>
             </div>
+
+        return (
+            <Expandable expanded body={taxonSelectorContent} className="taxon-selector" label={<h5>Taxa</h5>}/>
         )
     }
 }

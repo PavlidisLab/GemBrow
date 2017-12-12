@@ -47,7 +47,8 @@ function registerValidSW(swUrl) {
   navigator.serviceWorker
     .register(swUrl)
     .then(registration => {
-      registration.onupdatefound = () => {
+      // noinspection JSUndefinedPropertyAssignment
+        registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         installingWorker.onstatechange = () => {
           if (installingWorker.state === 'installed') {

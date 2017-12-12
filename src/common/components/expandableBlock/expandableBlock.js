@@ -9,7 +9,7 @@ class ExpandableBlock extends React.Component {
         expanded: this.props.expanded ? this.props.expanded : false
     };
 
-    expand = (bool) => (e) => {
+    expand = (bool) => () => {
         //FIXME convert to redux
         this.setState({expanded: bool});
     }

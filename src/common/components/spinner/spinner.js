@@ -14,12 +14,12 @@ class Spinner extends React.Component {
     }
 
     //TODO convert to redux
-    increment = () => (e) => {
+    increment = () => () => {
         let val = this.state.counter + this.props.step > this.props.max ? this.props.max : this.state.counter + this.props.step;
         this.setState({counter: val})
     }
 
-    decrement = () => (e) => {
+    decrement = () => () => {
         let val = this.state.counter - this.props.step < this.props.min ? this.props.min : this.state.counter - this.props.step;
         this.setState({counter: val})
     }

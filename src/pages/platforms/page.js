@@ -8,6 +8,7 @@ import {loadPlatforms} from "./actions";
 import {connect} from "react-redux";
 import LoadingCog from "../../common/components/LoadingCog";
 import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
+import {Col, Row} from "reactstrap";
 
 const TITLE = "Platforms overview"
 const PAGE_SIZE = 20;
@@ -51,6 +52,7 @@ class PlatformsPage extends React.Component {
 
         const selectors =
             <div className="platform-selectors">
+                <Row className="selectors-label"><Col><h4>Platform filters</h4></Col></Row>
                 <TaxonSelector/>
             </div>;
 
@@ -60,7 +62,8 @@ class PlatformsPage extends React.Component {
                 <hr/>
                 {platformsError && !(platformsLoading || platformsHasData) &&
                 <div>
-                    <ErrorSquare code={this.props.apiErrorPlatforms.code} message={this.props.apiErrorPlatforms.message}/>
+                    <ErrorSquare code={this.props.apiErrorPlatforms.code}
+                                 message={this.props.apiErrorPlatforms.message}/>
                 </div>
                 }
                 {(platformsLoading || platformsHasData) &&
