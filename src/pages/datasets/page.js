@@ -11,7 +11,6 @@ import LoadingCog from '../../common/components/LoadingCog';
 import SubHeader from '../../common/components/subHeader/subHeader';
 import Grid from '../../common/components/grid/grid';
 import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
-import {Col, Row} from "reactstrap";
 
 
 const TITLE = "Datasets overview"
@@ -44,7 +43,6 @@ class DatasetsPage extends React.Component {
 
         const selectors =
             <div className="dataset-selectors">
-                <Row className="selectors-label"><Col><h4>Datasets filters</h4></Col></Row>
                 <TaxonSelector/>
             </div>;
 
