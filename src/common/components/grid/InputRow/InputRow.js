@@ -5,10 +5,16 @@ import "./inputRow.css"
 const InputRow = (props) => (
     <div className={"input-row "+(props.className?props.className:"")}>
         <Row>
-            <Col>
+            <Col xs={props.count ? 8 : 10}>
                 <Label for={props.id}>{props.label}</Label>
             </Col>
-            <Col className={"text-right"} id={props.id}>
+            {props.count ?
+                <Col xs={2} className={"input-row-count text-right"} >
+                    {props.count}
+                </Col>
+                :''
+            }
+            <Col xs={2} className={"input-row-input text-right"} id={props.id}>
                 {props.input}
             </Col>
         </Row>

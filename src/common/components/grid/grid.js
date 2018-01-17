@@ -58,8 +58,7 @@ const Grid = (props) => {
     return (
         <Container fluid className={"grid " + props.className}>
             <Row>
-                <Col sm={4} lg={2} className="grid-params">
-
+                <div className="grid-params sidebar">
                     <div>
                         <Expandable body={gridSettings} className="grid-settings" label="Table settings"/>
                     </div>
@@ -67,8 +66,8 @@ const Grid = (props) => {
                     <div className="grid-data-params">
                         {props.selectors}
                     </div>
-                </Col>
-                <Col sm={8} lg={10} className="grid-body">
+                </div>
+                <Col className="grid-body">
                     {props.cols.labels &&
                     <div className="grid-row row-label">
                         <div className="grid-row-content">
@@ -93,6 +92,7 @@ const Grid = (props) => {
 
                     {emptyRows.map((row, i) => <div key={i}
                                                     className={"grid-row " + (props.loading ? "row-loading" : "row-loaded")}>{row}</div>)}
+
                 </Col>
             </Row>
         </Container>

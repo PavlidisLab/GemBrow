@@ -23,7 +23,7 @@ class ExpandableBlock extends React.Component {
                     {this.props.label}
                 </div>
 
-                <Collapse isOpened={this.state.expanded}>
+                <Collapse className={"expandable-data"} isOpened={this.state.expanded}>
                     {this.props.body}
                 </Collapse>
             </div>

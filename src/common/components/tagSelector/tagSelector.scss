@@ -1,0 +1,34 @@
+@import "../../const.scss";
+
+.taxon-selector {
+  padding-bottom: $dim2;
+  border-bottom: 1px solid $dark0;
+}
+
+.taxon-selector .label {
+  margin-left: $dim2;
+  margin-top: $dim2;
+}
+
+.taxon-selector .bigger-label {
+  position: relative;
+  left: -$dim2;
+  font-weight: bold;
+}
+
+.taxon-selector .sub-label {
+  color: $light2;
+}
+
+.taxon-selector .label h5 {
+  display: inline;
+  font-weight: bold;
+}
+
+.taxon-selector .input-row label {
+  text-transform: capitalize;
+}
+
+.taxon-selector-content {
+  padding: $dim2 $dim2 $dim1 $dim2;
+}

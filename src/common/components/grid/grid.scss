@@ -9,6 +9,23 @@
   padding: 0;
 }
 
+@media (min-width: 992px) {
+
+  .grid-params {
+    max-width: 450px;
+  }
+
+}
+
+@media (max-width: 991px) {
+
+  .grid-params {
+    width: 100%;
+    min-width: 450px;
+  }
+
+}
+
 .grid-row {
   width: 100%;
   padding: $dim1 $dim3;
@@ -33,6 +50,7 @@
   background: $light2;
   margin: 0;
   padding: $dim2 $dim3;
+  font-weight: bold;
 }
 
 .grid-row.row-loading {
@@ -75,24 +93,29 @@
 
 .grid-settings .label {
   padding: $dim2 $dim2;
+  font-weight: bold;
 }
 
-.grid-settings-content{
+.grid-settings-content {
   background: $dark1;
   padding: $dim3 $dim2 $dim1 $dim2;
 }
 
-.grid-settings-content .row{
+.grid-settings-content .row {
   margin: 0;
 }
 
-.grid-settings-content .columns-all-row{
+.grid-settings-content .columns-all-row {
   margin-top: $dim3;
   margin-bottom: $dim1;
 }
 
-.input-pg-size{
+.input-pg-size {
   display: inline;
+}
+
+.sidebar{
+  max-height: inherit;
 }
 
 .grid-data-params {

@@ -8,6 +8,7 @@ import {loadPlatforms} from "./actions";
 import {connect} from "react-redux";
 import LoadingCog from "../../common/components/LoadingCog";
 import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
+import TroubledSelector from "../../common/components/troubledSelector/troubleSelector";
 
 const TITLE = "Platforms overview"
 const PAGE_SIZE = 20;
@@ -51,7 +52,9 @@ class PlatformsPage extends React.Component {
 
         const selectors =
             <div className="platform-selectors">
+                <h4>Filters</h4>
                 <TaxonSelector/>
+                <TroubledSelector/>
             </div>;
 
         return (

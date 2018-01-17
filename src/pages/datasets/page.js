@@ -11,6 +11,8 @@ import LoadingCog from '../../common/components/LoadingCog';
 import SubHeader from '../../common/components/subHeader/subHeader';
 import Grid from '../../common/components/grid/grid';
 import TaxonSelector from "../../common/components/taxonSelector/taxonSelector";
+import TroubledSelector from "../../common/components/troubledSelector/troubleSelector";
+import TagSelector from "../../common/components/tagSelector/tagSelector";
 
 
 const TITLE = "Datasets overview"
@@ -43,7 +45,10 @@ class DatasetsPage extends React.Component {
 
         const selectors =
             <div className="dataset-selectors">
+                <h4>Filters</h4>
                 <TaxonSelector/>
+                <TroubledSelector/>
+                <TagSelector/>
             </div>;
 
         return (
