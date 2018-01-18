@@ -4,6 +4,14 @@
   width: 100%;
 }
 
+.input-row .row{
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
 .input-row label{
   white-space: nowrap;
   overflow: visible;
@@ -15,12 +23,27 @@
   white-space: nowrap;
 }
 
+.input-row-label.no-count{
+  flex: 7;
+}
+
+.input-row-label.count{
+  flex: 4;
+}
+
 .input-row-count {
-  text-align: left;
+  flex: 1;
   color: $light2;
-  left: 0-$dim3;
 }
 
 .input-row-input {
   padding: 0;
+}
+
+.input-row-input.no-count {
+  flex: 1;
+}
+
+.input-row-input.count {
+  flex: 1;
 }
