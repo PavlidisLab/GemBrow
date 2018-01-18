@@ -58,7 +58,9 @@ const Grid = (props) => {
     return (
         <Container fluid className={"grid " + props.className}>
             <Row>
-                <div className="grid-params sidebar">
+                <Col xl={3} lg={4} xs={12} className="grid-params">
+                    <div className="params-hide-button"><FontAwesome name="chevron-left"/></div>
+
                     <div>
                         <Expandable body={gridSettings} className="grid-settings" label="Table settings"/>
                     </div>
@@ -66,8 +68,8 @@ const Grid = (props) => {
                     <div className="grid-data-params">
                         {props.selectors}
                     </div>
-                </div>
-                <Col className="grid-body">
+                </Col>
+                <Col xl={9} lg={8} xs={12} className="grid-body">
                     {props.cols.labels &&
                     <div className="grid-row row-label">
                         <div className="grid-row-content">

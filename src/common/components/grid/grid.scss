@@ -1,5 +1,9 @@
 @import "../../const.scss";
 
+.grid{
+  position: relative;
+}
+
 .grid-params {
   background: $dark1;
   padding: 0;
@@ -9,37 +13,25 @@
   padding: 0;
 }
 
-@media (min-width: 992px) {
-
-  .grid-params {
-    max-width: 450px;
-  }
-
-}
-
-@media (max-width: 991px) {
-
-  .grid-params {
-    width: 100%;
-    min-width: 450px;
-  }
-
-}
-
 .grid-row {
-  width: 100%;
+  max-width: 100%;
   padding: $dim1 $dim3;
 }
 
 .grid-row-content {
-  display: inline-flex;
+  display: flex;
+  align-items: left;
+  overflow: hidden;
   flex-wrap: nowrap;
   justify-content: space-between;
-  width: 100%;
 }
 
 .grid-row-content span {
   flex: 0 0 10%;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .grid-row:not(:first-child) {
@@ -114,11 +106,27 @@
   display: inline;
 }
 
-.sidebar{
-  max-height: inherit;
-}
-
 .grid-data-params {
   border-top: 1px solid $dark0;
+}
+
+.params-hide-button{
+  position: absolute;
+  z-index: 1000;
+
+  top: $dim3;
+  right: $dim3;
+
+  background: $grayRed;
+
+  width: $dim4;
+  height: $dim4;
+  border-radius: $dim4;
+
+  text-align: center;
+  padding-right: $dim0;
+  padding-top: $dim4/3.5;
+
+  box-shadow: 0 0 $dim2 0 $light0;
 }
 

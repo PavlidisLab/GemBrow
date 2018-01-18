@@ -9,18 +9,13 @@ import Expandable from "../expandableBlock/expandableBlock";
 import "./taxonSelector.css"
 
 const TAXA_VISIBLE_AMOUNT = 5;
-const TAXA_NAME_VISIBLE_CHARS = 25;
 
 /**
  * @return {string}
  */
 function taxonLabel(taxon) {
     let fullName = taxon.commonName ? taxon.commonName : taxon.scientificName;
-    let name = fullName;
-    if (fullName.length > TAXA_NAME_VISIBLE_CHARS + 1) {
-        name = fullName.substring(0, TAXA_NAME_VISIBLE_CHARS) + "...";
-    }
-    return <span title={fullName}>{name}</span>
+    return <span title={fullName}>{fullName}</span>
 }
 
 class TaxonSelector extends React.Component {

@@ -9,11 +9,18 @@
   overflow: visible;
 }
 
-.input-row-count{
-  color: $light2;
-  padding: 0;
+.input-row div:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.input-row-input{
+.input-row-count {
+  text-align: left;
+  color: $light2;
+  left: 0-$dim3;
+}
+
+.input-row-input {
   padding: 0;
 }
