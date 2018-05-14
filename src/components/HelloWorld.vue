@@ -18,7 +18,13 @@
       <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
       <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
     </ul>
-    <h3>Ecosystem</h3>
+    <h3>Ecosystem
+      <face-icon/>
+      <border-top-icon/></h3>
+    <v-alert :value="true" type="success">Vuetify running!</v-alert>
+    <v-alert :value="true" type="success">
+      This is a success alert.
+    </v-alert>
     <ul>
       <li><a href="https://router.vuejs.org/en/essentials/getting-started.html" target="_blank">vue-router</a></li>
       <li><a href="https://vuex.vuejs.org/en/intro.html" target="_blank">vuex</a></li>

@@ -1,12 +1,34 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div id="app">
+        <v-app>
+            <div id="nav">
+                <router-link to="/">Home</router-link>
+                |
+                <router-link to="/about">About</router-link>
+            </div>
+            <router-view/>
+        </v-app>
     </div>
-    <router-view/>
-  </div>
 </template>
+
+<script>
+import Vue from "vue";
+import Vuetify from "vuetify";
+import "babel-polyfill";
+import "vuetify/dist/vuetify.css";
+import "material-design-icons-iconfont/dist/material-design-icons.css";
+
+Vue.use(Vuetify);
+
+// MD Icons
+import FaceIcon from "vue-material-design-icons/face";
+import BorderTopIcon from "vue-material-design-icons/border-top";
+
+Vue.component("face-icon", FaceIcon);
+Vue.component("border-top-icon", BorderTopIcon);
+
+export default {};
+</script>
 
 <style lang="scss">
 #app {
@@ -16,6 +38,7 @@
   text-align: center;
   color: #2c3e50;
 }
+
 #nav {
   padding: 30px;
   a {
