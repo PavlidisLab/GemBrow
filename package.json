@@ -1,36 +1,8 @@
 {
-  "name": "gembro",
+  "name": "app",
+  "description": "Vue Build Application",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
-    "bootstrap": "^4.0.0-beta.2",
-    "font-awesome": "^4.7.0",
-    "prop-types": "latest",
-    "react": "^16.1.1",
-    "react-collapse": "^4.0.3",
-    "react-data-grid": "^2.0.78",
-    "react-dom": "^16.1.1",
-    "react-fontawesome": "^1.6.1",
-    "react-motion": "^0.5.2",
-    "react-notification-system": "0.2.x",
-    "react-notification-system-redux": "^1.2.0",
-    "react-redux": "^5.0.6",
-    "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.17",
-    "react-toggle": "^4.0.2",
-    "reactstrap": "^5.0.0-alpha.4",
-    "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0",
-    "webfontloader": "^1.6.28",
-    "whatwg-fetch": "^2.0.3"
-  },
-  "scripts": {
-    "start": "react-scripts-with-sass start",
-    "build": "react-scripts-with-sass build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "devDependencies": {
-    "create-react-app-sass": "^1.1.0"
+    "vue-build": "^3.0.0"
   }
 }
