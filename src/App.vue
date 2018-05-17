@@ -1,16 +1,62 @@
 <template>
-        <v-app dark>
-            <div id="nav">
-                <router-link to="/">Home</router-link>
-                |
-                <router-link to="/datasets">Datasets</router-link>
-                |
-                <router-link to="/platforms">Platforms</router-link>
-                |
-                <a v-on:click="toggleTheme()">Switch theme</a>
-            </div>
+    <v-app> <!--class is applied with the update() hook-->
+        <v-navigation-drawer
+                app
+                v-model="drawer"
+                right
+                clipped
+                :hide-overlay="true"
+                :disable-resize-watcher="true"
+                temporary
+                :value="false"
+        >
+            <v-list>
+                <v-list-tile v-for="item in routes" :key="item.title" :to="item.route">
+                    <v-list-tile-action>
+                        <v-icon>{{ item.icon }}</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+                <v-divider/>
+                <v-list-tile v-for="item in actions" :key="item.title" v-on:click="item.action">
+                    <v-list-tile-action>
+                        <v-icon>{{ item.icon }}</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+        </v-navigation-drawer>
+        <v-toolbar app>
+            <v-toolbar-side-icon to="/">
+                <img id="logo" src="./assets/logo_icon.png" class="themeable light">
+            </v-toolbar-side-icon>
+            <v-toolbar-title>
+                <router-link to="/">Gebrow</router-link>
+            </v-toolbar-title>
+            <v-spacer/>
+            <v-toolbar-items class="hidden-xs-only">
+                <v-btn flat v-for="item in routes" :key="item.title" :to="item.route">{{item.title}}</v-btn>
+                <v-btn flat v-for="item in actions" :key="item.title" v-on:click="item.action" :title="item.title">
+                    <v-icon>{{item.icon}}</v-icon>
+                </v-btn>
+            </v-toolbar-items>
+            <v-toolbar-items class="hidden-sm-and-up">
+                <v-btn flat @click.stop="drawer = !drawer">
+                    <v-icon>menu</v-icon>
+                </v-btn>
+            </v-toolbar-items>
+        </v-toolbar>
+        <v-content>
             <router-view/>
-        </v-app>
+        </v-content>
+        <v-footer app >
+            <v-flex xs12 text-xs-center>&copy; 2018 UBC</v-flex>
+        </v-footer>
+    </v-app>
 </template>
 
 <script>
@@ -23,17 +69,45 @@ import "material-icons";
 Vue.use(Vuetify);
 
 export default {
-  data: function() {
+  data() {
     return {
-      theme: "dark"
+      drawer: null,
+      routes: [
+        { title: "Datasets", route: "/datasets" },
+        { title: "Platforms", route: "/platforms" }
+      ]
     };
   },
-  methods: {
-    toggleTheme: function() {
-      this.theme = this.theme === "dark" ? "light" : "dark";
-      document.getElementById("app").className =
-        "application theme--" + this.theme;
+  computed: {
+    appClass() {
+      return (
+        "application theme--" + (this.$store.state.themeDark ? "dark" : "light")
+      );
+    },
+    actions() {
+      return [
+        {
+          title: this.lightsTitle,
+          icon: this.lightsIcon,
+          action: this.toggleTheme
+        }
+      ];
+    },
+    lightsTitle() {
+      return "Lights " + (this.$store.state.themeDark ? "on" : "off");
+    },
+    lightsIcon() {
+      return this.$store.state.themeDark ? "brightness_high" : "brightness_4";
     }
+  },
+  methods: {
+    toggleTheme() {
+      this.$store.commit("toggleTheme");
+    }
+  },
+  updated() {
+    // Manual class setting to prevent the theme class being applied
+    document.getElementById("app").className = this.appClass;
   }
 };
 </script>
@@ -45,6 +119,7 @@ html,
 body {
   height: 100%;
   margin: 0;
+  overflow-y: auto;
 }
 
 @media (max-width: 767px) {
@@ -70,10 +145,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-#nav {
-  padding: 30px;
-}
-
 a {
   text-decoration: none;
   font-weight: bold;
@@ -81,8 +152,8 @@ a {
 
 // Theme dependent
 
-.application.theme--dark img.themeable.dark,
-.application.theme--light img.themeable.light {
+.application.theme--dark .themeable.dark,
+.application.theme--light .themeable.light {
   filter: invert(80%);
 }
 
@@ -94,23 +165,15 @@ a {
   color: $dark1;
 }
 
-// Imported css customisation
-
-/// Vuetify theme
-
-.application.theme--dark {
-  background: $dark0;
-  color: $light1;
-}
-
-.application.theme--light {
-  background: $light1;
-  color: $dark1;
-}
+// Animations
 
 /// md icons
-.md-spin {
+.spin {
   animation: spin infinite 2s linear;
+}
+
+.spin.inv {
+  animation-direction: reverse;
 }
 
 @keyframes spin {
@@ -120,5 +183,21 @@ a {
   to {
     transform: rotate(360deg);
   }
+}
+
+// Imported css customisation
+
+/// Vuetify theme
+
+.application.theme--dark {
+  background: $dark1;
+  color: $light1;
+}
+
+.application.theme--light {
+}
+
+.application.theme--dark .toolbar {
+  background-color: $dark1;
 }
 </style>
