@@ -79,10 +79,11 @@ export default {
     };
   },
   computed: {
+    dark() {
+      return this.$store.state.main.themeDark;
+    },
     appClass() {
-      return (
-        "application theme--" + (this.$store.state.themeDark ? "dark" : "light")
-      );
+      return "application theme--" + (this.dark ? "dark" : "light");
     },
     actions() {
       return [
@@ -94,10 +95,10 @@ export default {
       ];
     },
     lightsTitle() {
-      return "Lights " + (this.$store.state.themeDark ? "on" : "off");
+      return "Lights " + (this.dark ? "on" : "off");
     },
     lightsIcon() {
-      return this.$store.state.themeDark ? "brightness_high" : "brightness_4";
+      return this.dark ? "brightness_high" : "brightness_4";
     }
   },
   methods: {
