@@ -53,7 +53,7 @@
         <v-content>
             <router-view/>
         </v-content>
-        <v-footer app >
+        <v-footer app absolute>
             <v-flex xs12 text-xs-center>&copy; 2018 UBC</v-flex>
         </v-footer>
     </v-app>

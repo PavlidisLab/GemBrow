@@ -4,12 +4,10 @@
             <h1>This is the datasets page</h1>
         </div>
         <v-progress-linear :indeterminate="pending"/>
-        <v-form ref="form">
-            <v-text-field v-model="id" required :rules="[v => !!v || 'Must be filled in!']" :loading="pending"/>
-            <v-btn v-on:click="submitDatasetUdpate()">load dataset</v-btn>
-            <v-btn v-on:click="getDatasets()">refresh datasets</v-btn>
+        <v-form ref="form" lazy-validation>
+            <v-text-field v-model="limit" required :rules="[v => !!v || 'Must be filled in!']" :loading="pending"/>
+            <v-btn type="submit" v-on:click="refreshDatasets()">refresh datasets</v-btn>
         </v-form>
-        <div v-if="err" class="error">{{err}}</div>
         <div v-if="dataset !== null" class="info">{{dataset.data[0].shortName}}</div>
         <div v-if="error" class="error">{{error}}</div>
         <div v-if="datasets != null" v-for="dataset in datasets" v-bind:key="dataset.id">{{dataset.shortName}}
@@ -18,32 +16,37 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapState } from "vuex";
 
 export default {
-  created() {
-    //this.getDatasets();
+  mounted() {
+    this.refreshDatasets();
   },
   data() {
-    return {
-      id: null,
-      err: null
-    };
+    return {};
   },
-  computed: mapState({
-    dataset: state => state.api.dataset,
-    datasets: state => state.api.datasets,
-    pending: state => state.api.pending.datasets,
-    error: state => state.api.error.datasets
-  }),
+  computed: {
+    ...mapState({
+      dataset: state => state.api.dataset,
+      datasets: state => state.api.datasets,
+      pending: state => state.api.pending.datasets,
+      error: state => state.api.error.datasets
+    }),
+    limit: {
+      get: function() {
+        return this.$store.state.dss.limit;
+      },
+      set: function(value) {
+        this.$store.dispatch(`dss/setLimit`, value);
+        // ...mapActions({ setLimit: "dss/setLimit" }) :: not using mapActions because this exposes the method to the
+        // template directly, which may lead to bugs when when they are used instead of the local wrapper function.
+      }
+    }
+  },
   methods: {
-    ...mapActions(["getDatasets", "getDataset"]),
-    submitDatasetUdpate() {
+    refreshDatasets() {
       if (this.$refs.form.validate()) {
-        this.getDataset({ params: { id: this.id } });
-        this.err = null;
-      } else {
-        this.err = "Provide ID!";
+        this.$store.dispatch("getDatasets", { params: { limit: this.limit } });
       }
     }
   }

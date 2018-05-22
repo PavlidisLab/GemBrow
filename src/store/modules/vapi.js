@@ -19,7 +19,8 @@ const vapi = new Vapi({
       datasets: [],
       platforms: []
     }
-  }
+  },
+  computed: {}
 })
   .get({
     action: "getDataset",
@@ -29,7 +30,7 @@ const vapi = new Vapi({
   .get({
     action: "getDatasets",
     property: "datasets",
-    path: "/datasets?limit=500",
+    path: ({ limit }) => `/datasets?limit=${limit}`,
     onSuccess: (state, payload) => {
       if (!payload.data || !payload.data.data) {
         state.error.datasets = MSG_ERR_NO_DATA;

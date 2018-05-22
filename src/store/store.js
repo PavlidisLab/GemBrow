@@ -14,7 +14,7 @@ export default new Vuex.Store({
   modules: {
     main: main,
     api: api,
-    das: datasetsSearchSettings, // das for Datasets Settings
+    dss: datasetsSearchSettings, // das for DataSets Settings
   },
   strict: debug
 });
