@@ -8,7 +8,6 @@
             <v-text-field v-model="limit" required :rules="[v => !!v || 'Must be filled in!']" :loading="pending"/>
             <v-btn type="submit" v-on:click="refreshDatasets()">refresh datasets</v-btn>
         </v-form>
-        <div v-if="dataset !== null" class="info">{{dataset.data[0].shortName}}</div>
         <div v-if="error" class="error">{{error}}</div>
         <div v-if="datasets != null" v-for="dataset in datasets" v-bind:key="dataset.id">{{dataset.shortName}}
         </div>
@@ -27,7 +26,6 @@ export default {
   },
   computed: {
     ...mapState({
-      dataset: state => state.api.dataset,
       datasets: state => state.api.datasets,
       pending: state => state.api.pending.datasets,
       error: state => state.api.error.datasets
