@@ -16,19 +16,10 @@ const vapi = new Vapi({
   }
 });
 
-export default vapi
-  .attachEndpoint(C_DSS)
-  .attachEndpoint(C_PFS)
-  .getStore({
-    createStateFn: true // Using modules
-  });
-
-// Helper functions
-
 /**
  * Helper function for easy attachment of new endpoints using extra properties (cached and error_log).
  * @param propName the name of the property to attach the endpoint for.
- * @returns {*|Vapi} 'this' vapi instance.
+ * @returns {*|Vapi} the same vapi instance this method was called on.
  */
 vapi.attachEndpoint = function(propName) {
   // Add Vapi state properties required for proper functionality
@@ -42,32 +33,61 @@ vapi.attachEndpoint = function(propName) {
     property: propName,
     path: ({ limit }) => "/" + propName + `?limit=${limit}`,
 
-    // Custom success functionality utilizing the cache and error log
+    /**
+     * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
+     * 400 and 500 http status errors, as
+     */
     onSuccess(state, payload) {
-      if (!payload.data || !payload.data.data) {
+      // handle errors
+      if (payload.data && payload.data.error) {
+        state.error_log[propName].push(payload.data.error);
+        state.cached[propName] = !!state[propName];
+        state.error[propName] = payload.data.error.message;
+        return;
+      }
+
+      // Handle success
+      if (payload.data && payload.data.data) {
+        state[propName] = payload.data.data;
+        state.cached[propName] = false;
+        state.error[propName] = null;
+      } else {
         state.error[propName] = MSG_ERR_NO_DATA;
         state.error_log[propName].push({
           error: MSG_ERR_NO_DATA,
           data: payload
         });
         state.cached[propName] = !!state[propName];
-      } else {
-        state[propName] = payload.data.data;
-        state.cached[propName] = false;
-        state.error[propName] = null;
       }
       state.pending[propName] = false;
     },
 
-    // Custom error functionality utilizing the cache and error log
+    /**
+     * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
+     * handled in the onSuccess method, so this method only handles errors on higher layers.
+     */
     onError(state, error) {
-      state.error_log[propName].push({ error: error, data: null });
+      state.error_log[propName].push({ error });
       state.cached[propName] = !!state[propName];
-      if (error && error.error) {
-        state.error[propName] = error.error;
-      } else {
-        state.error[propName] = "Can not connect to Gemma right now";
+      state.error[propName] = "Can not connect to Gemma right now";
+    },
+
+    /**
+     * Set custom validate status, that allows all 400 and 500 http states to be passed into the onSuccess method.
+     * This is necessary because Vapi passes a useless JS Error to the onError method, instead of the response
+     * payload.
+     */
+    requestConfig: {
+      validateStatus(status) {
+        return status >= 200 && status < 600; // default
       }
     }
   });
 };
+
+export default vapi
+  .attachEndpoint(C_DSS)
+  .attachEndpoint(C_PFS)
+  .getStore({
+    createStateFn: true // Using modules
+  });

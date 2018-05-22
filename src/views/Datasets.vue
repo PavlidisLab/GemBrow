@@ -1,16 +1,18 @@
 <template>
     <v-container fluid>
-        <div class="browser">
-            <h1>This is the datasets page</h1>
-        </div>
-        <v-progress-linear :indeterminate="pending"/>
+        <h1 class="text-xs-left">Dataset Browser</h1>
         <v-form ref="form" lazy-validation>
-            <v-text-field v-model="limit" required :rules="[v => !!v || 'Must be filled in!']" :loading="pending"/>
+            <v-text-field v-model="limit" required :rules="[v => !!v || 'Must be filled in!']"/>
             <v-btn type="submit" v-on:click="refreshDatasets()">refresh datasets</v-btn>
         </v-form>
         <div v-if="error" class="error">{{error}}</div>
-        <div v-if="datasets != null" v-for="dataset in datasets" v-bind:key="dataset.id">{{dataset.shortName}}
-        </div>
+        <v-data-table :headers="headers" :items="datasets" :loading="pending">
+            <template slot="items" slot-scope="props">
+                <td class="text-xs-left">{{ props.item.shortName }}</td>
+                <td class="text-xs-left">{{ props.item.name }}</td>
+                <td class="text-xs-left">{{ props.item.needsAttention }}</td>
+            </template>
+        </v-data-table>
     </v-container>
 </template>
 
@@ -22,7 +24,13 @@ export default {
     this.refreshDatasets();
   },
   data() {
-    return {};
+    return {
+      headers: [
+        { text: "Accession", value: "shortName" },
+        { text: "Name", value: "name" },
+        { text: "State", value: "needsAttention" }
+      ]
+    };
   },
   computed: {
     ...mapState({
@@ -35,15 +43,17 @@ export default {
         return this.$store.state.dss.limit;
       },
       set: function(value) {
+        // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(`dss/setLimit`, value);
         // ...mapActions({ setLimit: "dss/setLimit" }) :: not using mapActions because this exposes the method to the
-        // template directly, which may lead to bugs when when they are used instead of the local wrapper function.
+        // template directly, which may lead to bugs when when they are used instead of the designated wrapper function.
       }
     }
   },
   methods: {
     refreshDatasets() {
       if (this.$refs.form.validate()) {
+        // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch("getDatasets", { params: { limit: this.limit } });
       }
     }

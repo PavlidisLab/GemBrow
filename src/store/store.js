@@ -10,7 +10,6 @@ Vue.use(Vuex);
 // noinspection JSUnresolvedVariable
 const debug = process.env.NODE_ENV !== "production";
 
-console.log(ds);
 export default new Vuex.Store({
     modules: {
         main: main,
