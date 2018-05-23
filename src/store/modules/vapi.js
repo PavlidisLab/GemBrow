@@ -31,7 +31,11 @@ vapi.attachEndpoint = function(propName) {
   return this.get({
     action: "get" + propName.charAt(0).toUpperCase() + propName.slice(1),
     property: propName,
-    path: ({ limit }) => "/" + propName + `?limit=${limit}`,
+    path: ({ limit }) =>
+      "/" +
+      propName +
+      `?limit=${limit}&` +
+      encodeURIComponent("sort=%2BcurationDetails.lastUpdated"),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the

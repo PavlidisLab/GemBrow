@@ -10,6 +10,8 @@ Vue.use(Vuex);
 // noinspection JSUnresolvedVariable
 const debug = process.env.NODE_ENV !== "production";
 
+api.namespaced = true;
+
 export default new Vuex.Store({
     modules: {
         main: main,

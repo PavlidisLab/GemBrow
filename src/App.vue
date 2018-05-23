@@ -65,7 +65,9 @@ import Vuetify from "vuetify";
 import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
+import VueMoment from "vue-moment";
 
+Vue.use(VueMoment);
 Vue.use(Vuetify);
 
 export default {
@@ -103,7 +105,7 @@ export default {
   },
   methods: {
     toggleTheme() {
-      this.$store.commit("toggleTheme");
+      this.$store.commit("main/toggleTheme");
     }
   },
   updated() {
