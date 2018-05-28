@@ -18,7 +18,7 @@
                     </v-card-text>
                 </v-card>
             </v-flex>
-            <v-flex d-flex xs12 :class="settingsVisible ? 'md9' : 'md12'" >
+            <v-flex d-flex xs12 :class="settingsVisible ? 'md9' : 'md12'">
                 <v-data-table
                         :headers="headers"
                         :items="items"
@@ -27,7 +27,9 @@
                         :total-items="2000"
                         :rows-per-page-items="[10,20,50,100]"
                         class="elevation-4">
-                <slot name="table"/>
+                    <template slot="items" slot-scope="props">
+                        <td class="text-xs-left" v-for="col in cols" v-bind:key="col.name">{{ col.renderer(props) }}</td>
+                    </template>
                 </v-data-table>
             </v-flex>
         </v-layout>
@@ -44,7 +46,8 @@ export default {
     title: String,
     headers: Array,
     lName: String,
-    sName: String
+    sName: String,
+    cols: Array
   },
   data() {
     return {

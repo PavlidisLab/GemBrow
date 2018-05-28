@@ -65,11 +65,9 @@ import Vuetify from "vuetify";
 import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
-import VueMoment from "vue-moment";
 import VueLodash from "vue-lodash";
 
 Vue.use(VueLodash);
-Vue.use(VueMoment);
 Vue.use(Vuetify);
 
 export default {
