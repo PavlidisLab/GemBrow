@@ -3,11 +3,32 @@ const ds_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
-  taxon: null,
+  troubled: null,
+  attention: null,
   score_q: null,
   score_s: null,
   updated_min: null,
   updated_max: null
+};
+
+// dataset getters, aka computed state properties
+// noinspection JSUnusedGlobalSymbols // inspection can not see usage through getters
+const ds_getters = {
+  filter(state) {
+    const filters = [
+      { value: "troubled", url: "curationDetails.troubled" },
+      { value: "attention", url: "curationDetails.needsAttention" }
+    ];
+    let and = false;
+    let str = "";
+    for (let filter of filters) {
+      if (state[filter.value] !== null) {
+        str += (and ? " AND " : "") + filter.url + " = " + state[filter.value];
+        and = true;
+      }
+    }
+    return str;
+  }
 };
 
 // platforms state
@@ -21,6 +42,7 @@ const pf_state = {
 const ds = {
   namespaced: true,
   state: ds_state,
+  getters: ds_getters,
   actions: createActions(ds_state),
   mutations: createMutations(ds_state)
 };

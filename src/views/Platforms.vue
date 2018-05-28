@@ -26,46 +26,44 @@ export default {
     return {
       title: "Platform Browser",
       headers: [
-        { text: "ID", value: "id" },
-        { text: "Accession", value: "shortName" },
-        { text: "Name", value: "name" },
-        { text: "Taxon", value: "taxon" },
-        { text: "Updated", value: "lastUpdated" }
-      ],
-      lName: "platforms",
-      sName: "pfs",
-      cols: [
         {
-          name: "id",
+          text: "ID",
+          value: "id",
           renderer(props) {
             return props.item.id;
           }
         },
         {
-          name: "shortName",
+          text: "Accession",
+          value: "shortName",
           renderer(props) {
             return props.item.shortName;
           }
         },
         {
-          name: "name",
+          text: "Name",
+          value: "name",
           renderer(props) {
             return props.item.name;
           }
         },
         {
-          name: "taxon",
+          text: "Taxon",
+          value: "taxon",
           renderer(props) {
             return props.item.taxon;
           }
         },
         {
-          name: "lastUpdated",
+          text: "Updated",
+          value: "lastUpdated",
           renderer(props) {
             return moment.unix(props.item.lastUpdated / 1000).format("L");
           }
         }
-      ]
+      ],
+      lName: "platforms",
+      sName: "pfs"
     };
   }
 };

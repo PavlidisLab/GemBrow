@@ -33,12 +33,13 @@ vapi.attachEndpoint = function(propName) {
   return this.get({
     action: "get" + propName,
     property: propName,
-    path: ({ limit, offset, sort }) =>
+    path: ({ limit, offset, sort, filter }) =>
       "/" +
       propName +
       `?limit=${limit}` +
       `&offset=${offset}` +
-      (sort ? `&sort=${sort}` : ""),
+      (sort ? `&sort=${sort}` : "") +
+      (filter ? `&filter=${filter}` : ""),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the

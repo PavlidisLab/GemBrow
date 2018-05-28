@@ -28,7 +28,7 @@
                         :rows-per-page-items="[10,20,50,100]"
                         class="elevation-4">
                     <template slot="items" slot-scope="props">
-                        <td class="text-xs-left" v-for="col in cols" v-bind:key="col.name">{{ col.renderer(props) }}</td>
+                        <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value" v-html="col.renderer(props)"></td>
                     </template>
                 </v-data-table>
             </v-flex>
@@ -46,8 +46,7 @@ export default {
     title: String,
     headers: Array,
     lName: String,
-    sName: String,
-    cols: Array
+    sName: String
   },
   data() {
     return {
@@ -106,9 +105,10 @@ export default {
     },
     refreshParams: {
       get: function() {
-        return this.$store.state[this.sName];
-      },
-      set: function() {}
+        const params = this.$store.state[this.sName];
+        params.filter = this.$store.getters[this.sName + "/filter"];
+        return params;
+      }
     }
   },
   methods: {
