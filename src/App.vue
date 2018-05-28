@@ -35,7 +35,7 @@
                 <img id="logo" src="./assets/logo_icon.png" class="themeable light">
             </v-toolbar-side-icon>
             <v-toolbar-title>
-                <router-link to="/">Gebrow</router-link>
+                <router-link to="/">Gembrow</router-link>
             </v-toolbar-title>
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
@@ -66,7 +66,9 @@ import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
 import VueMoment from "vue-moment";
+import VueLodash from "vue-lodash";
 
+Vue.use(VueLodash);
 Vue.use(VueMoment);
 Vue.use(Vuetify);
 
@@ -105,7 +107,8 @@ export default {
   },
   methods: {
     toggleTheme() {
-      this.$store.commit("main/toggleTheme");
+      // noinspection JSIgnoredPromiseFromCall
+      this.$store.dispatch("main/toggleTheme");
     }
   },
   updated() {

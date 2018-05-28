@@ -2,7 +2,7 @@
 const ds_state = {
   limit: 20,
   offset: 0,
-  sort: "+id",
+  sort: "%2Bid",
   taxon: null,
   score_q: null,
   score_s: null,
@@ -14,7 +14,7 @@ const ds_state = {
 const pf_state = {
   limit: 20,
   offset: 0,
-  sort: "+id",
+  sort: "%2Bid",
   taxon: null
 };
 

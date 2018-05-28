@@ -1,5 +1,5 @@
 import Vapi from "vuex-rest-api";
-
+import axios from "axios";
 const local = false;
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
@@ -12,8 +12,10 @@ const vapi = new Vapi({
   state: {
     // all endpoint properties set in attachEndpoint
     cached: {},
-    error_log: {}
-  }
+    error_log: {},
+    cancel: {}
+  },
+  axios: axios
 });
 
 /**
@@ -29,20 +31,23 @@ vapi.attachEndpoint = function(propName) {
 
   // Add the endpoint get call
   return this.get({
-    action: "get" + propName.charAt(0).toUpperCase() + propName.slice(1),
+    action: "get" + propName,
     property: propName,
-    path: ({ limit }) =>
+    path: ({ limit, offset, sort }) =>
       "/" +
       propName +
-      `?limit=${limit}&` +
-      encodeURIComponent("sort=%2BcurationDetails.lastUpdated"),
+      `?limit=${limit}` +
+      `&offset=${offset}` +
+      (sort ? `&sort=${sort}` : ""),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
      * 400 and 500 http status errors, as
      */
     onSuccess(state, payload) {
-      // handle errors
+      // TODO Throw away old requests that took too long to execute and another request for the same data was successful
+
+      // Handle errors
       if (payload.data && payload.data.error) {
         state.error_log[propName].push(payload.data.error);
         state.cached[propName] = !!state[propName];
@@ -71,9 +76,14 @@ vapi.attachEndpoint = function(propName) {
      * handled in the onSuccess method, so this method only handles errors on higher layers.
      */
     onError(state, error) {
-      state.error_log[propName].push({ error });
-      state.cached[propName] = !!state[propName];
-      state.error[propName] = "Can not connect to Gemma right now";
+      if (axios.isCancel(error)) {
+        state.error[propName] = "";
+      } else {
+        state.error_log[propName].push({ error });
+        state.cached[propName] = !!state[propName];
+        state.error[propName] = "Can not connect to Gemma right now";
+      }
+      state.pending[propName] = false;
     },
 
     /**

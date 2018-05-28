@@ -1,5 +1,5 @@
 const state = {
-  themeDark: true,
+  themeDark: false,
   searchSettVisible: true
 };
 
@@ -13,7 +13,15 @@ const mutations = {
   }
 };
 
-const actions = {};
+// noinspection JSUnusedGlobalSymbols // inspection can not see calls through namespaced dispatches
+const actions = {
+  toggleTheme({ commit }) {
+    commit("toggleTheme");
+  },
+  toggleSearchSettings({ commit }) {
+    commit("toggleSearchSettings");
+  }
+};
 
 export default {
   namespaced: true,
