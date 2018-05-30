@@ -118,6 +118,8 @@ export default {
 
 <style lang="scss">
 @import "assets/const.scss";
+$mdi-font-path: "../node_modules/@mdi/font/fonts";
+@import "../node_modules/@mdi/font/scss/materialdesignicons.scss";
 
 html,
 body {

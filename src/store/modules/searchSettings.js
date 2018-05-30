@@ -3,12 +3,18 @@ const ds_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
-  troubled: null,
-  attention: null,
-  score_q: null,
-  score_s: null,
+  troubled_on: false,
+  troubled: false,
+  attention_on: false,
+  attention: false,
+  score_q_min_on: false,
+  score_q_min: 0,
+  score_s_min_on: false,
+  score_s_min: 0,
   updated_min: null,
-  updated_max: null
+  updated_max: null,
+  publication_on: true,
+  publication: 1
 };
 
 // dataset getters, aka computed state properties
@@ -16,14 +22,22 @@ const ds_state = {
 const ds_getters = {
   filter(state) {
     const filters = [
-      { value: "troubled", url: "curationDetails.troubled" },
-      { value: "attention", url: "curationDetails.needsAttention" }
+      { value: "troubled", url: "curationDetails.troubled", op: " = " },
+      { value: "attention", url: "curationDetails.needsAttention", op: " = " },
+      { value: "score_q_min", url: "geeq.detectedQualityScore", op: " >= " },
+      {
+        value: "score_s_min",
+        url: "geeq.detectedSuitabilityScore",
+        op: " >= "
+      },
+      { value: "publication", url: "geeq.sScorePublication", op: " = " }
     ];
     let and = false;
     let str = "";
     for (let filter of filters) {
-      if (state[filter.value] !== null) {
-        str += (and ? " AND " : "") + filter.url + " = " + state[filter.value];
+      if (state[filter.value + "_on"]) {
+        str +=
+          (and ? " AND " : "") + filter.url + filter.op + state[filter.value];
         and = true;
       }
     }

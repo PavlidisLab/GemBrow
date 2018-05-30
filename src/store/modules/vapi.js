@@ -14,8 +14,7 @@ const vapi = new Vapi({
     cached: {},
     error_log: {},
     cancel: {}
-  },
-  axios: axios
+  }
 });
 
 /**
@@ -82,7 +81,8 @@ vapi.attachEndpoint = function(propName) {
       } else {
         state.error_log[propName].push({ error });
         state.cached[propName] = !!state[propName];
-        state.error[propName] = "Can not connect to Gemma right now";
+        state.error[propName] =
+          "Can not connect to the Gemma database right now";
       }
       state.pending[propName] = false;
     },

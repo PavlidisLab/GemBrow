@@ -1,7 +1,6 @@
 <template>
     <DataPage
             :title="title"
-            :headers="headers"
             :s-name="sName"
             :l-name="lName"
             :cols="cols"
@@ -25,10 +24,11 @@ export default {
   data() {
     return {
       title: "Platform Browser",
-      headers: [
+      cols: [
         {
           text: "ID",
           value: "id",
+          show: true,
           renderer(props) {
             return props.item.id;
           }
@@ -36,6 +36,7 @@ export default {
         {
           text: "Accession",
           value: "shortName",
+          show: true,
           renderer(props) {
             return props.item.shortName;
           }
@@ -43,6 +44,7 @@ export default {
         {
           text: "Name",
           value: "name",
+          show: true,
           renderer(props) {
             return props.item.name;
           }
@@ -50,6 +52,7 @@ export default {
         {
           text: "Taxon",
           value: "taxon",
+          show: true,
           renderer(props) {
             return props.item.taxon;
           }
@@ -57,6 +60,7 @@ export default {
         {
           text: "Updated",
           value: "lastUpdated",
+          show: true,
           renderer(props) {
             return moment.unix(props.item.lastUpdated / 1000).format("L");
           }

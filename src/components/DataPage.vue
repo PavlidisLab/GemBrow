@@ -1,37 +1,91 @@
 <template>
     <v-container fluid class="text-xs-left">
         <h1>{{title}}</h1>
-
-        <div v-if="error" class="error">{{error}}</div>
-        <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()" title="Settings" color="light-blue">
-            <v-icon>settings</v-icon>
-        </v-btn>
-        <v-layout row wrap>
-            <v-flex d-flex xs12 :class="settingsVisible ? 'md3' : 'md0'" v-show="settingsVisible">
-                <v-card tile flat color="light-blue" v-show="settingsVisible">
-                    <v-card-title primary class="title">Filters</v-card-title>
-                    <v-card-text class="text-xs-justify">
-                        <v-form ref="settings" lazy-validation>
-                            <slot name="settingsForm"/>
-                            <v-btn type="submit" v-on:click="refreshData()">refresh data</v-btn>
-                        </v-form>
-                    </v-card-text>
-                </v-card>
+        <v-layout row wrap class="elevation-4">
+            <v-flex xs12>
+                <v-layout row justify-space-between>
+                    <v-flex xs2>
+                        <v-card tile flat>
+                            <v-card-text>
+                                <v-btn icon flat large class="text-xs-center" v-on:click="toggleColsSettings()"
+                                       title="Table settings" color="light-blue">
+                                    <v-icon>view_week</v-icon>
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                    <v-flex xs10 d-flex align-center>
+                        <v-card tile flat>
+                            <v-alert :value="error" type="error" outline>{{error}}</v-alert>
+                        </v-card>
+                        <v-card tile flat outline v-if="error && items.length > 0">
+                            <v-alert :value="error && items.length > 0" type="warning" outline>Showing cached data</v-alert>
+                        </v-card>
+                    </v-flex>
+                    <v-flex xs2 text-xs-right>
+                        <v-card tile flat>
+                            <v-card-text>
+                                <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()"
+                                       title="Data filters"
+                                       color="light-blue">
+                                    <v-icon>settings</v-icon>
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
             </v-flex>
-            <v-flex d-flex xs12 :class="settingsVisible ? 'md9' : 'md12'">
-                <v-data-table
-                        :headers="headers"
-                        :items="items"
-                        :loading="pending"
-                        :pagination.sync="pagination"
-                        :total-items="2000"
-                        :rows-per-page-items="[10,20,50,100]"
-                        class="elevation-4">
-                    <template slot="items" slot-scope="props">
-                        <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value" v-html="col.renderer(props)"></td>
-                    </template>
-                </v-data-table>
-            </v-flex>
+            <v-layout row wrap>
+                <v-flex d-flex xs12 wrap :class="settingsVisible ? 'md9' : 'md12'" order-xs2 order-md1>
+                    <v-layout row wrap>
+                        <v-flex xs12>
+                            <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
+                                <v-card-title primary class="title">Columns</v-card-title>
+                                <v-card-text>
+                                    <v-layout row wrap class="table-ctrls">
+                                        <v-switch tile flat v-for="col in cols" v-bind:key="col.value"
+                                                  :label="col.text" v-model="col.show"/>
+                                    </v-layout>
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-data-table
+                                    :headers="headers"
+                                    :items="items"
+                                    :loading="pending"
+                                    :pagination.sync="pagination"
+                                    :total-items="2000"
+                                    :rows-per-page-items="[10,20,50,100]"
+                                    disable-initial-sort>
+                                <template slot="headerCell" slot-scope="props">
+                                    <v-tooltip bottom>
+                                        <span slot="activator">{{ props.header.text }}</span>
+                                        <span>{{ props.header.tip }}</span>
+                                    </v-tooltip>
+                                </template>
+                                <template slot="items" slot-scope="props">
+                                    <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
+                                        v-show="col.show"
+                                        v-html="col.renderer(props)"></td>
+                                </template>
+                            </v-data-table>
+                        </v-flex>
+                    </v-layout>
+                </v-flex>
+                <v-flex d-flex xs12 :class="settingsVisible ? 'md3' : 'md0'" v-show="settingsVisible" order-xs1
+                        order-md2>
+                    <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
+                        <v-card-title primary class="title">Filters</v-card-title>
+                        <v-card-text class="text-xs-justify">
+                            <v-form ref="settings" lazy-validation>
+                                <slot name="settingsForm"/>
+                                <v-btn type="submit" v-on:click="refreshData()">Apply filters</v-btn>
+                            </v-form>
+                        </v-card-text>
+                    </v-card>
+                </v-flex>
+            </v-layout>
         </v-layout>
     </v-container>
 </template>
@@ -44,7 +98,7 @@ import Vue from "vue";
 export default {
   props: {
     title: String,
-    headers: Array,
+    cols: Array,
     lName: String,
     sName: String
   },
@@ -64,6 +118,7 @@ export default {
   computed: {
     ...mapState({
       settingsVisible: state => state.main.searchSettVisible,
+      colSettingsVisible: state => state.main.tableSettVisible,
       items(state) {
         return state.api[this.lName];
       },
@@ -74,11 +129,20 @@ export default {
         return state.api.error[this.lName];
       }
     }),
+    headers: {
+      get() {
+        const arr = [];
+        for (let col of this.cols) {
+          if (col.show) arr.push(col);
+        }
+        return arr;
+      }
+    },
     limit: {
-      get: function() {
+      get() {
         return this.$store.state[this.sName].limit;
       },
-      set: function(value) {
+      set(value) {
         // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(this.sName + "/setLimit", value);
         // ...mapActions({ setLimit: "dss/setLimit" }) :: not using mapActions because this exposes the method to the
@@ -86,25 +150,25 @@ export default {
       }
     },
     offset: {
-      get: function() {
+      get() {
         return this.$store.state[this.sName].offset;
       },
-      set: function(value) {
+      set(value) {
         // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(this.sName + "/setOffset", value);
       }
     },
     sort: {
-      get: function() {
+      get() {
         return this.$store.state[this.sName].sort;
       },
-      set: function(value) {
+      set(value) {
         // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(this.sName + "/setSort", value);
       }
     },
     refreshParams: {
-      get: function() {
+      get() {
         const params = this.$store.state[this.sName];
         params.filter = this.$store.getters[this.sName + "/filter"];
         return params;
@@ -118,7 +182,15 @@ export default {
       this.offset = (page - 1) * rowsPerPage;
       this.limit = rowsPerPage;
       const order = descending ? "-" : "%2B"; // false value is url encoded '+' character.
-      this.sort = sortBy ? order + sortBy : null;
+
+      // Transform sort parameters to non-VO counterparts. Note that more checks might be necessary here, especially
+      // manual overrides for geeq scores are used.
+      let sort = sortBy;
+      if (sort === "geeq.publicQualityScore")
+        sort = "geeq.detectedQualityScore";
+      else if (sort === "geeq.publicSuitabilityScore")
+        sort = "geeq.detectedSuitabilityScore";
+      this.sort = sort ? order + sort : null;
       this.refreshData();
     },
     refreshData: Vue._.debounce(function() {
@@ -135,7 +207,33 @@ export default {
     toggleSettings() {
       // noinspection JSIgnoredPromiseFromCall
       this.$store.dispatch("main/toggleSearchSettings");
+    },
+    toggleColsSettings() {
+      // noinspection JSIgnoredPromiseFromCall
+      this.$store.dispatch("main/toggleTableSettings");
     }
   }
 };
 </script>
+
+<style lang="scss">
+@import "../assets/const.scss";
+
+.table__overflow {
+  overflow-x: hidden;
+}
+
+.table-ctrls > * {
+  min-width: $dim4 * 4;
+}
+
+td i {
+  width: $dim5;
+}
+.score {
+  color: $dark1 !important;
+  border-radius: $dim3;
+  max-width: $dim3 + 4;
+  max-height: $dim3 + 4;
+}
+</style>
