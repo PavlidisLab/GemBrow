@@ -3,7 +3,7 @@ const ds_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
-  troubled_on: false,
+  troubled_on: true,
   troubled: false,
   attention_on: false,
   attention: false,
@@ -72,9 +72,7 @@ export { ds, pf };
 
 // Helper functions
 
-function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+import viewUtils from "../../components/ViewUtils";
 
 /**
  * Create standard setter mutations for all properties of the given state.
@@ -85,7 +83,7 @@ function createMutations(state) {
   let mutations = {};
   for (let property in state) {
     if (state.hasOwnProperty(property)) {
-      const fName = "set" + capitalize(property);
+      const fName = "set" + viewUtils.methods.capitalize(property);
       mutations[fName] = function(state, value) {
         state[property] = value;
       };
@@ -103,7 +101,7 @@ function createActions(state) {
   let actions = {};
   for (let property in state) {
     if (state.hasOwnProperty(property)) {
-      const fName = "set" + capitalize(property);
+      const fName = "set" + viewUtils.methods.capitalize(property);
       actions[fName] = function({ commit }, value) {
         commit(fName, value);
       };

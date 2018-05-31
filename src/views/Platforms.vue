@@ -30,7 +30,7 @@ export default {
           value: "id",
           show: true,
           renderer(props) {
-            return props.item.id;
+            return props.item.id.toString();
           }
         },
         {

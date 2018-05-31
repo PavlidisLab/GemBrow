@@ -66,8 +66,16 @@
                                 </template>
                                 <template slot="items" slot-scope="props">
                                     <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                        v-show="col.show"
-                                        v-html="col.renderer(props)"></td>
+                                        v-show="col.show">
+                                        <TableCell
+                                            :tip="col.rowTip ? col.rowTip(props) : ''"
+                                            :icon="col.icon ? col.icon(props) : ''"
+                                            :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                            :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                            :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                            :text="col.renderer ? col.renderer(props) : ''"
+                                        />
+                                    </td>
                                 </template>
                             </v-data-table>
                         </v-flex>
@@ -94,8 +102,10 @@
 <script>
 import { mapState } from "vuex";
 import Vue from "vue";
+import TableCell from "./TableCell";
 
 export default {
+  components: { TableCell },
   props: {
     title: String,
     cols: Array,
