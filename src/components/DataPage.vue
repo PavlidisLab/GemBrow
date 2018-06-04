@@ -36,7 +36,7 @@
                 </v-layout>
             </v-flex>
             <v-layout row wrap>
-                <v-flex d-flex xs12 wrap :class="settingsVisible ? 'md9' : 'md12'" order-xs2 order-md1>
+                <v-flex xs12 wrap :class="settingsVisible ? 'md9' : 'md12'" order-xs2 order-md1>
                     <v-layout row wrap>
                         <v-flex xs12>
                             <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
@@ -44,7 +44,7 @@
                                 <v-card-text>
                                     <v-layout row wrap class="table-ctrls">
                                         <v-switch tile flat v-for="col in cols" v-bind:key="col.value"
-                                                  :label="col.text" v-model="col.show"/>
+                                                  :label="col.text" v-model="visibleCols" :value="col.text"/>
                                     </v-layout>
                                 </v-card-text>
                             </v-card>
@@ -66,7 +66,7 @@
                                 </template>
                                 <template slot="items" slot-scope="props">
                                     <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                        v-show="col.show">
+                                        v-show="visibleCols.includes(col.text)">
                                         <TableCell
                                             :tip="col.rowTip ? col.rowTip(props) : ''"
                                             :icon="col.icon ? col.icon(props) : ''"
@@ -110,19 +110,48 @@ export default {
     title: String,
     cols: Array,
     lName: String,
-    sName: String
+    sName: String,
+    cName: String
   },
   data() {
     return {
-      pagination: {}
+      pagination: {},
+      visibleCols: []
     };
   },
-  mounted() {
+  created() {
+    // Initial data load
     this.refreshData();
+
+    // Show columns that are set to visible in the store
+    for (let col in this.$store.state[this.cName]) {
+      // noinspection JSUnfilteredForInLoop
+      if (this.$store.state[this.cName][col]) {
+        // noinspection JSUnfilteredForInLoop
+        this.visibleCols.push(col);
+      }
+    }
   },
   watch: {
     pagination() {
       this.updatePage();
+    },
+    visibleCols() {
+      for (let col in this.$store.state[this.cName]) {
+        // noinspection JSUnfilteredForInLoop
+        const storeVal = this.$store.state[this.cName][col];
+        // noinspection JSUnfilteredForInLoop
+        if (this.visibleCols.includes(col) && !storeVal) {
+          // noinspection JSIgnoredPromiseFromCall
+          this.$store.dispatch(this.cName + "/set" + col, true);
+        } else {
+          // noinspection JSUnfilteredForInLoop
+          if (!this.visibleCols.includes(col) && storeVal) {
+            // noinspection JSIgnoredPromiseFromCall
+            this.$store.dispatch(this.cName + "/set" + col, false);
+          }
+        }
+      }
     }
   },
   computed: {
@@ -143,7 +172,7 @@ export default {
       get() {
         const arr = [];
         for (let col of this.cols) {
-          if (col.show) arr.push(col);
+          if (this.visibleCols.includes(col.text)) arr.push(col);
         }
         return arr;
       }
@@ -181,6 +210,7 @@ export default {
       get() {
         const params = this.$store.state[this.sName];
         params.filter = this.$store.getters[this.sName + "/filter"];
+        params.taxon_id = this.$store.getters[this.sName + "/taxon_id"];
         return params;
       }
     }

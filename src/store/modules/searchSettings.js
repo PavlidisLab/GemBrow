@@ -1,3 +1,5 @@
+import StoreUtils from "../../components/StoreUtils";
+
 // datasets state
 const ds_state = {
   limit: 20,
@@ -14,12 +16,19 @@ const ds_state = {
   updated_min: null,
   updated_max: null,
   publication_on: true,
-  publication: 1
+  publication: 1,
+  platform_amount_on: false,
+  platform_amount: 1,
+  taxon_on: false,
+  taxon: null
 };
 
 // dataset getters, aka computed state properties
 // noinspection JSUnusedGlobalSymbols // inspection can not see usage through getters
 const ds_getters = {
+  taxon_id(state) {
+    return state.taxon_on ? state.taxon : null;
+  },
   filter(state) {
     const filters = [
       { value: "troubled", url: "curationDetails.troubled", op: " = " },
@@ -30,7 +39,8 @@ const ds_getters = {
         url: "geeq.detectedSuitabilityScore",
         op: " >= "
       },
-      { value: "publication", url: "geeq.sScorePublication", op: " = " }
+      { value: "publication", url: "geeq.sScorePublication", op: " = " },
+      { value: "platform_amount", url: "geeq.sScorePlatformAmount", op: " = " }
     ];
     let and = false;
     let str = "";
@@ -57,55 +67,15 @@ const ds = {
   namespaced: true,
   state: ds_state,
   getters: ds_getters,
-  actions: createActions(ds_state),
-  mutations: createMutations(ds_state)
+  actions: StoreUtils.methods.createActions(ds_state),
+  mutations: StoreUtils.methods.createMutations(ds_state)
 };
 
 const pf = {
   namespaced: true,
   state: pf_state,
-  actions: createActions(pf_state),
-  mutations: createMutations(pf_state)
+  actions: StoreUtils.methods.createActions(pf_state),
+  mutations: StoreUtils.methods.createMutations(pf_state)
 };
 
 export { ds, pf };
-
-// Helper functions
-
-import viewUtils from "../../components/ViewUtils";
-
-/**
- * Create standard setter mutations for all properties of the given state.
- * @param state the state to create the mutations for.
- * @returns {{}} a new object containing all mutation functions.
- */
-function createMutations(state) {
-  let mutations = {};
-  for (let property in state) {
-    if (state.hasOwnProperty(property)) {
-      const fName = "set" + viewUtils.methods.capitalize(property);
-      mutations[fName] = function(state, value) {
-        state[property] = value;
-      };
-    }
-  }
-  return mutations;
-}
-
-/**
- * Crate standard setter actions for all properties of the given state.
- * @param state the state to create the actions for.
- * @returns {{}} a new object containing all action functions.
- */
-function createActions(state) {
-  let actions = {};
-  for (let property in state) {
-    if (state.hasOwnProperty(property)) {
-      const fName = "set" + viewUtils.methods.capitalize(property);
-      actions[fName] = function({ commit }, value) {
-        commit(fName, value);
-      };
-    }
-  }
-  return actions;
-}

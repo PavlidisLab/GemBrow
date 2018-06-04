@@ -4,6 +4,7 @@ const local = false;
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_PFS = "platforms";
+const C_TXA = "taxa";
 
 const vapi = new Vapi({
   baseURL: local
@@ -32,8 +33,9 @@ vapi.attachEndpoint = function(propName) {
   return this.get({
     action: "get" + propName,
     property: propName,
-    path: ({ limit, offset, sort, filter }) =>
+    path: ({ limit, offset, sort, filter, taxon_id }) =>
       "/" +
+      (taxon_id != null ? "taxa/" + taxon_id + "/" : "") +
       propName +
       `?limit=${limit}` +
       `&offset=${offset}` +
@@ -103,6 +105,7 @@ vapi.attachEndpoint = function(propName) {
 export default vapi
   .attachEndpoint(C_DSS)
   .attachEndpoint(C_PFS)
+  .attachEndpoint(C_TXA)
   .getStore({
     createStateFn: true // Using modules
   });
