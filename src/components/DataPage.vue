@@ -42,9 +42,11 @@
                             <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
                                 <v-card-title primary class="title">Columns</v-card-title>
                                 <v-card-text>
-                                    <v-layout row wrap class="table-ctrls">
-                                        <v-switch tile flat v-for="col in cols" v-bind:key="col.value"
-                                                  :label="col.text" v-model="visibleCols" :value="col.text"/>
+                                    <v-layout row wrap class="text-xs-left" justify-start >
+                                        <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3>
+                                            <v-switch tile flat
+                                                      :label="col.text" v-model="visibleCols" :value="col.text"/>
+                                        </v-flex>
                                     </v-layout>
                                 </v-card-text>
                             </v-card>
