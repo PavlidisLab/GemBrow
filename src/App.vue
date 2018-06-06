@@ -1,5 +1,8 @@
 <template>
     <v-app> <!--class is applied with the update() hook-->
+        <v-dialog v-model="userDialog">
+            <UserForm v-model="userDialog"/>
+        </v-dialog>
         <v-navigation-drawer
                 app
                 v-model="drawer"
@@ -19,6 +22,19 @@
                         <v-list-tile-title>{{ item.title }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
+                <v-divider/>
+
+                <v-list-tile @click.native.stop="userDialog = true" v-on:click="userDialog= true">
+                    <v-list-tile-action>
+                        <v-icon v-if="userPending" class="spin">sync</v-icon>
+                        <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
+                        <v-icon v-else>mdi-account-outline</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{this.user === null ? "User login" : this.user.username}}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+
                 <v-divider/>
                 <v-list-tile v-for="item in actions" :key="item.title" v-on:click="item.action">
                     <v-list-tile-action>
@@ -40,6 +56,14 @@
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
                 <v-btn flat v-for="item in routes" :key="item.title" :to="item.route">{{item.title}}</v-btn>
+                <v-menu open-on-hover bottom offset-y :close-on-content-click="false" v-model="userMenu">
+                    <v-btn slot="activator" flat>
+                        <v-icon v-if="userPending" class="spin">sync</v-icon>
+                        <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
+                        <v-icon v-else>mdi-account-outline</v-icon>
+                    </v-btn>
+                    <UserForm v-model="userMenu"/>
+                </v-menu>
                 <v-btn flat v-for="item in actions" :key="item.title" v-on:click="item.action" :title="item.title">
                     <v-icon>{{item.icon}}</v-icon>
                 </v-btn>
@@ -65,7 +89,9 @@ import Vuetify from "vuetify";
 import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
+import { mapState } from "vuex";
 import VueLodash from "vue-lodash";
+import UserForm from "./components/UserForm";
 
 Vue.use(VueLodash);
 Vue.use(Vuetify);
@@ -74,13 +100,22 @@ export default {
   data() {
     return {
       drawer: null,
+      userDialog: false,
+      userMenu: false,
+      userPending: false,
       routes: [
         { title: "Datasets", route: "/datasets" },
         { title: "Platforms", route: "/platforms" }
       ]
     };
   },
+  components: {
+    UserForm: UserForm
+  },
   computed: {
+    ...mapState({
+      user: state => state.main.user
+    }),
     dark() {
       return this.$store.state.main.themeDark;
     },
@@ -118,6 +153,7 @@ export default {
 
 <style lang="scss">
 @import "assets/const.scss";
+
 $mdi-font-path: "../node_modules/@mdi/font/fonts";
 @import "../node_modules/@mdi/font/scss/materialdesignicons.scss";
 
@@ -154,6 +190,10 @@ body {
 a {
   text-decoration: none;
   font-weight: bold;
+}
+
+.btn.lcase {
+  text-transform: none !important;
 }
 
 // Theme dependent

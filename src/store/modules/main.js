@@ -1,7 +1,8 @@
 const state = {
   themeDark: false,
   searchSettVisible: false,
-  tableSettVisible: false
+  tableSettVisible: false,
+  user: null
 };
 
 // noinspection JSUnusedGlobalSymbols // inspection can not see calls through namespaced commits
@@ -14,6 +15,12 @@ const mutations = {
   },
   toggleTableSettings(state) {
     state.tableSettVisible = !state.tableSettVisible;
+  },
+  login(state, user) {
+    state.user = user;
+  },
+  logout(state) {
+    state.user = null;
   }
 };
 
@@ -27,6 +34,12 @@ const actions = {
   },
   toggleTableSettings({ commit }) {
     commit("toggleTableSettings");
+  },
+  login({ commit }, user) {
+    commit("login", user);
+  },
+  logout({ commit }) {
+    commit("logout");
   }
 };
 
