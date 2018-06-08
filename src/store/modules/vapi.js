@@ -5,11 +5,17 @@ const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_PFS = "platforms";
 const C_TXA = "taxa";
+const C_USR = "users";
+
+const axiosInst = axios.create({
+  headers: null
+});
 
 const vapi = new Vapi({
   baseURL: local
     ? "localhost:8080/Gemma/rest/v2/"
     : "https://gemma.msl.ubc.ca/rest/v2",
+  axios: axiosInst,
   state: {
     // all endpoint properties set in attachEndpoint
     cached: {},
@@ -30,15 +36,18 @@ vapi.attachEndpoint = function(propName) {
   this.resource.state.error_log[propName] = [];
 
   // Add the endpoint get call
+  // noinspection SpellCheckingInspection
   return this.get({
     action: "get" + propName,
     property: propName,
-    path: ({ limit, offset, sort, filter, taxon_id }) =>
+    path: ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
       "/" +
       (taxon_id != null ? "taxa/" + taxon_id + "/" : "") +
       propName +
-      `?limit=${limit}` +
-      `&offset=${offset}` +
+      (id ? `/${id}` : "") +
+      (pwd ? `?psha=${pwd}` : "") +
+      (limit ? `?limit=${limit}` : "") +
+      (offset ? `&offset=${offset}` : "") +
       (sort ? `&sort=${sort}` : "") +
       (filter ? `&filter=${filter}` : ""),
 
@@ -102,10 +111,13 @@ vapi.attachEndpoint = function(propName) {
   });
 };
 
+export { axiosInst };
+
 export default vapi
   .attachEndpoint(C_DSS)
   .attachEndpoint(C_PFS)
   .attachEndpoint(C_TXA)
+  .attachEndpoint(C_USR)
   .getStore({
     createStateFn: true // Using modules
   });

@@ -26,7 +26,7 @@
 
                 <v-list-tile @click.native.stop="userDialog = true" v-on:click="userDialog= true">
                     <v-list-tile-action>
-                        <v-icon v-if="userPending" class="spin">sync</v-icon>
+                        <v-icon v-if="userPending" class="spin inv">sync</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-list-tile-action>
@@ -58,7 +58,7 @@
                 <v-btn flat v-for="item in routes" :key="item.title" :to="item.route">{{item.title}}</v-btn>
                 <v-menu open-on-hover bottom offset-y :close-on-content-click="false" v-model="userMenu">
                     <v-btn slot="activator" flat>
-                        <v-icon v-if="userPending" class="spin">sync</v-icon>
+                        <v-icon v-if="userPending" class="spin inv">sync</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-btn>

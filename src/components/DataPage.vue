@@ -3,37 +3,51 @@
         <h1>{{title}}</h1>
         <v-layout row wrap class="elevation-4">
             <v-flex xs12>
-                <v-layout row justify-space-between>
-                    <v-flex xs2>
-                        <v-card tile flat>
-                            <v-card-text>
-                                <v-btn icon flat large class="text-xs-center" v-on:click="toggleColsSettings()"
-                                       title="Table settings" color="light-blue">
-                                    <v-icon>view_week</v-icon>
-                                </v-btn>
-                            </v-card-text>
-                        </v-card>
-                    </v-flex>
-                    <v-flex xs10 d-flex align-center>
-                        <v-card tile flat>
-                            <v-alert :value="error" type="error" outline>{{error}}</v-alert>
-                        </v-card>
-                        <v-card tile flat outline v-if="error && items.length > 0">
-                            <v-alert :value="error && items.length > 0" type="warning" outline>Showing cached data</v-alert>
-                        </v-card>
-                    </v-flex>
-                    <v-flex xs2 text-xs-right>
-                        <v-card tile flat>
-                            <v-card-text>
-                                <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()"
-                                       title="Data filters"
-                                       color="light-blue">
-                                    <v-icon>settings</v-icon>
-                                </v-btn>
-                            </v-card-text>
-                        </v-card>
-                    </v-flex>
-                </v-layout>
+                <v-card flat>
+                    <v-layout row justify-space-between>
+                        <v-flex xs2>
+                            <v-card tile flat>
+                                <v-card-text>
+                                    <v-btn icon flat large class="text-xs-center" v-on:click="toggleColsSettings()"
+                                           title="Table settings" color="light-blue">
+                                        <v-icon>view_week</v-icon>
+                                    </v-btn>
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs10 d-flex align-center v-if="error" >
+                            <v-card tile flat>
+                                <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
+                                    {{error}}
+                                </v-alert>
+                                <v-alert xs10 v-else-if="error && items.length > 0" :value="error && items.length > 0" type="error" outline>
+                                    <v-layout row align-center d-flex>
+                                    <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
+                                    <v-flex text-xs-right>
+                                        <v-tooltip bottom>
+                                            <template slot="activator">
+                                                <v-btn xs2 small v-on:click="refreshData()" color="error" class="lcase"><v-icon>sync</v-icon></v-btn>
+                                            </template>
+                                            Try to refresh the data
+                                        </v-tooltip>
+                                    </v-flex>
+                                    </v-layout>
+                                </v-alert>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs2 text-xs-right>
+                            <v-card tile flat>
+                                <v-card-text>
+                                    <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()"
+                                           title="Data filters"
+                                           color="light-blue">
+                                        <v-icon>settings</v-icon>
+                                    </v-btn>
+                                </v-card-text>
+                            </v-card>
+                        </v-flex>
+                    </v-layout>
+                </v-card>
             </v-flex>
             <v-layout row wrap>
                 <v-flex xs12 wrap :class="settingsVisible ? 'md9' : 'md12'" order-xs2 order-md1>
@@ -42,7 +56,7 @@
                             <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
                                 <v-card-title primary class="title">Columns</v-card-title>
                                 <v-card-text>
-                                    <v-layout row wrap class="text-xs-left" justify-start >
+                                    <v-layout row wrap class="text-xs-left" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3>
                                             <v-switch tile flat
                                                       :label="col.text" v-model="visibleCols" :value="col.text"/>
@@ -70,12 +84,12 @@
                                     <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
                                         v-show="visibleCols.includes(col.text)">
                                         <TableCell
-                                            :tip="col.rowTip ? col.rowTip(props) : ''"
-                                            :icon="col.icon ? col.icon(props) : ''"
-                                            :iconColor="col.iconColor ? col.iconColor(props) : ''"
-                                            :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
-                                            :iconClass="col.iconClass ? col.iconClass(props) : ''"
-                                            :text="col.renderer ? col.renderer(props) : ''"
+                                                :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                :icon="col.icon ? col.icon(props) : ''"
+                                                :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                :text="col.renderer ? col.renderer(props) : ''"
                                         />
                                     </td>
                                 </template>
@@ -90,7 +104,12 @@
                         <v-card-text class="text-xs-justify">
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
-                                <v-btn type="submit" v-on:click="refreshData()">Apply filters</v-btn>
+                                <v-btn class="secondary" type="submit" v-on:click="refreshData()" :loading="pending">
+                                    <span slot="loader" class="custom-loader">
+                                        <v-icon class="spin inv">sync</v-icon>
+                                    </span>
+                                    Apply filters
+                                </v-btn>
                             </v-form>
                         </v-card-text>
                     </v-card>
@@ -272,6 +291,7 @@ export default {
 td i {
   width: $dim5;
 }
+
 .score {
   color: $dark1 !important;
   border-radius: $dim3;
