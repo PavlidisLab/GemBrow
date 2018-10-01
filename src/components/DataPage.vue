@@ -251,6 +251,16 @@ export default {
         sort = "geeq.detectedQualityScore";
       else if (sort === "geeq.publicSuitabilityScore")
         sort = "geeq.detectedSuitabilityScore";
+      else if (
+        sort === "troubled" ||
+        sort === "needsAttention" ||
+        sort === "lastUpdated"
+      )
+        sort = "curationDetails." + sort;
+      else if (sort === "arrayDesignCount") {
+        sort = "ad.size";
+      }
+
       this.sort = sort ? order + sort : null;
       this.refreshData();
     },
