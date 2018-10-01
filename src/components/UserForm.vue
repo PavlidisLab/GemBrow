@@ -11,7 +11,7 @@
             <v-text-field
                     v-model="pwd"
                     :append-icon="hidePwd ? 'visibility' : 'visibility_off'"
-                    :append-icon-cb="() => (hidePwd = !hidePwd)"
+                    @click:append="() => (hidePwd = !hidePwd)"
                     :type="hidePwd ? 'password' : 'text'"
                     name="usr-pwd"
                     label="Password"
