@@ -241,7 +241,7 @@ export default {
     },
     refreshParams: {
       get() {
-        const params = this.$store.state[this.sName];
+        const params = Vue.util.extend({}, this.$store.state[this.sName]);
         params.filter = this.$store.getters[this.sName + "/filter"];
         params.taxon_id = this.$store.getters[this.sName + "/taxon_id"];
         return params;
