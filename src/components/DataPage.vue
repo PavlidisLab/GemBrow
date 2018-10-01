@@ -83,13 +83,25 @@
                                 <template slot="items" slot-scope="props">
                                     <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
                                         v-show="visibleCols.includes(col.text)">
-                                        <TableCell
+                                        <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
+                                            <TableCell
+                                                    :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                    :icon="col.icon ? col.icon(props) : ''"
+                                                    :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                    :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                    :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                    :text="col.renderer ? col.renderer(props) : ''"
+                                                    :link="col.link ? col.link(props) : ''"
+                                            />
+                                        </a>
+                                        <TableCell v-else
                                                 :tip="col.rowTip ? col.rowTip(props) : ''"
                                                 :icon="col.icon ? col.icon(props) : ''"
                                                 :iconColor="col.iconColor ? col.iconColor(props) : ''"
                                                 :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
                                                 :iconClass="col.iconClass ? col.iconClass(props) : ''"
                                                 :text="col.renderer ? col.renderer(props) : ''"
+                                                :link="col.link ? col.link(props) : ''"
                                         />
                                     </td>
                                 </template>

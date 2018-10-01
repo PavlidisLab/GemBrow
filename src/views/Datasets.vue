@@ -211,6 +211,20 @@ export default {
           iconClass() {
             return "score";
           }
+        },
+        {
+          text: "Gemma",
+          value: "glink",
+          tip: "Show dataset details page in Gemma",
+          link(props) {
+            return (
+              "https://gemma.msl.ubc.ca/expressionExperiment/showExpressionExperiment.html?id=" +
+              props.item.id.toString()
+            );
+          },
+          icon() {
+            return "mdi-open-in-new";
+          }
         }
       ]
     };
