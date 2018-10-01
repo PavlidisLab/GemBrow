@@ -52,6 +52,10 @@ export default {
       hidePwd: true
     };
   },
+  mounted() {
+    // Update axios headers with state stored info
+    this.updateAuth();
+  },
   computed: {
     ...mapState({
       user: state => state.main.user,
@@ -65,7 +69,10 @@ export default {
       }
     },
     login() {
+      // Update axios authentication headers
       this.updateAuth();
+
+      // Call the rest api endpoint to retrieve user information
       this.$store
         .dispatch("api/getusers", {
           params: {
@@ -74,21 +81,27 @@ export default {
         })
         .then(() => {
           if (!this.$store.state.api.error.users) {
+            // If we got a successful reply from backend, execute frontend login
             this.$store.dispatch("main/login", this.$store.state.api.users);
           }
-          this.pwd = "";
-          this.uname = "";
-        })
-        .catch(() => {
-          this.pwd = "";
-          this.uname = "";
+          // Apply details from received object
           this.updateAuth();
         });
+      // Wipe the password input
+      this.pwd = "";
+      this.updateAuth();
     },
     logout() {
+      // Execute backend logout
+      this.$store.dispatch("api/logout");
+      // Execute frontend logout
       this.$store.dispatch("main/logout");
+
+      // Wipe the login form
       this.uname = "";
       this.pwd = "";
+
+      // Update axios authentication headers
       this.updateAuth();
     },
     updateAuth() {
@@ -97,15 +110,18 @@ export default {
         headers: null,
         auth: null
       };
-      if (this.uname && this.pwd) {
+      if (this.user) {
+        // If the user object is set, we keep whatever the login form provided before. (received is a pwd hash)
+      } else if (this.uname && this.pwd) {
+        // if the user is not set, but the login form info is provided (necessary to execute the backend login request)
         conf = {
           auth: {
             username: this.uname,
             password: this.pwd
           }
         };
+        Object.assign(axiosInst.defaults, conf);
       }
-      Object.assign(axiosInst.defaults, conf);
     }
   }
 };

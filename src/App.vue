@@ -31,7 +31,8 @@
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
-                        <v-list-tile-title>{{this.user === null ? "User login" : this.user.username}}</v-list-tile-title>
+                        <v-list-tile-title>{{this.user === null ? "User login" : this.user.userName}}
+                        </v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
 

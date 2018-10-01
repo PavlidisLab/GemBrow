@@ -5,6 +5,7 @@ import store from "./store/store";
 
 Vue.config.productionTip = false;
 
+// noinspection JSUnusedGlobalSymbols
 new Vue({
   el: "#app",
   router,

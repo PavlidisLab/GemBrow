@@ -1,6 +1,6 @@
 import Vapi from "vuex-rest-api";
 import axios from "axios";
-const local = false;
+const local = true;
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_PFS = "platforms";
@@ -12,9 +12,7 @@ const axiosInst = axios.create({
 });
 
 const vapi = new Vapi({
-  baseURL: local
-    ? "localhost:8080/Gemma/rest/v2/"
-    : "https://gemma.msl.ubc.ca/rest/v2",
+  baseURL: local ? "http://local.net:8080/Gemma" : "https://gemma.msl.ubc.ca",
   axios: axiosInst,
   state: {
     // all endpoint properties set in attachEndpoint
@@ -24,6 +22,26 @@ const vapi = new Vapi({
   }
 });
 
+// noinspection JSUndefinedPropertyAssignment // yeah we are defining it here
+vapi.attachLogoutEndpoint = function() {
+  return this.get({
+    action: "logout",
+    path: "j_spring_security_logout",
+
+    onSuccess(state) {
+      state["users"] = null;
+    },
+
+    onError() {},
+    requestConfig: {
+      validateStatus(status) {
+        return status >= 200 && status < 600; // default
+      }
+    }
+  });
+};
+
+// noinspection JSUndefinedPropertyAssignment // yeah we are defining it here
 /**
  * Helper function for easy attachment of new endpoints using extra properties (cached and error_log).
  * @param propName the name of the property to attach the endpoint for.
@@ -41,7 +59,7 @@ vapi.attachEndpoint = function(propName) {
     action: "get" + propName,
     property: propName,
     path: ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
-      "/" +
+      "/rest/v2/" +
       (taxon_id != null ? "taxa/" + taxon_id + "/" : "") +
       propName +
       (id ? `/${id}` : "") +
@@ -118,6 +136,7 @@ export default vapi
   .attachEndpoint(C_PFS)
   .attachEndpoint(C_TXA)
   .attachEndpoint(C_USR)
+  .attachLogoutEndpoint()
   .getStore({
     createStateFn: true // Using modules
   });
