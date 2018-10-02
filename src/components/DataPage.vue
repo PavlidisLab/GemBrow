@@ -1,6 +1,5 @@
 <template>
     <v-container fluid class="text-xs-left">
-        <h1>{{title}}</h1>
         <v-layout row wrap class="elevation-4">
             <v-flex xs12>
                 <v-card flat>
@@ -15,22 +14,26 @@
                                 </v-card-text>
                             </v-card>
                         </v-flex>
-                        <v-flex xs10 d-flex align-center v-if="error" >
+                        <v-flex xs10 d-flex align-center v-if="error">
                             <v-card tile flat>
                                 <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
                                     {{error}}
                                 </v-alert>
-                                <v-alert xs10 v-else-if="error && items.length > 0" :value="error && items.length > 0" type="error" outline>
+                                <v-alert xs10 v-else-if="error && items.length > 0" :value="error && items.length > 0"
+                                         type="error" outline>
                                     <v-layout row align-center d-flex>
-                                    <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
-                                    <v-flex text-xs-right>
-                                        <v-tooltip bottom>
-                                            <template slot="activator">
-                                                <v-btn xs2 small v-on:click="refreshData()" color="error" class="lcase"><v-icon>sync</v-icon></v-btn>
-                                            </template>
-                                            Try to refresh the data
-                                        </v-tooltip>
-                                    </v-flex>
+                                        <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
+                                        <v-flex text-xs-right>
+                                            <v-tooltip bottom>
+                                                <template slot="activator">
+                                                    <v-btn xs2 small v-on:click="refreshData()" color="error"
+                                                           class="lcase">
+                                                        <v-icon>sync</v-icon>
+                                                    </v-btn>
+                                                </template>
+                                                Try to refresh the data
+                                            </v-tooltip>
+                                        </v-flex>
                                     </v-layout>
                                 </v-alert>
                             </v-card>
@@ -73,6 +76,7 @@
                                     :pagination.sync="pagination"
                                     :total-items="total"
                                     :rows-per-page-items="[10,20,50,100]"
+                                    expand
                                     disable-initial-sort>
                                 <template slot="headerCell" slot-scope="props">
                                     <v-tooltip bottom>
@@ -81,29 +85,102 @@
                                     </v-tooltip>
                                 </template>
                                 <template slot="items" slot-scope="props">
-                                    <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                        v-show="visibleCols.includes(col.text)">
-                                        <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
-                                            <TableCell
-                                                    :tip="col.rowTip ? col.rowTip(props) : ''"
-                                                    :icon="col.icon ? col.icon(props) : ''"
-                                                    :iconColor="col.iconColor ? col.iconColor(props) : ''"
-                                                    :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
-                                                    :iconClass="col.iconClass ? col.iconClass(props) : ''"
-                                                    :text="col.renderer ? col.renderer(props) : ''"
-                                                    :link="col.link ? col.link(props) : ''"
+                                    <tr @click="props.expanded = !props.expanded">
+                                        <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
+                                            v-show="visibleCols.includes(col.text)">
+                                            <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
+                                                <TableCell
+                                                        :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                        :icon="col.icon ? col.icon(props) : ''"
+                                                        :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                        :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                        :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                        :text="col.renderer ? col.renderer(props) : ''"
+                                                        :link="col.link ? col.link(props) : ''"
+                                                />
+                                            </a>
+                                            <TableCell v-else
+                                                       :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                       :icon="col.icon ? col.icon(props) : ''"
+                                                       :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                       :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                       :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                       :text="col.renderer ? col.renderer(props) : ''"
+                                                       :link="col.link ? col.link(props) : ''"
                                             />
-                                        </a>
-                                        <TableCell v-else
-                                                :tip="col.rowTip ? col.rowTip(props) : ''"
-                                                :icon="col.icon ? col.icon(props) : ''"
-                                                :iconColor="col.iconColor ? col.iconColor(props) : ''"
-                                                :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
-                                                :iconClass="col.iconClass ? col.iconClass(props) : ''"
-                                                :text="col.renderer ? col.renderer(props) : ''"
-                                                :link="col.link ? col.link(props) : ''"
-                                        />
-                                    </td>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template slot="expand" slot-scope="props">
+                                    <v-card :color="$store.state.main.themeDark ? 'blue-grey darken-4' : 'blue-grey lighten-5'">
+                                        <v-card-text>
+                                            <v-layout row>
+                                                <v-flex xs2>
+                                                    <v-subheader class="headline">
+                                                        {{ props.item.shortName }}
+                                                    </v-subheader>
+                                                </v-flex>
+                                                <v-flex xs10>
+                                                    <v-subheader class="headline">
+                                                        {{ props.item.name }}
+                                                    </v-subheader>
+                                                </v-flex>
+                                            </v-layout>
+                                            <v-divider/>
+                                            <v-layout row>
+                                                <v-flex sm2>
+                                                    <v-layout row>
+                                                        <v-flex xs4>
+                                                            <v-subheader>Taxon:</v-subheader>
+                                                        </v-flex>
+                                                        <v-flex xs6>
+                                                            <v-subheader>{{ props.item.taxon }}</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-layout row>
+                                                        <v-flex xs4>
+                                                            <v-subheader>Samples:</v-subheader>
+                                                        </v-flex>
+                                                        <v-flex xs6>
+                                                            <v-subheader>{{ props.item.bioAssayCount }}</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-layout row>
+                                                        <v-flex xs4>
+                                                            <v-subheader>Profiles:</v-subheader>
+                                                        </v-flex>
+                                                        <v-flex xs6>
+                                                            <v-subheader>{{ props.item.processedExpressionVectorCount }}</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-layout row>
+                                                        <v-flex xs4>
+                                                            <v-subheader>Updated:</v-subheader>
+                                                        </v-flex>
+                                                        <v-flex xs6>
+                                                            <v-subheader>{{ formatDate(props.item.lastUpdated) }}</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                </v-flex>
+                                                <v-flex sm10>
+                                                    <v-layout row>
+                                                        <v-flex xs1>
+                                                            <v-subheader>Description:</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-flex xs12>
+                                                        <v-card tile>
+                                                            <v-card-text>
+                                        <span class="description body-1">
+                                            {{ props.item.description.trim() }}
+                                        </span>
+                                                            </v-card-text>
+                                                        </v-card>
+                                                    </v-flex>
+                                                </v-flex>
+                                            </v-layout>
+                                        </v-card-text>
+                                    </v-card>
                                 </template>
                             </v-data-table>
                         </v-flex>
@@ -135,6 +212,7 @@
 <script>
 import { mapState } from "vuex";
 import Vue from "vue";
+import moment from "moment";
 import TableCell from "./TableCell";
 
 export default {
@@ -299,6 +377,13 @@ export default {
     toggleColsSettings() {
       // noinspection JSIgnoredPromiseFromCall
       this.$store.dispatch("main/toggleTableSettings");
+    },
+    formatDate(date) {
+      return (
+        moment.unix(date / 1000).format("L") +
+        " " +
+        moment.unix(date / 1000).format("LT")
+      );
     }
   }
 };
@@ -324,5 +409,9 @@ td i {
   border-radius: $dim3;
   max-width: $dim3 + 4;
   max-height: $dim3 + 4;
+}
+
+.description {
+  white-space: pre-wrap;
 }
 </style>
