@@ -71,7 +71,7 @@
                                     :items="items"
                                     :loading="pending"
                                     :pagination.sync="pagination"
-                                    :total-items="2000"
+                                    :total-items="total"
                                     :rows-per-page-items="[10,20,50,100]"
                                     disable-initial-sort>
                                 <template slot="headerCell" slot-scope="props">
@@ -208,6 +208,11 @@ export default {
           if (this.visibleCols.includes(col.text)) arr.push(col);
         }
         return arr;
+      }
+    },
+    total: {
+      get() {
+        return this.items.length > 0 ? this.items[0]._totalInQuery : 0;
       }
     },
     limit: {

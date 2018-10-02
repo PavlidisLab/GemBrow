@@ -214,7 +214,7 @@ export default {
         },
         {
           text: "Gemma",
-          value: "glink",
+          value: "gLink",
           tip: "Show dataset details page in Gemma",
           link(props) {
             return (

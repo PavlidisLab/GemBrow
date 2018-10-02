@@ -10,7 +10,8 @@ const ds_cols_state = {
   Curation: true,
   Usability: false,
   Quality: true,
-  Suitability: false
+  Suitability: false,
+  Gemma: true
 };
 
 const ds_cols = {
