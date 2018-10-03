@@ -1,5 +1,18 @@
 import StoreUtils from "../../components/StoreUtils";
 
+function formFilter(state, filters) {
+  let and = false;
+  let str = "";
+  for (let filter of filters) {
+    if (state[filter.value + "_on"]) {
+      str +=
+        (and ? " AND " : "") + filter.url + filter.op + state[filter.value];
+      and = true;
+    }
+  }
+  return str;
+}
+
 // datasets state
 const ds_state = {
   limit: 20,
@@ -42,16 +55,7 @@ const ds_getters = {
       { value: "publication", url: "geeq.sScorePublication", op: " = " },
       { value: "platform_amount", url: "geeq.sScorePlatformAmount", op: " = " }
     ];
-    let and = false;
-    let str = "";
-    for (let filter of filters) {
-      if (state[filter.value + "_on"]) {
-        str +=
-          (and ? " AND " : "") + filter.url + filter.op + state[filter.value];
-        and = true;
-      }
-    }
-    return str;
+    return formFilter(state, filters);
   }
 };
 
@@ -61,6 +65,26 @@ const pf_state = {
   offset: 0,
   sort: "%2Bid",
   taxon: null
+};
+
+// platform getters, aka computed state properties
+// noinspection JSUnusedGlobalSymbols // inspection can not see usage through getters
+const pf_getters = {
+  taxon_id(state) {
+    return state.taxon_on ? state.taxon : null;
+  },
+  filter(state) {
+    const filters = [
+      { value: "troubled", url: "curationDetails.troubled", op: " = " },
+      { value: "attention", url: "curationDetails.needsAttention", op: " = " },
+      {
+        value: "experiment_amount",
+        url: "expressionExperimentCount",
+        op: " = "
+      }
+    ];
+    return formFilter(state, filters);
+  }
 };
 
 const ds = {
@@ -74,6 +98,7 @@ const ds = {
 const pf = {
   namespaced: true,
   state: pf_state,
+  getters: pf_getters,
   actions: StoreUtils.methods.createActions(pf_state),
   mutations: StoreUtils.methods.createMutations(pf_state)
 };

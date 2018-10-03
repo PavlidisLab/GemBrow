@@ -5,7 +5,7 @@ import createPersistedState from "vuex-persistedstate";
 import api from "./modules/vapi";
 import main from "./modules/main"
 import {ds, pf} from "./modules/searchSettings";
-import {ds_cols} from "./modules/colSettings";
+import {ds_cols, pf_cols} from "./modules/colSettings";
 
 Vue.use(Vuex);
 
@@ -22,6 +22,7 @@ export default new Vuex.Store({
         dss: ds, // dss for DataSets Settings
         pfs: pf, // pfs for PlatForms Settings
         dsc: ds_cols, //dsc for DataSet Columns
+        pfc: pf_cols //pfc for PlatForms Columns
     },
     strict: debug
 });

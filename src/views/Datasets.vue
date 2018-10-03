@@ -3,6 +3,7 @@
     <DataPage
             :title="title"
             :cols="cols"
+            :detailRows="detailRows"
             :s-name="sName"
             :l-name="lName"
             :c-name="cName"
@@ -29,53 +30,40 @@
             </v-layout>
             <v-divider/>
 
-            <v-switch v-model="score_q_min_on" label="Minimum quality"/>
+            <v-switch v-model="score_q_min_on" label="Min. quality"/>
                 <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
                           thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
             <v-divider/>
 
-            <v-switch v-model="score_s_min_on" label="Minimum suitability"/>
+            <v-switch v-model="score_s_min_on" label="Min. suitability"/>
                 <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
                           step="0.1" ticks min="-1" max="1"></v-slider>
             <v-divider/>
 
-            <v-switch v-model="platform_amount_on" label="Amount of platforms"/>
+            <v-switch v-model="platform_amount_on" label="Min. platforms"/>
             <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
                       step="1" ticks min="1" max="3"></v-slider>
             <v-divider/>
-            <v-switch v-model="taxon_on" label="Taxon"/>
-            <v-select
-                    v-show="taxon_on"
-                    :items="taxa"
-                    item-value="id"
-                    item-text="scientificName"
-                    v-model="taxon"
-                    :disabled="!taxon_on"
-                    single-line
-            >
-                <template slot="selection" slot-scope="data">
-                    <div class="input-group__selections__comma">
-                        {{data.item.scientificName }} ({{data.item.commonName}})
-                    </div>
-                </template>
-                <template slot="item" slot-scope="data">
-                    {{data.item.scientificName }} ({{data.item.commonName}})
-                </template>
-            </v-select>
+                <SelectorTaxon
+                    :taxa="taxa"
+                    :storeName="sName"
+                />
             <v-divider/>
         </template>
     </DataPage>
 </template>
 
 <script>
-import DataPage from "../components/DataPage";
+import DataPage from "../components/DataPage/DataPage";
+import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
 
 export default {
   components: {
-    DataPage: DataPage
+    DataPage: DataPage,
+    SelectorTaxon: SelectorTaxon
   },
   data() {
     return {
@@ -83,11 +71,26 @@ export default {
       lName: "datasets",
       sName: "dss",
       cName: "dsc",
+      detailRows: [
+        {
+          label: "Samples:",
+          renderer(props) {
+            return props.item.bioAssayCount;
+          }
+        },
+        {
+          label: "Profiles:",
+          renderer(props) {
+            return props.item.processedExpressionVectorCount;
+          }
+        }
+      ],
       cols: [
         {
           text: "ID",
           value: "id",
           tip: "The Gemma ID of the Dataset. For internal use only.",
+          adminOnly: true,
           renderer(props) {
             return props.item.id.toString();
           }
@@ -229,9 +232,6 @@ export default {
       ]
     };
   },
-  mounted() {
-    this.refreshTaxa();
-  },
   computed: {
     ...mapState({
       taxa: state => state.api.taxa
@@ -333,30 +333,6 @@ export default {
         const setVal = value === 1 ? 1 : value === 2 ? -0.5 : -1;
         this.$store.dispatch("dss/setPlatform_amount", setVal);
       }
-    },
-    taxon_on: {
-      get() {
-        return this.$store.state.dss.taxon_on;
-      },
-      set(value) {
-        this.$store.dispatch("dss/setTaxon_on", value);
-      }
-    },
-    taxon: {
-      get() {
-        return this.$store.state.dss.taxon;
-      },
-      set(value) {
-        this.$store.dispatch("dss/setTaxon", value);
-      }
-    }
-  },
-  methods: {
-    refreshTaxa() {
-      let self = this;
-      this.$store.dispatch("api/gettaxa").then(function() {
-        self.taxon = self.taxa[0].id;
-      });
     }
   }
 };

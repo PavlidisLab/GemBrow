@@ -61,8 +61,13 @@
                                 <v-card-text>
                                     <v-layout row wrap class="text-xs-left" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3>
-                                            <v-switch tile flat
-                                                      :label="col.text" v-model="visibleCols" :value="col.text"/>
+                                            <v-tooltip top>
+                                                <span slot="activator">
+                                                    <v-switch tile flat
+                                                              :label="col.text" v-model="visibleCols" :value="col.text"/>
+                                                </span>
+                                                <span>{{ col.tip }}</span>
+                                            </v-tooltip>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -76,7 +81,6 @@
                                     :pagination.sync="pagination"
                                     :total-items="total"
                                     :rows-per-page-items="[10,20,50,100]"
-                                    expand
                                     disable-initial-sort>
                                 <template slot="headerCell" slot-scope="props">
                                     <v-tooltip bottom>
@@ -96,7 +100,6 @@
                                                         :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
                                                         :iconClass="col.iconClass ? col.iconClass(props) : ''"
                                                         :text="col.renderer ? col.renderer(props) : ''"
-                                                        :link="col.link ? col.link(props) : ''"
                                                 />
                                             </a>
                                             <TableCell v-else
@@ -106,7 +109,6 @@
                                                        :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
                                                        :iconClass="col.iconClass ? col.iconClass(props) : ''"
                                                        :text="col.renderer ? col.renderer(props) : ''"
-                                                       :link="col.link ? col.link(props) : ''"
                                             />
                                         </td>
                                     </tr>
@@ -139,26 +141,18 @@
                                                     </v-layout>
                                                     <v-layout row>
                                                         <v-flex xs4>
-                                                            <v-subheader>Samples:</v-subheader>
-                                                        </v-flex>
-                                                        <v-flex xs6>
-                                                            <v-subheader>{{ props.item.bioAssayCount }}</v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                    <v-layout row>
-                                                        <v-flex xs4>
-                                                            <v-subheader>Profiles:</v-subheader>
-                                                        </v-flex>
-                                                        <v-flex xs6>
-                                                            <v-subheader>{{ props.item.processedExpressionVectorCount }}</v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                    <v-layout row>
-                                                        <v-flex xs4>
                                                             <v-subheader>Updated:</v-subheader>
                                                         </v-flex>
                                                         <v-flex xs6>
                                                             <v-subheader>{{ formatDate(props.item.lastUpdated) }}</v-subheader>
+                                                        </v-flex>
+                                                    </v-layout>
+                                                    <v-layout row v-for="row in detailRows" :key="row.label">
+                                                        <v-flex xs4>
+                                                            <v-subheader>{{ row.label }}</v-subheader>
+                                                        </v-flex>
+                                                        <v-flex xs6>
+                                                            <v-subheader v-html="row.renderer(props)"></v-subheader>
                                                         </v-flex>
                                                     </v-layout>
                                                 </v-flex>
@@ -171,9 +165,9 @@
                                                     <v-flex xs12>
                                                         <v-card tile>
                                                             <v-card-text>
-                                        <span class="description body-1">
-                                            {{ props.item.description.trim() }}
-                                        </span>
+                                                                <span class="description body-1">
+                                                                    {{ props.item.description.trim() }}
+                                                                </span>
                                                             </v-card-text>
                                                         </v-card>
                                                     </v-flex>
@@ -213,13 +207,14 @@
 import { mapState } from "vuex";
 import Vue from "vue";
 import moment from "moment";
-import TableCell from "./TableCell";
+import TableCell from "../TableCell";
 
 export default {
   components: { TableCell },
   props: {
     title: String,
     cols: Array,
+    detailRows: Array,
     lName: String,
     sName: String,
     cName: String
@@ -301,7 +296,7 @@ export default {
         // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(this.sName + "/setLimit", value);
         // ...mapActions({ setLimit: "dss/setLimit" }) :: not using mapActions because this exposes the method to the
-        // template directly, which may lead to bugs when when they are used instead of the designated wrapper function.
+        // template directly, which may lead to bugs when they are used instead of the designated wrapper function.
       }
     },
     offset: {
@@ -379,18 +374,14 @@ export default {
       this.$store.dispatch("main/toggleTableSettings");
     },
     formatDate(date) {
-      return (
-        moment.unix(date / 1000).format("L") +
-        " " +
-        moment.unix(date / 1000).format("LT")
-      );
+      return moment.unix(date / 1000).format("L");
     }
   }
 };
 </script>
 
 <style lang="scss">
-@import "../assets/const.scss";
+@import "../../assets/const";
 
 .table__overflow {
   overflow-x: hidden;
