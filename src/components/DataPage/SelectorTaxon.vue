@@ -43,7 +43,7 @@ export default {
   computed: {
     taxon_on: {
       get() {
-        return this.$store.state.dss.taxon_on;
+        return this.$store.state[this.storeName].taxon_on;
       },
       set(value) {
         // noinspection JSIgnoredPromiseFromCall
@@ -52,7 +52,7 @@ export default {
     },
     taxon: {
       get() {
-        return this.$store.state.dss.taxon;
+        return this.$store.state[this.storeName].taxon;
       },
       set(value) {
         // noinspection JSIgnoredPromiseFromCall

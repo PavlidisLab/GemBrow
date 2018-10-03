@@ -3,7 +3,7 @@
     <DataPage
             :title="title"
             :cols="cols"
-            :detailRows="detailRows"
+            :detail-rows="detailRows"
             :s-name="sName"
             :l-name="lName"
             :c-name="cName"

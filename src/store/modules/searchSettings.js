@@ -70,8 +70,6 @@ const pf_state = {
   attention: false,
   updated_min: null,
   updated_max: null,
-  // experiment_amount_on: false,
-  // experiment_amount: 1,
   taxon_on: false,
   taxon: null
 };
@@ -84,6 +82,7 @@ const pf_getters = {
   },
   filter(state) {
     const filters = [
+      { value: "taxon", url: "primaryTaxon.id", op: " = " },
       { value: "troubled", url: "curationDetails.troubled", op: " = " },
       { value: "attention", url: "curationDetails.needsAttention", op: " = " },
       {

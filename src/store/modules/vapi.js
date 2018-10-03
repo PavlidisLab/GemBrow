@@ -1,5 +1,6 @@
 import Vapi from "vuex-rest-api";
 import axios from "axios";
+
 const local = true;
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
@@ -21,6 +22,46 @@ const vapi = new Vapi({
     cancel: {}
   }
 });
+
+function p(first) {
+  return first.get() ? "?" : "&";
+}
+
+function composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id) {
+  let path = "/rest/v2/";
+  let _firstArg = true;
+  let firstArg = {
+    get() {
+      if (_firstArg) {
+        _firstArg = false;
+        return true;
+      }
+      return _firstArg;
+    },
+    set(value) {
+      _firstArg = value;
+    }
+  };
+
+  // Filtering by taxon works differently for EEs and ADs
+  if (propName === "datasets") {
+    // EE taxa
+    path += (taxon_id != null ? "taxa/" + taxon_id + "/" : "") + propName;
+  } else {
+    // ADs have taxon included in the filter
+    path += propName;
+  }
+
+  // Add rest of URL parameters
+  path +=
+    (id ? `/${id}` : "") +
+    (pwd ? p(firstArg) + `psha=${pwd}` : "") +
+    (limit ? p(firstArg) + `limit=${limit}` : "") +
+    (offset ? p(firstArg) + `offset=${offset}` : "") +
+    (sort ? p(firstArg) + `sort=${sort}` : "") +
+    (filter ? p(firstArg) + `filter=${filter}` : "");
+  return path;
+}
 
 // noinspection JSUndefinedPropertyAssignment // yeah we are defining it here
 vapi.attachLogoutEndpoint = function() {
@@ -59,15 +100,7 @@ vapi.attachEndpoint = function(propName) {
     action: "get" + propName,
     property: propName,
     path: ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
-      "/rest/v2/" +
-      (taxon_id != null ? "taxa/" + taxon_id + "/" : "") +
-      propName +
-      (id ? `/${id}` : "") +
-      (pwd ? `?psha=${pwd}` : "") +
-      (limit ? `?limit=${limit}` : "") +
-      (offset ? `&offset=${offset}` : "") +
-      (sort ? `&sort=${sort}` : "") +
-      (filter ? `&filter=${filter}` : ""),
+      composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
