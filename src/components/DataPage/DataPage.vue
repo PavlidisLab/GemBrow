@@ -117,7 +117,7 @@
                                     <v-card :color="$store.state.main.themeDark ? 'blue-grey darken-4' : 'blue-grey lighten-5'">
                                         <v-card-text>
                                             <v-layout row>
-                                                <v-flex xs2>
+                                                <v-flex xs3>
                                                     <v-subheader class="headline">
                                                         {{ props.item.shortName }}
                                                     </v-subheader>
@@ -130,7 +130,7 @@
                                             </v-layout>
                                             <v-divider/>
                                             <v-layout row>
-                                                <v-flex sm2>
+                                                <v-flex sm3>
                                                     <v-layout row>
                                                         <v-flex xs4>
                                                             <v-subheader>Taxon:</v-subheader>
@@ -156,7 +156,7 @@
                                                         </v-flex>
                                                     </v-layout>
                                                 </v-flex>
-                                                <v-flex sm10>
+                                                <v-flex sm9>
                                                     <v-layout row>
                                                         <v-flex xs1>
                                                             <v-subheader>Description:</v-subheader>

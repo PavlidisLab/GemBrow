@@ -10,9 +10,13 @@ Vue.use(Router);
 export default new Router({
   routes: [
     {
-      path: "*",
+      path: "/404",
       name: "not found",
       component: NotFound
+    },
+    {
+      path: "*",
+      redirect: "/404"
     },
     {
       path: "/",

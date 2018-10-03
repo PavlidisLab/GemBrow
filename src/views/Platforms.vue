@@ -5,6 +5,7 @@
             :l-name="lName"
             :c-name="cName"
             :cols="cols"
+            :detail-rows="detailRows"
             :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
