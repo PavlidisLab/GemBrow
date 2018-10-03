@@ -3,25 +3,45 @@
             :title="title"
             :s-name="sName"
             :l-name="lName"
+            :c-name="cName"
             :cols="cols"
+            :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
-            <v-text-field v-model="this.$store.state.pfs.limit" required :rules="[v => !!v || 'Must be filled in!']"
-                          label="Limit amount"
-                          single-line prepend-icon="unfold_less"/>
+            <v-layout row wrap>
+                <v-switch v-model="troubled_on" label="Usability"/>
+                <v-checkbox v-model="troubled" :disabled="!troubled_on"
+                            :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
+            </v-layout>
+            <v-divider/>
+
+            <v-layout row wrap>
+                <v-switch v-model="attention_on" label="Curation"/>
+                <v-checkbox v-model="attention" :disabled="!attention_on"
+                            :label="attention_on ? ('Only '+(+attention ? 'curated':'uncurated')) : 'All'"/>
+            </v-layout>
+            <v-divider/>
+
+            <SelectorTaxon
+                    :taxa="taxa"
+                    :storeName="sName"
+            />
+            <v-divider/>
         </template>
     </DataPage>
 </template>
 
 <script>
 import DataPage from "../components/DataPage/DataPage";
+import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
 
 export default {
   components: {
-    DataPage: DataPage
+    DataPage: DataPage,
+    SelectorTaxon: SelectorTaxon
   },
   data() {
     return {
@@ -84,6 +104,62 @@ export default {
           renderer(props) {
             return moment.unix(props.item.lastUpdated / 1000).format("L");
           }
+        },
+        {
+          text: "Datasets",
+          value: "arrayDesignCount",
+          tip: "The amount of usable platforms the dataset uses.",
+          renderer(props) {
+            return props.item.expressionExperimentCount.toString();
+          }
+        },
+        {
+          text: "Curation",
+          value: "needsAttention",
+          tip:
+            "Displays a warning icon if the platform curation is not finished.",
+          rowTip(props) {
+            return props.item.needsAttention
+              ? "Curation not finished"
+              : "Curated";
+          },
+          icon(props) {
+            return props.item.needsAttention
+              ? "mdi-alert-circle-outline"
+              : "mdi-checkbox-marked-circle-outline";
+          },
+          iconColor(props) {
+            return props.item.needsAttention ? "warning" : "success";
+          }
+        },
+        {
+          text: "Usability",
+          value: "troubled",
+          tip:
+            "Displays a warning icon if the platform is unusable for any reason.",
+          rowTip(props) {
+            return props.item.troubled ? "Unusable" : "Usable";
+          },
+          icon(props) {
+            return props.item.troubled ? "warning" : "check_circle";
+          },
+          iconColor(props) {
+            return props.item.troubled ? "error" : "success";
+          }
+        },
+        {
+          text: "Gemma",
+          value: "gLink",
+          tip: "Show platform details page in Gemma",
+          link(props) {
+            return (
+              "https://gemma.msl.ubc.ca/arrays/showArrayDesign.html?id=" +
+              props.item.id.toString()
+            );
+          },
+          icon() {
+            return "mdi-open-in-new";
+          }
         }
       ]
     };
@@ -139,6 +215,22 @@ export default {
       set(value) {
         this.$store.dispatch("pfs/setTaxon", value);
       }
+    }
+  },
+  methods: {
+    mapSort(sort) {
+      if (
+        sort === "troubled" ||
+        sort === "needsAttention" ||
+        sort === "lastUpdated"
+      )
+        sort = "curationDetails." + sort;
+      else if (sort === "expressionExperimentCount") {
+        sort = "ee.size";
+      } else if (sort === "taxon") {
+        sort = "primaryTaxon";
+      }
+      return sort;
     }
   }
 };

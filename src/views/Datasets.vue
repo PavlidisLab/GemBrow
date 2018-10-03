@@ -7,6 +7,7 @@
             :s-name="sName"
             :l-name="lName"
             :c-name="cName"
+            :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
             <v-layout row wrap>
@@ -333,6 +334,24 @@ export default {
         const setVal = value === 1 ? 1 : value === 2 ? -0.5 : -1;
         this.$store.dispatch("dss/setPlatform_amount", setVal);
       }
+    }
+  },
+  methods: {
+    mapSort(sort) {
+      if (sort === "geeq.publicQualityScore")
+        sort = "geeq.detectedQualityScore";
+      else if (sort === "geeq.publicSuitabilityScore")
+        sort = "geeq.detectedSuitabilityScore";
+      else if (
+        sort === "troubled" ||
+        sort === "needsAttention" ||
+        sort === "lastUpdated"
+      )
+        sort = "curationDetails." + sort;
+      else if (sort === "arrayDesignCount") {
+        sort = "ad.size";
+      }
+      return sort;
     }
   }
 };

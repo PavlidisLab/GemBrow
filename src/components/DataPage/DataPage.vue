@@ -217,7 +217,8 @@ export default {
     detailRows: Array,
     lName: String,
     sName: String,
-    cName: String
+    cName: String,
+    sortMapping: Function
   },
   data() {
     return {
@@ -336,21 +337,9 @@ export default {
 
       // Transform sort parameters to non-VO counterparts. Note that more checks might be necessary here, especially
       // manual overrides for geeq scores are used.
-      let sort = sortBy;
-      if (sort === "geeq.publicQualityScore")
-        sort = "geeq.detectedQualityScore";
-      else if (sort === "geeq.publicSuitabilityScore")
-        sort = "geeq.detectedSuitabilityScore";
-      else if (
-        sort === "troubled" ||
-        sort === "needsAttention" ||
-        sort === "lastUpdated"
-      )
-        sort = "curationDetails." + sort;
-      else if (sort === "arrayDesignCount") {
-        sort = "ad.size";
-      }
+      let sort = this.sortMapping(sortBy);
 
+      // noinspection JSUnusedGlobalSymbols // Necessary to set the proeprty for the refreshData method
       this.sort = sort ? order + sort : null;
       this.refreshData();
     },

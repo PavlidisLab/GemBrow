@@ -64,6 +64,15 @@ const pf_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
+  troubled_on: true,
+  troubled: false,
+  attention_on: false,
+  attention: false,
+  updated_min: null,
+  updated_max: null,
+  // experiment_amount_on: false,
+  // experiment_amount: 1,
+  taxon_on: false,
   taxon: null
 };
 

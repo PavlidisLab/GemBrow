@@ -28,6 +28,8 @@ const pf_cols_state = {
   Taxon: true,
   Updated: true,
   Experiments: false,
+  Curation: true,
+  Usability: false,
   Gemma: true
 };
 
