@@ -60,6 +60,7 @@
                 <v-menu open-on-hover bottom offset-y :close-on-content-click="false" v-model="userMenu">
                     <v-btn slot="activator" flat>
                         <v-icon v-if="userPending" class="spin inv">sync</v-icon>
+                        <v-icon v-else-if="this.user !== null && this.user.isAdmin">mdi-security-account</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-btn>

@@ -17,7 +17,14 @@ const mutations = {
     state.tableSettVisible = !state.tableSettVisible;
   },
   login(state, user) {
-    state.user = user;
+    // Create a custom object from the received one
+    state.user = {
+      userName: user.userName,
+      password: user.password,
+      currentGroup: user.currentGroup,
+      email: user.email,
+      isAdmin: user.currentGroup === "Administrators"
+    };
   },
   logout(state) {
     state.user = null;

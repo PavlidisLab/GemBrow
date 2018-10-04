@@ -26,7 +26,17 @@
     </v-card>
     <v-card flat v-else>
         <v-card-title primary-title>
-            <h3>{{this.user.userName}}</h3>
+            <h3>
+                <v-tooltip left v-if="this.user && this.user.isAdmin">
+                    <v-icon slot="activator">mdi-security-account</v-icon>
+                    User is an administrator
+                </v-tooltip>
+                <v-tooltip left v-else>
+                    <v-icon slot="activator">mdi-account</v-icon>
+                    User logged in
+                </v-tooltip>
+                {{this.user.userName}}
+            </h3>
         </v-card-title>
         <v-card-text>
             {{this.user.email}}
