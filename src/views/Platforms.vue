@@ -9,12 +9,12 @@
             :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
-            <v-layout row wrap>
+            <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
                 <v-checkbox v-model="troubled" :disabled="!troubled_on"
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
-            <v-divider/>
+            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
@@ -138,6 +138,7 @@ export default {
           value: "troubled",
           tip:
             "Displays a warning icon if the platform is unusable for any reason.",
+          adminOnly: true,
           rowTip(props) {
             return props.item.troubled ? "Unusable" : "Usable";
           },
@@ -167,7 +168,8 @@ export default {
   },
   computed: {
     ...mapState({
-      taxa: state => state.api.taxa
+      taxa: state => state.api.taxa,
+      user: state => state.main.user
     }),
     troubled: {
       get() {

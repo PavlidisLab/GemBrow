@@ -60,7 +60,8 @@
                                 <v-card-title primary class="title">Columns</v-card-title>
                                 <v-card-text>
                                     <v-layout row wrap class="text-xs-left" justify-start>
-                                        <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3>
+                                        <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
+                                                v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
                                             <v-tooltip top>
                                                 <span slot="activator">
                                                     <v-switch tile flat
@@ -91,7 +92,7 @@
                                 <template slot="items" slot-scope="props">
                                     <tr @click="props.expanded = !props.expanded">
                                         <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                            v-show="visibleCols.includes(col.text)">
+                                            v-show="visibleCols.includes(col.text) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
                                             <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
                                                 <TableCell
                                                         :tip="col.rowTip ? col.rowTip(props) : ''"
@@ -263,6 +264,7 @@ export default {
   },
   computed: {
     ...mapState({
+      user: state => state.main.user,
       settingsVisible: state => state.main.searchSettVisible,
       colSettingsVisible: state => state.main.tableSettVisible,
       items(state) {
@@ -279,7 +281,12 @@ export default {
       get() {
         const arr = [];
         for (let col of this.cols) {
-          if (this.visibleCols.includes(col.text)) arr.push(col);
+          if (
+            this.visibleCols.includes(col.text) &&
+            (!col.adminOnly ||
+              (col.adminOnly && this.user && this.user.isAdmin))
+          )
+            arr.push(col);
         }
         return arr;
       }

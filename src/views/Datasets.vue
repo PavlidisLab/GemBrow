@@ -10,12 +10,12 @@
             :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
-            <v-layout row wrap>
+            <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
                 <v-checkbox v-model="troubled" :disabled="!troubled_on"
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
-            <v-divider/>
+            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
@@ -36,10 +36,10 @@
                           thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
             <v-divider/>
 
-            <v-switch v-model="score_s_min_on" label="Min. suitability"/>
+            <v-switch v-model="score_s_min_on" label="Min. suitability" v-if="this.user && this.user.isAdmin"/>
                 <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
                           step="0.1" ticks min="-1" max="1"></v-slider>
-            <v-divider/>
+            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-switch v-model="platform_amount_on" label="Min. platforms"/>
             <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
@@ -160,6 +160,7 @@ export default {
           value: "troubled",
           tip:
             "Displays a warning icon if the dataset is unusable for any reason.",
+          adminOnly: true,
           rowTip(props) {
             return props.item.troubled ? "Unusable" : "Usable";
           },
@@ -196,6 +197,7 @@ export default {
           text: "Suitability",
           value: "geeq.publicSuitabilityScore",
           tip: "The suitability score of the dataset.",
+          adminOnly: true,
           rowTip(props) {
             return props.item.geeq.publicSuitabilityScore.toFixed(1);
           },
@@ -235,7 +237,8 @@ export default {
   },
   computed: {
     ...mapState({
-      taxa: state => state.api.taxa
+      taxa: state => state.api.taxa,
+      user: state => state.main.user
     }),
     troubled: {
       get() {
