@@ -98,7 +98,7 @@ import UserForm from "./components/UserForm";
 Vue.use(VueLodash);
 Vue.use(Vuetify);
 
-export default {
+const app = {
   data() {
     return {
       drawer: null,
@@ -151,6 +151,8 @@ export default {
     document.getElementById("app").className = this.appClass;
   }
 };
+
+export default app;
 </script>
 
 <style lang="scss">

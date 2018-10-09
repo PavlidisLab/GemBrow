@@ -107,12 +107,18 @@ export default {
       // Execute frontend logout
       this.$store.dispatch("main/logout");
 
+      // Reset admin-only filters
+      this.$store.dispatch("dss/setTroubled_on", false);
+      this.$store.dispatch("pfs/setTroubled_on", false);
+
       // Wipe the login form
       this.uname = "";
       this.pwd = "";
 
       // Update axios authentication headers
       this.updateAuth();
+
+      this.$root.$emit("logout");
     },
     updateAuth() {
       // Axios conf has to be reset, otherwise old properties linger

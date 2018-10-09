@@ -227,6 +227,11 @@ export default {
       visibleCols: []
     };
   },
+  mounted() {
+    this.$root.$on("logout", () => {
+      this.refreshData();
+    });
+  },
   created() {
     // Initial data load
     this.refreshData();
@@ -237,28 +242,6 @@ export default {
       if (this.$store.state[this.cName][col]) {
         // noinspection JSUnfilteredForInLoop
         this.visibleCols.push(col);
-      }
-    }
-  },
-  watch: {
-    pagination() {
-      this.updatePage();
-    },
-    visibleCols() {
-      for (let col in this.$store.state[this.cName]) {
-        // noinspection JSUnfilteredForInLoop
-        const storeVal = this.$store.state[this.cName][col];
-        // noinspection JSUnfilteredForInLoop
-        if (this.visibleCols.includes(col) && !storeVal) {
-          // noinspection JSIgnoredPromiseFromCall
-          this.$store.dispatch(this.cName + "/set" + col, true);
-        } else {
-          // noinspection JSUnfilteredForInLoop
-          if (!this.visibleCols.includes(col) && storeVal) {
-            // noinspection JSIgnoredPromiseFromCall
-            this.$store.dispatch(this.cName + "/set" + col, false);
-          }
-        }
       }
     }
   },
@@ -334,6 +317,29 @@ export default {
       }
     }
   },
+  watch: {
+    pagination() {
+      this.updatePage();
+    },
+    visibleCols() {
+      for (let col in this.$store.state[this.cName]) {
+        // noinspection JSUnfilteredForInLoop
+        const storeVal = this.$store.state[this.cName][col];
+        // noinspection JSUnfilteredForInLoop
+        if (this.visibleCols.includes(col) && !storeVal) {
+          // noinspection JSIgnoredPromiseFromCall
+          this.$store.dispatch(this.cName + "/set" + col, true);
+        } else {
+          // noinspection JSUnfilteredForInLoop
+          if (!this.visibleCols.includes(col) && storeVal) {
+            // noinspection JSIgnoredPromiseFromCall
+            this.$store.dispatch(this.cName + "/set" + col, false);
+          }
+        }
+      }
+    }
+  },
+
   methods: {
     updatePage() {
       const { sortBy, descending, page, rowsPerPage } = this.pagination;
@@ -346,7 +352,7 @@ export default {
       // manual overrides for geeq scores are used.
       let sort = this.sortMapping(sortBy);
 
-      // noinspection JSUnusedGlobalSymbols // Necessary to set the proeprty for the refreshData method
+      // noinspection JSUnusedGlobalSymbols // Necessary to set the property for the refreshData method
       this.sort = sort ? order + sort : null;
       this.refreshData();
     },
