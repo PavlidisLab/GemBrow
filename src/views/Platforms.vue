@@ -23,10 +23,12 @@
             </v-layout>
             <v-divider/>
 
-            <SelectorTaxon
-                    :taxa="taxa"
-                    :storeName="sName"
-            />
+            <div>
+                <SelectorTaxon
+                        :taxa="taxa"
+                        :storeName="sName"
+                />
+            </div>
             <v-divider/>
         </template>
     </DataPage>

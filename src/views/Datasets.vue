@@ -31,24 +31,33 @@
             </v-layout>
             <v-divider v-if="this.user && this.user.isAdmin"/>
 
+            <div>
             <v-switch v-model="score_q_min_on" label="Min. quality"/>
                 <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
                           thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
+            </div>
             <v-divider/>
 
+            <div>
             <v-switch v-model="score_s_min_on" label="Min. suitability" v-if="this.user && this.user.isAdmin"/>
                 <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
                           step="0.1" ticks min="-1" max="1"></v-slider>
+            </div>
             <v-divider v-if="this.user && this.user.isAdmin"/>
 
+            <div >
             <v-switch v-model="platform_amount_on" label="Min. platforms"/>
             <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
                       step="1" ticks min="1" max="3"></v-slider>
+            </div>
             <v-divider/>
+
+            <div >
                 <SelectorTaxon
                     :taxa="taxa"
                     :storeName="sName"
                 />
+            </div>
             <v-divider/>
         </template>
     </DataPage>

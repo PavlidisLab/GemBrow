@@ -59,7 +59,7 @@
                             <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
                                 <v-card-title primary class="title">Columns</v-card-title>
                                 <v-card-text>
-                                    <v-layout row wrap class="text-xs-left" justify-start>
+                                    <v-layout row wrap class="text-xs-left col-row" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
                                             <v-tooltip top>
@@ -185,15 +185,18 @@
                         order-md2>
                     <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
                         <v-card-title primary class="title">Filters</v-card-title>
-                        <v-card-text class="text-xs-justify">
+                        <v-card-text class="text-xs-justify full-dividers">
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
-                                <v-btn class="secondary" type="submit" v-on:click="refreshData()" :loading="pending">
-                                    <span slot="loader" class="custom-loader">
-                                        <v-icon class="spin inv">sync</v-icon>
-                                    </span>
-                                    Apply filters
-                                </v-btn>
+                                <div>
+                                    <v-btn class="secondary" block round type="submit" v-on:click="refreshData()" :loading="pending">
+                                        <span slot="loader" class="custom-loader">
+                                            <v-icon class="spin inv">sync</v-icon>
+                                        </span>
+                                        <v-icon left dark>mdi-filter</v-icon>
+                                        Apply filters
+                                    </v-btn>
+                                </div>
                             </v-form>
                         </v-card-text>
                     </v-card>
@@ -414,6 +417,16 @@ td i {
   width: $dim5;
 }
 
+.col-row {
+  padding-left: $dim2;
+  padding-bottom: $dim3;
+}
+
+.col-row .input-group {
+  padding-top: $dim1;
+  padding-bottom: $dim1;
+}
+
 .score {
   color: $dark1 !important;
   border-radius: $dim3;
@@ -423,5 +436,18 @@ td i {
 
 .description {
   white-space: pre-wrap;
+}
+
+.full-dividers {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.full-dividers > form > div {
+  padding: $dim2 $dim3 - 4 $dim2 $dim3 + 4;
+}
+
+.input-group__details {
+  display: none;
 }
 </style>
