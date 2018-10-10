@@ -20,14 +20,14 @@
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
                 <v-checkbox v-model="attention" :disabled="!attention_on"
-                            :label="attention_on ? ('Only '+(+attention ? 'curated':'uncurated')) : 'All'"/>
+                            :label="attention_on ? ('Only '+(+attention ? 'curated':'unfinished')) : 'All'"/>
             </v-layout>
             <v-divider/>
 
             <v-layout row wrap>
                 <v-switch v-model="publication_on" label="Publication"/>
                 <v-checkbox v-model="publication" :disabled="!publication_on"
-                            :label="publication_on ? (publication ? 'available' : 'unknown') : 'all' "/>
+                            :label="publication_on ? ('Only '+(publication ? 'available' : 'unknown')) : 'all' "/>
             </v-layout>
             <v-divider/>
 
@@ -314,10 +314,10 @@ export default {
     },
     publication: {
       get() {
-        return this.$store.state.dss.publication;
+        return this.$store.state.dss.publication > 0;
       },
       set(value) {
-        this.$store.dispatch("dss/setPublication", value);
+        this.$store.dispatch("dss/setPublication", value ? 1 : -1);
       }
     },
     platform_amount_on: {
