@@ -319,7 +319,7 @@ export default {
   },
   watch: {
     pagination() {
-      this.updatePage();
+      this.paginate();
     },
     visibleCols() {
       for (let col in this.$store.state[this.cName]) {
@@ -341,20 +341,37 @@ export default {
   },
 
   methods: {
-    updatePage() {
+    paginate() {
       const { sortBy, descending, page, rowsPerPage } = this.pagination;
+      let changed = false;
       // noinspection JSUnusedGlobalSymbols // Setter updates the store
-      this.offset = (page - 1) * rowsPerPage;
-      this.limit = rowsPerPage;
+      let newOffset = (page - 1) * rowsPerPage;
+      if (this.offset !== newOffset) {
+        this.offset = newOffset;
+        changed = true;
+      }
+
+      let newLimit = rowsPerPage;
+      if (this.limit !== newLimit) {
+        this.limit = newLimit;
+        changed = true;
+      }
+
       const order = descending ? "-" : "%2B"; // false value is url encoded '+' character.
 
       // Transform sort parameters to non-VO counterparts. Note that more checks might be necessary here, especially
       // manual overrides for geeq scores are used.
-      let sort = this.sortMapping(sortBy);
+      let newSortBy = this.sortMapping(sortBy);
 
-      // noinspection JSUnusedGlobalSymbols // Necessary to set the property for the refreshData method
-      this.sort = sort ? order + sort : null;
-      this.refreshData();
+      let newSort = newSortBy ? order + newSortBy : null;
+      if (this.sort !== newSort) {
+        // noinspection JSUnusedGlobalSymbols // Necessary to set the property for the refreshData method
+        this.sort = newSort;
+        changed = true;
+      }
+      if (changed) {
+        this.refreshData();
+      }
     },
     refreshData: Vue._.debounce(function() {
       if (this.$refs.settings.validate()) {
