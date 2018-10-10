@@ -24,12 +24,12 @@
             </v-layout>
             <v-divider/>
 
-            <v-layout row wrap>
+            <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="publication_on" label="Publication"/>
                 <v-checkbox v-model="publication" :disabled="!publication_on"
                             :label="publication_on ? ('Only '+(publication ? 'available' : 'unknown')) : 'all' "/>
             </v-layout>
-            <v-divider/>
+            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-switch v-model="score_q_min_on" label="Min. quality"/>
                 <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
