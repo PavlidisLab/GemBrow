@@ -59,7 +59,7 @@
                             <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
                                 <v-card-title primary class="title">Columns</v-card-title>
                                 <v-card-text>
-                                    <v-layout row wrap class="text-xs-left col-row" justify-start>
+                                    <v-layout row wrap class="text-xs-left col-row compact" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
                                             <v-tooltip top>
@@ -185,7 +185,7 @@
                         order-md2>
                     <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
                         <v-card-title primary class="title">Filters</v-card-title>
-                        <v-card-text class="text-xs-justify full-dividers">
+                        <v-card-text class="text-xs-justify full-dividers compact">
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
                                 <div>
@@ -447,7 +447,7 @@ td i {
   padding: $dim2 $dim3 - 4 $dim2 $dim3 + 4;
 }
 
-.input-group__details {
+.compact .input-group__details {
   display: none;
 }
 </style>

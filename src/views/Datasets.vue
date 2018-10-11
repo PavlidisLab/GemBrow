@@ -12,21 +12,21 @@
         <template slot="settingsForm">
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
-                <v-checkbox v-model="troubled" :disabled="!troubled_on"
+                <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
             <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
-                <v-checkbox v-model="attention" :disabled="!attention_on"
+                <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
                             :label="attention_on ? ('Only '+(+attention ? 'curated':'unfinished')) : 'All'"/>
             </v-layout>
             <v-divider/>
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="publication_on" label="Publication"/>
-                <v-checkbox v-model="publication" :disabled="!publication_on"
+                <v-checkbox v-model="publication" v-if="publication_on" :disabled="!publication_on"
                             :label="publication_on ? ('Only '+(publication ? 'available' : 'unknown')) : 'all' "/>
             </v-layout>
             <v-divider v-if="this.user && this.user.isAdmin"/>
@@ -38,8 +38,8 @@
             </div>
             <v-divider/>
 
-            <div>
-            <v-switch v-model="score_s_min_on" label="Min. suitability" v-if="this.user && this.user.isAdmin"/>
+            <div v-if="this.user && this.user.isAdmin">
+            <v-switch v-model="score_s_min_on" label="Min. suitability" />
                 <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
                           step="0.1" ticks min="-1" max="1"></v-slider>
             </div>
