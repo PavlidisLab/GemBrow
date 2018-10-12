@@ -33,7 +33,9 @@ const ds_state = {
   platform_amount_on: false,
   platform_amount: 1,
   taxon_on: false,
-  taxon: null
+  taxon: null,
+  search_on: false,
+  search: ["sdf"]
 };
 
 // dataset getters, aka computed state properties

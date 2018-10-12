@@ -10,47 +10,92 @@
             :sort-mapping="mapSort"
     >
         <template slot="settingsForm">
+            <div>
+                <v-layout row wrap>
+                    <v-flex xs-12>
+                        <v-switch v-model="search_on" label="Keywords"/>
+                    </v-flex>
+                    <v-tooltip top v-if="search_on">
+                        <v-btn slot="activator" large round flat icon class="grey darken-2" color="red lighten-4" v-on:click="clearSearch()">
+                            <v-icon>mdi-tag-remove</v-icon>
+                        </v-btn>
+                        Clear keywords
+                    </v-tooltip>
+                </v-layout>
+                <v-select
+                        class="search"
+                        v-if="search_on" :disabled="!search_on"
+                        v-model="search"
+                        placeholder="Add keywords"
+                        tags
+                        multiple
+                        chips
+                        solo
+                        append-icon=""
+                        :items="keywordsFiltered"
+                        flat
+                        item-text="label"
+                        autocomplete
+                        dense
+                >
+                    <template slot="selection" slot-scope="data">
+                        <v-chip
+                                :selected="data.selected"
+                                close
+                                light
+                                small
+                                @input="data.parent.selectItem(data.item)"
+                        >
+                            <strong>{{ data.item.label }}</strong>
+                            <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
+                        </v-chip>
+                    </template>
+                    <template slot="item" slot-scope="data">
+                        <strong>{{ data.item.label }}</strong>
+                        <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
+                    </template>
+                </v-select>
+            </div>
+            <v-divider v-if="search_on"/>
+            
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
                 <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
-            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
                 <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
                             :label="attention_on ? ('Only '+(+attention ? 'curated':'unfinished')) : 'All'"/>
             </v-layout>
-            <v-divider/>
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="publication_on" label="Publication"/>
                 <v-checkbox v-model="publication" v-if="publication_on" :disabled="!publication_on"
                             :label="publication_on ? ('Only '+(publication ? 'available' : 'unknown')) : 'all' "/>
             </v-layout>
-            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <div>
-            <v-switch v-model="score_q_min_on" label="Min. quality"/>
-                <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
-                          thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
+                <v-switch v-model="score_q_min_on" label="Min. quality"/>
+                    <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
+                              thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
             </div>
-            <v-divider/>
+            <v-divider v-if="score_q_min_on"/>
 
             <div v-if="this.user && this.user.isAdmin">
-            <v-switch v-model="score_s_min_on" label="Min. suitability" />
-                <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
-                          step="0.1" ticks min="-1" max="1"></v-slider>
+                <v-switch v-model="score_s_min_on" label="Min. suitability" />
+                    <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
+                              step="0.1" ticks min="-1" max="1"></v-slider>
             </div>
-            <v-divider v-if="this.user && this.user.isAdmin"/>
+            <v-divider v-if="this.user && this.user.isAdmin && score_s_min_on"/>
 
             <div >
-            <v-switch v-model="platform_amount_on" label="Min. platforms"/>
-            <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
-                      step="1" ticks min="1" max="3"></v-slider>
+                <v-switch v-model="platform_amount_on" label="Min. platforms"/>
+                <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
+                          step="1" ticks min="1" max="3"></v-slider>
             </div>
-            <v-divider/>
+            <v-divider v-if="platform_amount_on"/>
 
             <div >
                 <SelectorTaxon
@@ -241,14 +286,33 @@ export default {
             return "mdi-open-in-new";
           }
         }
+      ],
+      keywords: [
+        { label: "BLEP", category: "blop", type: "ExperimentTag" },
+        { label: "BLEP1", category: "blop2", type: "ExperimentTag" }
       ]
     };
+  },
+  mounted() {
+    //this.search = this.$store.state.dss.search;
   },
   computed: {
     ...mapState({
       taxa: state => state.api.taxa,
       user: state => state.main.user
     }),
+    keywordsFiltered: {
+      get() {
+        let keywords = [];
+        for (let i = 0; i < this.keywords.length; i++) {
+          let keyword = this.keywords[i];
+          if (!this.search.includes(keyword)) {
+            keywords.push(keyword);
+          }
+        }
+        return keywords;
+      }
+    },
     troubled: {
       get() {
         return !this.$store.state.dss.troubled;
@@ -346,6 +410,34 @@ export default {
         const setVal = value === 1 ? 1 : value === 2 ? -0.5 : -1;
         this.$store.dispatch("dss/setPlatform_amount", setVal);
       }
+    },
+    search_on: {
+      get() {
+        return this.$store.state.dss.search_on;
+      },
+      set(value) {
+        this.$store.dispatch("dss/setSearch_on", value);
+      }
+    },
+    search: {
+      get() {
+        return this.$store.state.dss.search;
+      },
+      set(value) {
+        let newSearch = [];
+        for (let i = 0; i < value.length; i++) {
+          let item = value[i];
+          if (typeof item !== "object") {
+            item = {
+              label: item,
+              type: "FreeText"
+            };
+          }
+          newSearch.push(item);
+        }
+
+        this.$store.dispatch("dss/setSearch", newSearch);
+      }
     }
   },
   methods: {
@@ -364,7 +456,23 @@ export default {
         sort = "ad.size";
       }
       return sort;
+    },
+    removeSearch(item) {
+      this.search = this.search.filter(val => val !== item);
+    },
+    clearSearch() {
+      this.search = [];
     }
   }
 };
 </script>
+
+<style lang="scss">
+@import "../assets/const";
+
+div.input-group.search {
+  margin-top: $dim2;
+  padding-top: $dim2;
+  padding-bottom: $dim2;
+}
+</style>

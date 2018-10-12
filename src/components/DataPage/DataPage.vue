@@ -44,7 +44,7 @@
                                     <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()"
                                            title="Data filters"
                                            color="light-blue">
-                                        <v-icon>settings</v-icon>
+                                        <v-icon>mdi-filter</v-icon>
                                     </v-btn>
                                 </v-card-text>
                             </v-card>
@@ -189,7 +189,7 @@
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
                                 <div>
-                                    <v-btn class="secondary" block round type="submit" v-on:click="refreshData()" :loading="pending">
+                                    <v-btn class="light-blue darken-1" block round type="submit" v-on:click="refreshData()" :loading="pending">
                                         <span slot="loader" class="custom-loader">
                                             <v-icon class="spin inv">sync</v-icon>
                                         </span>

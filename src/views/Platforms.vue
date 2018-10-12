@@ -14,14 +14,12 @@
                 <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
-            <v-divider v-if="this.user && this.user.isAdmin"/>
 
             <v-layout row wrap>
                 <v-switch v-model="attention_on" label="Curation"/>
                 <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
                             :label="attention_on ? ('Only '+(+attention ? 'curated':'uncurated')) : 'All'"/>
             </v-layout>
-            <v-divider/>
 
             <div>
                 <SelectorTaxon
