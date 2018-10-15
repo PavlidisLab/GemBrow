@@ -7,6 +7,7 @@ const C_DSS = "datasets";
 const C_PFS = "platforms";
 const C_TXA = "taxa";
 const C_USR = "users";
+const C_ANN = "annotations";
 
 const axiosInst = axios.create({
   headers: null
@@ -86,9 +87,10 @@ vapi.attachLogoutEndpoint = function() {
 /**
  * Helper function for easy attachment of new endpoints using extra properties (cached and error_log).
  * @param propName the name of the property to attach the endpoint for.
+ * @param pathFunc custom function to create the call path. If none is provided, composePath is used.
  * @returns {*|Vapi} the same vapi instance this method was called on.
  */
-vapi.attachEndpoint = function(propName) {
+vapi.attachEndpoint = function(propName, pathFunc) {
   // Add Vapi state properties required for proper functionality
   this.resource.state[propName] = [];
   this.resource.state.cached[propName] = false;
@@ -99,8 +101,10 @@ vapi.attachEndpoint = function(propName) {
   return this.get({
     action: "get" + propName,
     property: propName,
-    path: ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
-      composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id),
+    path: pathFunc
+      ? pathFunc
+      : ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
+          composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
@@ -169,6 +173,9 @@ export default vapi
   .attachEndpoint(C_PFS)
   .attachEndpoint(C_TXA)
   .attachEndpoint(C_USR)
+  .attachEndpoint(C_ANN, query => {
+    return "annotations/search" + query;
+  })
   .attachLogoutEndpoint()
   .getStore({
     createStateFn: true // Using modules

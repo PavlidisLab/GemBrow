@@ -37,6 +37,7 @@
                         item-text="label"
                         autocomplete
                         dense
+                        max-height="40%"
                 >
                     <template slot="selection" slot-scope="data">
                         <v-chip
@@ -51,13 +52,30 @@
                         </v-chip>
                     </template>
                     <template slot="item" slot-scope="data">
-                        <strong>{{ data.item.label }}</strong>
-                        <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
+                        <v-layout row wrap>
+                            <span style="width: 60%; max-width: 60%; text-align: left;">
+                                <strong>{{ data.item.label }}</strong>
+                                <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
+                            </span>
+                            <v-spacer/>
+                            <v-tooltip top>
+                                <v-icon slot="activator" right v-if="data.item.typeBiomaterial">mdi-dna</v-icon>
+                                Used in biomaterials
+                            </v-tooltip>
+                            <v-tooltip top>
+                                <v-icon slot="activator" right v-if="data.item.typeTag">mdi-tag-outline</v-icon>
+                                Used as a dataset tag
+                            </v-tooltip>
+                            <v-tooltip top>
+                                <v-icon slot="activator" right v-if="data.item.typeFactorValue">mdi-flask-outline</v-icon>
+                                Used as a factor value
+                            </v-tooltip>
+                        </v-layout>
                     </template>
                 </v-select>
             </div>
             <v-divider v-if="search_on"/>
-            
+
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
                 <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
@@ -111,6 +129,7 @@
 <script>
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
+import { _keywords } from "../assets/Characteristics.js";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
@@ -287,15 +306,10 @@ export default {
           }
         }
       ],
-      keywords: [
-        { label: "BLEP", category: "blop", type: "ExperimentTag" },
-        { label: "BLEP1", category: "blop2", type: "ExperimentTag" }
-      ]
+      keywords: _keywords
     };
   },
-  mounted() {
-    //this.search = this.$store.state.dss.search;
-  },
+  mounted() {},
   computed: {
     ...mapState({
       taxa: state => state.api.taxa,
