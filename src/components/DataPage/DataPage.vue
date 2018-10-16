@@ -248,9 +248,13 @@ export default {
         return state.api[this.lName];
       },
       pending(state) {
-        return state.api.pending[this.lName] || this.preRefreshProp
-          ? state.api.pending[this.preRefreshProp]
-          : false;
+        if (this.preRefreshProp) {
+          return (
+            state.api.pending[this.lName] ||
+            state.api.pending[this.preRefreshProp]
+          );
+        }
+        return state.api.pending[this.lName];
       },
       error(state) {
         return state.api.error[this.lName];
