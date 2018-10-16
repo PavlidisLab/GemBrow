@@ -148,7 +148,7 @@ export default {
       ],
       cols: [
         {
-          text: "ID",
+          label: "ID",
           value: "id",
           tip: "The Gemma ID of the Dataset. For internal use only.",
           adminOnly: true,
@@ -157,7 +157,7 @@ export default {
           }
         },
         {
-          text: "Accession",
+          label: "Accession",
           value: "shortName",
           tip: "The GEO accession or a short name of the dataset.",
           renderer(props) {
@@ -165,7 +165,7 @@ export default {
           }
         },
         {
-          text: "Name",
+          label: "Name",
           value: "name",
           tip: "The full name of the dataset.",
           renderer(props) {
@@ -173,7 +173,7 @@ export default {
           }
         },
         {
-          text: "Taxon",
+          label: "Taxon",
           value: "taxon",
           tip: "The taxon of the dataset samples.",
           renderer(props) {
@@ -181,7 +181,7 @@ export default {
           }
         },
         {
-          text: "Updated",
+          label: "Updated",
           value: "lastUpdated",
           tip: "The date the dataset was last changed within Gemma.",
           renderer(props) {
@@ -189,7 +189,7 @@ export default {
           }
         },
         {
-          text: "Platforms",
+          label: "Platforms",
           value: "arrayDesignCount",
           tip: "The amount of usable platforms the dataset uses.",
           renderer(props) {
@@ -197,7 +197,8 @@ export default {
           }
         },
         {
-          text: "Curation",
+          labelMain: "Curation",
+          label: "Uncurated",
           value: "needsAttention",
           tip:
             "Displays a warning icon if the dataset curation is not finished.",
@@ -216,7 +217,8 @@ export default {
           }
         },
         {
-          text: "Usability",
+          labelMain: "Usability",
+          label: "Unusable",
           value: "troubled",
           tip:
             "Displays a warning icon if the dataset is unusable for any reason.",
@@ -232,7 +234,7 @@ export default {
           }
         },
         {
-          text: "Quality",
+          label: "Quality",
           value: "geeq.publicQualityScore",
           tip: "The quality score of the dataset.",
           rowTip(props) {
@@ -254,7 +256,7 @@ export default {
           }
         },
         {
-          text: "Suitability",
+          label: "Suitability",
           value: "geeq.publicSuitabilityScore",
           tip: "The suitability score of the dataset.",
           adminOnly: true,
@@ -279,7 +281,7 @@ export default {
           }
         },
         {
-          text: "Gemma",
+          label: "Gemma",
           value: "gLink",
           tip: "Show dataset details page in Gemma",
           link(props) {

@@ -7,14 +7,15 @@
                         <v-flex xs2>
                             <v-card tile flat>
                                 <v-card-text>
-                                    <v-btn icon flat large class="text-xs-center" v-on:click="toggleColsSettings()"
+                                    <v-btn round flat medium class="text-xs-center" v-on:click="toggleColsSettings()"
                                            title="Table column settings" color="light-blue">
                                         <v-icon>view_week</v-icon>
+                                        &nbsp;Columns
                                     </v-btn>
                                 </v-card-text>
                             </v-card>
                         </v-flex>
-                        <v-flex xs10 d-flex align-center v-if="error">
+                        <v-flex xs9 d-flex align-center v-if="error">
                             <v-card tile flat>
                                 <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
                                     {{error}}
@@ -33,14 +34,19 @@
                                 </v-alert>
                             </v-card>
                         </v-flex>
-                        <v-flex xs2 text-xs-right>
+                        <v-flex xs3 text-xs-right>
                             <v-card tile flat>
                                 <v-card-text>
-                                    <v-btn icon flat large class="text-xs-center" v-on:click="toggleSettings()"
+                                    <v-btn round flat medium class="text-xs-center" v-on:click="toggleSettings()"
                                            title="Data filters"
                                            color="light-blue">
                                         <v-icon>mdi-filter</v-icon>
+                                        &nbsp;Filters
                                     </v-btn>
+                                    <csv-button
+                                            :data="items"
+                                            :fields="headers"
+                                    ></csv-button>
                                 </v-card-text>
                             </v-card>
                         </v-flex>
@@ -57,10 +63,9 @@
                                     <v-layout row wrap class="text-xs-left col-row compact" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
-                                            <span slot="activator">
-                                                <v-switch tile flat
-                                                          :label="col.text" v-model="visibleCols" :value="col.text" :title="col.tip"/>
-                                            </span>
+                                            <v-switch tile flat
+                                                      :label="col.labelMain ? col.labelMain : col.label"
+                                                      v-model="visibleCols" :value="col.label" :title="col.tip"/>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -74,14 +79,15 @@
                                     :pagination.sync="pagination"
                                     :total-items="total"
                                     :rows-per-page-items="[10,20,50,100]"
+                                    no-data-text="No entries for given filters."
                                     disable-initial-sort>
                                 <template slot="headerCell" slot-scope="props">
-                                    <span :title="props.header.tip">{{ props.header.text }}</span>
+                                    <span :title="props.header.tip">{{ props.header.labelMain ? props.header.labelMain : props.header.label }}</span>
                                 </template>
                                 <template slot="items" slot-scope="props">
                                     <tr @click="props.expanded = !props.expanded">
                                         <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                            v-show="visibleCols.includes(col.text) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
+                                            v-show="visibleCols.includes(col.label) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
                                             <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
                                                 <TableCell
                                                         :tip="col.rowTip ? col.rowTip(props) : ''"
@@ -201,9 +207,10 @@ import { mapState } from "vuex";
 import Vue from "vue";
 import moment from "moment";
 import TableCell from "../TableCell";
+import CsvButton from "./CsvButton";
 
 export default {
-  components: { TableCell },
+  components: { TableCell, CsvButton },
   props: {
     title: String,
     cols: Array,
@@ -265,7 +272,7 @@ export default {
         const arr = [];
         for (let col of this.cols) {
           if (
-            this.visibleCols.includes(col.text) &&
+            this.visibleCols.includes(col.label) &&
             (!col.adminOnly ||
               (col.adminOnly && this.user && this.user.isAdmin))
           )

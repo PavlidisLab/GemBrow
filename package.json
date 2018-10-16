@@ -12,6 +12,7 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "eslint": "^4.19.1",
+    "json2csv": "^4.2.1",
     "material-icons": "^0.2.3",
     "moment": "^2.22.1",
     "vue": "^2.5.16",

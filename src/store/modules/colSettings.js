@@ -7,8 +7,8 @@ const ds_cols_state = {
   Taxon: true,
   Updated: true,
   Platforms: false,
-  Curation: true,
-  Usability: false,
+  Uncurated: true,
+  Unusable: false,
   Quality: true,
   Suitability: false,
   Gemma: true
