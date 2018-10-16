@@ -8,7 +8,7 @@
                             <v-card tile flat>
                                 <v-card-text>
                                     <v-btn icon flat large class="text-xs-center" v-on:click="toggleColsSettings()"
-                                           title="Table settings" color="light-blue">
+                                           title="Table column settings" color="light-blue">
                                         <v-icon>view_week</v-icon>
                                     </v-btn>
                                 </v-card-text>
@@ -24,15 +24,10 @@
                                     <v-layout row align-center d-flex>
                                         <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
                                         <v-flex text-xs-right>
-                                            <v-tooltip bottom>
-                                                <template slot="activator">
-                                                    <v-btn xs2 small v-on:click="refreshData()" color="error"
-                                                           class="lcase">
-                                                        <v-icon>sync</v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                Try to refresh the data
-                                            </v-tooltip>
+                                            <v-btn xs2 small v-on:click="refreshData()" color="error"
+                                                   class="lcase" title="Try to refresh the data">
+                                                <v-icon>sync</v-icon>
+                                            </v-btn>
                                         </v-flex>
                                     </v-layout>
                                 </v-alert>
@@ -62,13 +57,10 @@
                                     <v-layout row wrap class="text-xs-left col-row compact" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
-                                            <v-tooltip top>
-                                                <span slot="activator">
-                                                    <v-switch tile flat
-                                                              :label="col.text" v-model="visibleCols" :value="col.text"/>
-                                                </span>
-                                                <span>{{ col.tip }}</span>
-                                            </v-tooltip>
+                                            <span slot="activator">
+                                                <v-switch tile flat
+                                                          :label="col.text" v-model="visibleCols" :value="col.text" :title="col.tip"/>
+                                            </span>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -84,10 +76,7 @@
                                     :rows-per-page-items="[10,20,50,100]"
                                     disable-initial-sort>
                                 <template slot="headerCell" slot-scope="props">
-                                    <v-tooltip bottom>
-                                        <span slot="activator">{{ props.header.text }}</span>
-                                        <span>{{ props.header.tip }}</span>
-                                    </v-tooltip>
+                                    <span :title="props.header.tip">{{ props.header.text }}</span>
                                 </template>
                                 <template slot="items" slot-scope="props">
                                     <tr @click="props.expanded = !props.expanded">

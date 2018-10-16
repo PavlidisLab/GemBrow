@@ -17,12 +17,9 @@
                     <v-flex xs-12>
                         <v-switch v-model="search_on" label="Keywords"/>
                     </v-flex>
-                    <v-tooltip top v-if="search_on">
-                        <v-btn slot="activator" large round flat icon class="grey darken-2" color="red lighten-4" v-on:click="clearSearch()">
-                            <v-icon>mdi-tag-remove</v-icon>
-                        </v-btn>
-                        Clear keywords
-                    </v-tooltip>
+                    <v-btn v-if="search_on" large round flat icon class="grey darken-2" color="red lighten-4" v-on:click="clearSearch()" title="Clear keywords">
+                        <v-icon>mdi-tag-remove</v-icon>
+                    </v-btn>
                 </v-layout>
                 <v-select
                         class="search"
@@ -54,18 +51,9 @@
                                     <strong>{{ data.item.value }}</strong>
                                 </span>
                                 <v-spacer/>
-                                <v-tooltip top>
-                                    <v-icon slot="activator" right v-if="data.item.typeBiomaterial">mdi-dna</v-icon>
-                                    Used in biomaterials
-                                </v-tooltip>
-                                <v-tooltip top>
-                                    <v-icon slot="activator" right v-if="data.item.typeTag">mdi-tag-outline</v-icon>
-                                    Used as a dataset tag
-                                </v-tooltip>
-                                <v-tooltip top>
-                                    <v-icon slot="activator" right v-if="data.item.typeFactorValue">mdi-flask-outline</v-icon>
-                                    Used as a factor value
-                                </v-tooltip>
+                                <v-icon slot="activator" right v-if="data.item.typeBiomaterial" title="Used in biomaterials">mdi-dna</v-icon>
+                                <v-icon slot="activator" right v-if="data.item.typeTag" title="Used as a dataset tag">mdi-tag-outline</v-icon>
+                                <v-icon slot="activator" right v-if="data.item.typeFactorValue" title="Used as a factor value">mdi-flask-outline</v-icon>
                             </v-layout>
                             <span>{{ data.item.category }}&nbsp;{{data.item.valueUri}}</span>
                         </v-tooltip>
