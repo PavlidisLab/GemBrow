@@ -35,7 +35,7 @@ const ds_state = {
   taxon_on: false,
   taxon: null,
   search_on: false,
-  search: ["sdf"]
+  search_query: ["sdf"]
 };
 
 // dataset getters, aka computed state properties

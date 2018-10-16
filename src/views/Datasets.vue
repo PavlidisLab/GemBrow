@@ -25,52 +25,48 @@
                 <v-select
                         class="search"
                         v-if="search_on" :disabled="!search_on"
-                        v-model="search"
+                        v-model="search_query"
                         placeholder="Add keywords"
-                        tags
-                        multiple
-                        chips
-                        solo
-                        append-icon=""
-                        :items="keywordsFiltered"
-                        flat
-                        item-text="label"
-                        autocomplete
-                        dense
+                        tags multiple chips solo dense flat autocomplete cache-items return-object
                         max-height="40%"
+                        :append-icon=" keywordsPending ? 'mdi-sync mdi-spin' : '' "
+                        :append-icon-cb="null"
+                        item-text="value"
+                        :items="keywordsFiltered"
+                        :search-input.sync="annot_search"
                 >
                     <template slot="selection" slot-scope="data">
-                        <v-chip
+                        <v-chip class="keyword chip"
+                                close light small
                                 :selected="data.selected"
-                                close
-                                light
-                                small
+                                :color="getChipColor(data.item)"
                                 @input="data.parent.selectItem(data.item)"
                         >
-                            <strong>{{ data.item.label }}</strong>
-                            <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
+                            <strong>{{ data.item.value }}</strong>
                         </v-chip>
                     </template>
                     <template slot="item" slot-scope="data">
-                        <v-layout row wrap>
-                            <span style="width: 60%; max-width: 60%; text-align: left;">
-                                <strong>{{ data.item.label }}</strong>
-                                <span v-if="data.item.category">&nbsp;({{ data.item.category }})</span>
-                            </span>
-                            <v-spacer/>
-                            <v-tooltip top>
-                                <v-icon slot="activator" right v-if="data.item.typeBiomaterial">mdi-dna</v-icon>
-                                Used in biomaterials
-                            </v-tooltip>
-                            <v-tooltip top>
-                                <v-icon slot="activator" right v-if="data.item.typeTag">mdi-tag-outline</v-icon>
-                                Used as a dataset tag
-                            </v-tooltip>
-                            <v-tooltip top>
-                                <v-icon slot="activator" right v-if="data.item.typeFactorValue">mdi-flask-outline</v-icon>
-                                Used as a factor value
-                            </v-tooltip>
-                        </v-layout>
+                        <v-tooltip left style="width: 100%">
+                            <v-layout slot="activator" row wrap class="select row">
+                                <span class="label">
+                                    <strong>{{ data.item.value }}</strong>
+                                </span>
+                                <v-spacer/>
+                                <v-tooltip top>
+                                    <v-icon slot="activator" right v-if="data.item.typeBiomaterial">mdi-dna</v-icon>
+                                    Used in biomaterials
+                                </v-tooltip>
+                                <v-tooltip top>
+                                    <v-icon slot="activator" right v-if="data.item.typeTag">mdi-tag-outline</v-icon>
+                                    Used as a dataset tag
+                                </v-tooltip>
+                                <v-tooltip top>
+                                    <v-icon slot="activator" right v-if="data.item.typeFactorValue">mdi-flask-outline</v-icon>
+                                    Used as a factor value
+                                </v-tooltip>
+                            </v-layout>
+                            <span>{{ data.item.category }}&nbsp;{{data.item.valueUri}}</span>
+                        </v-tooltip>
                     </template>
                 </v-select>
             </div>
@@ -108,7 +104,7 @@
             </div>
             <v-divider v-if="this.user && this.user.isAdmin && score_s_min_on"/>
 
-            <div >
+            <div>
                 <v-switch v-model="platform_amount_on" label="Min. platforms"/>
                 <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
                           step="1" ticks min="1" max="3"></v-slider>
@@ -127,6 +123,7 @@
 </template>
 
 <script>
+import Vue from "vue";
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import { _keywords } from "../assets/Characteristics.js";
@@ -139,7 +136,7 @@ export default {
     DataPage: DataPage,
     SelectorTaxon: SelectorTaxon
   },
-  data() {
+  data: function() {
     return {
       title: "Dataset Browser",
       lName: "datasets",
@@ -306,21 +303,31 @@ export default {
           }
         }
       ],
+      annot_search: null,
       keywords: _keywords
     };
   },
-  mounted() {},
+  watch: {
+    annot_search(val) {
+      val && this.searchAnnotations(val);
+    },
+    annotations() {
+      this.keywords = _keywords.concat(this.annotations);
+    }
+  },
   computed: {
     ...mapState({
       taxa: state => state.api.taxa,
-      user: state => state.main.user
+      user: state => state.main.user,
+      keywordsPending: state => state.api.pending.annotations,
+      annotations: state => state.api.annotations
     }),
     keywordsFiltered: {
       get() {
         let keywords = [];
         for (let i = 0; i < this.keywords.length; i++) {
           let keyword = this.keywords[i];
-          if (!this.search.includes(keyword)) {
+          if (!this.search_query.includes(keyword)) {
             keywords.push(keyword);
           }
         }
@@ -433,24 +440,24 @@ export default {
         this.$store.dispatch("dss/setSearch_on", value);
       }
     },
-    search: {
+    search_query: {
       get() {
-        return this.$store.state.dss.search;
+        return this.$store.state.dss.search_query;
       },
       set(value) {
         let newSearch = [];
         for (let i = 0; i < value.length; i++) {
           let item = value[i];
-          if (typeof item !== "object") {
+          if (!item.valueUri && !item.typeFreeText) {
             item = {
-              label: item,
-              type: "FreeText"
+              value: item,
+              typeFreeText: true
             };
           }
           newSearch.push(item);
         }
 
-        this.$store.dispatch("dss/setSearch", newSearch);
+        this.$store.dispatch("dss/setSearch_query", newSearch);
       }
     }
   },
@@ -471,11 +478,24 @@ export default {
       }
       return sort;
     },
-    removeSearch(item) {
-      this.search = this.search.filter(val => val !== item);
-    },
     clearSearch() {
-      this.search = [];
+      this.search_query = [];
+    },
+    searchAnnotations: Vue._.debounce(function(val) {
+      this.$store.dispatch("api/getannotations", {
+        params: val
+      });
+    }, 500),
+    getChipColor(item) {
+      if (item.typeFreeText) {
+        return "purple accent-1";
+      } else if (
+        !item.typeFactorValue &&
+        !item.typeTag &&
+        !item.typeBiomaterial
+      ) {
+        return "teal accent-2";
+      }
     }
   }
 };
@@ -488,5 +508,21 @@ div.input-group.search {
   margin-top: $dim2;
   padding-top: $dim2;
   padding-bottom: $dim2;
+}
+.select.row {
+  overflow: hidden;
+  max-height: 40px;
+}
+
+.select.row .label {
+  width: 70%;
+  max-width: 70%;
+  text-align: left;
+}
+
+.keyword.chip strong {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

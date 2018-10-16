@@ -2,6 +2,7 @@ import Vapi from "vuex-rest-api";
 import axios from "axios";
 
 const local = true;
+const apiURL = "/rest/v2/";
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_PFS = "platforms";
@@ -29,7 +30,7 @@ function p(first) {
 }
 
 function composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id) {
-  let path = "/rest/v2/";
+  let path = apiURL;
   let _firstArg = true;
   let firstArg = {
     get() {
@@ -174,7 +175,7 @@ export default vapi
   .attachEndpoint(C_TXA)
   .attachEndpoint(C_USR)
   .attachEndpoint(C_ANN, query => {
-    return "annotations/search" + query;
+    return apiURL + "annotations/search/" + query;
   })
   .attachLogoutEndpoint()
   .getStore({
