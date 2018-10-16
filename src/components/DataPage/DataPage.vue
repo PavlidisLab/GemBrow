@@ -222,7 +222,9 @@ export default {
     lName: String,
     sName: String,
     cName: String,
-    sortMapping: Function
+    sortMapping: Function,
+    preRefreshProp: String,
+    preRefreshFuncParam: String
   },
   data() {
     return {
@@ -257,7 +259,9 @@ export default {
         return state.api[this.lName];
       },
       pending(state) {
-        return state.api.pending[this.lName];
+        return state.api.pending[this.lName] || this.preRefreshProp
+          ? state.api.pending[this.preRefreshProp]
+          : false;
       },
       error(state) {
         return state.api.error[this.lName];
@@ -377,16 +381,26 @@ export default {
       }
     },
     refreshData: Vue._.debounce(function() {
-      if (this.$refs.settings.validate()) {
-        this.forceRefresh();
+      if (this.preRefreshProp) {
+        this.$store
+          .dispatch("api/get" + this.preRefreshProp, {
+            params: this.preRefreshFuncParam
+          })
+          .then(() => {
+            // noinspection JSIgnoredPromiseFromCall
+            this.$store.dispatch("api/get" + this.lName, {
+              params: this.refreshParams
+            });
+          });
+      } else {
+        if (this.$refs.settings.validate()) {
+          // noinspection JSIgnoredPromiseFromCall
+          this.$store.dispatch("api/get" + this.lName, {
+            params: this.refreshParams
+          });
+        }
       }
     }, 500),
-    forceRefresh() {
-      // noinspection JSIgnoredPromiseFromCall
-      this.$store.dispatch("api/get" + this.lName, {
-        params: this.refreshParams
-      });
-    },
     toggleSettings() {
       // noinspection JSIgnoredPromiseFromCall
       this.$store.dispatch("main/toggleSearchSettings");

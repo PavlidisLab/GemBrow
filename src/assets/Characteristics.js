@@ -1,23 +1,5 @@
 export var _keywords = [
   {
-    value: "total RNA",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0004964",
-    category: "MaterialType",
-    count: 399465,
-    typeBiomaterial: true,
-    typeTag: true,
-    typeFactorValue: true
-  },
-  {
-    value: "polyA RNA",
-    valueUri: "http://purl.obolibrary.org/obo/OBI_0000869",
-    category: "MaterialType",
-    count: 8980,
-    typeBiomaterial: true,
-    typeTag: true,
-    typeFactorValue: true
-  },
-  {
     value: "carcinoma",
     valueUri: "http://purl.obolibrary.org/obo/DOID_305",
     category: "disease",
@@ -27,33 +9,6 @@ export var _keywords = [
     typeFactorValue: true
   },
   {
-    value: "reference subject role",
-    valueUri: "http://purl.obolibrary.org/obo/OBI_0000220",
-    category: "treatment",
-    count: 5204,
-    typeBiomaterial: true,
-    typeTag: false,
-    typeFactorValue: true
-  },
-  {
-    value: "block",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0005067",
-    category: "block",
-    count: 4119,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: false
-  },
-  {
-    value: "treatment",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0000727",
-    category: "treatment",
-    count: 3989,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: false
-  },
-  {
     value: "Diabetes Mellitus",
     valueUri: "http://purl.obolibrary.org/obo/DOID_9351",
     category: "disease",
@@ -61,33 +16,6 @@ export var _keywords = [
     typeBiomaterial: false,
     typeTag: true,
     typeFactorValue: true
-  },
-  {
-    value: "wild type genotype",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0005168",
-    category: "genotype",
-    count: 2886,
-    typeBiomaterial: true,
-    typeTag: true,
-    typeFactorValue: true
-  },
-  {
-    value: "reference substance role",
-    valueUri: "http://purl.obolibrary.org/obo/OBI_0000025",
-    category: "treatment",
-    count: 2819,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: true
-  },
-  {
-    value: "genotype",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0000513",
-    category: "genotype",
-    count: 2609,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: false
   },
   {
     value: "hepatocellular carcinoma",
@@ -133,15 +61,6 @@ export var _keywords = [
     typeBiomaterial: false,
     typeTag: true,
     typeFactorValue: true
-  },
-  {
-    value: "timepoint",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0000724",
-    category: "timepoint",
-    count: 2123,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: false
   },
   {
     value: "Melanoma",
@@ -198,15 +117,6 @@ export var _keywords = [
     typeFactorValue: true
   },
   {
-    value: "disease",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0000408",
-    category: "disease",
-    count: 1634,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: false
-  },
-  {
     value: "hereditary breast ovarian cancer",
     valueUri: "http://purl.obolibrary.org/obo/DOID_5683",
     category: "Phenotype",
@@ -257,15 +167,6 @@ export var _keywords = [
     category: "disease",
     count: 1350,
     typeBiomaterial: false,
-    typeTag: true,
-    typeFactorValue: true
-  },
-  {
-    value: "brain",
-    valueUri: "http://purl.obolibrary.org/obo/UBERON_0000955",
-    category: "organism part",
-    count: 1286,
-    typeBiomaterial: true,
     typeTag: true,
     typeFactorValue: true
   },
@@ -330,24 +231,6 @@ export var _keywords = [
     count: 1135,
     typeBiomaterial: true,
     typeTag: true,
-    typeFactorValue: true
-  },
-  {
-    value: "organismpart",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0000635",
-    category: "organism part",
-    count: 1122,
-    typeBiomaterial: false,
-    typeTag: false,
-    typeFactorValue: true
-  },
-  {
-    value: "initial time point",
-    valueUri: "http://www.ebi.ac.uk/efo/EFO_0004425",
-    category: "timepoint",
-    count: 1119,
-    typeBiomaterial: false,
-    typeTag: false,
     typeFactorValue: true
   },
   {

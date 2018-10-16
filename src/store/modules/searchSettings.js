@@ -18,6 +18,8 @@ const ds_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
+  ids_on: false,
+  ids: [],
   troubled_on: true,
   troubled: false,
   attention_on: false,
@@ -35,7 +37,7 @@ const ds_state = {
   taxon_on: false,
   taxon: null,
   search_on: false,
-  search_query: ["sdf"]
+  search_query: []
 };
 
 // dataset getters, aka computed state properties
@@ -46,6 +48,7 @@ const ds_getters = {
   },
   filter(state) {
     const filters = [
+      { value: "ids", url: "id", op: " in " },
       { value: "troubled", url: "curationDetails.troubled", op: " = " },
       { value: "attention", url: "curationDetails.needsAttention", op: " = " },
       { value: "score_q_min", url: "geeq.detectedQualityScore", op: " >= " },

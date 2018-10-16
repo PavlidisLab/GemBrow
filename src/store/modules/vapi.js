@@ -9,6 +9,7 @@ const C_PFS = "platforms";
 const C_TXA = "taxa";
 const C_USR = "users";
 const C_ANN = "annotations";
+const C_DSS_Search = "datasetSearch";
 
 const axiosInst = axios.create({
   headers: null
@@ -176,6 +177,9 @@ export default vapi
   .attachEndpoint(C_USR)
   .attachEndpoint(C_ANN, query => {
     return apiURL + "annotations/search/" + query;
+  })
+  .attachEndpoint(C_DSS_Search, query => {
+    return apiURL + "annotations/search/" + query + "/datasets";
   })
   .attachLogoutEndpoint()
   .getStore({
