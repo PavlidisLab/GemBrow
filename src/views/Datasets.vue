@@ -94,12 +94,12 @@
             </div>
             <v-divider v-if="this.user && this.user.isAdmin && score_s_min_on"/>
 
-            <div>
+            <div v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="platform_amount_on" label="Min. platforms"/>
                 <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
                           step="1" ticks min="1" max="3"></v-slider>
             </div>
-            <v-divider v-if="platform_amount_on"/>
+            <v-divider v-if="this.user && this.user.isAdmin && platform_amount_on"/>
 
             <div >
                 <SelectorTaxon
