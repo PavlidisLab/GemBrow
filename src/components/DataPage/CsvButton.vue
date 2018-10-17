@@ -2,7 +2,7 @@
         <v-btn round flat medium class="text-xs-center"
                title="Download all data matching the current filters as a csv file. Respects the 'columns' settings."
                color="light-blue"
-               :disabled="pending || this.itemsPage.length < 1"
+               :disabled="pending || this.itemsPage.length < 1 || this.$store.state.api.pending[this.propName]"
                 v-on:click="downloadData()">
             <v-icon v-if="!pending">mdi-file-download</v-icon>
             <v-icon v-if="pending">mdi-loading spin</v-icon>
@@ -72,6 +72,8 @@ export default {
               const col = this.cols[j];
               if (col.renderer) {
                 data[i][col.value] = col.renderer({ item: data[i] });
+              } else if (col.link) {
+                data[i][col.value] = col.link({ item: data[i] });
               }
             }
           }

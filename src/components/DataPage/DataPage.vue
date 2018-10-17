@@ -68,8 +68,9 @@
                                     <v-layout row wrap class="text-xs-left col-row compact" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
-                                            <v-switch tile
-                                                      l="visibleCols" :value="col.label" :title="col.tip"/>
+                                            <v-switch tile flat
+                                                      :label="col.labelMain ? col.labelMain : col.label"
+                                                      v-model="visibleCols" :value="col.label" :title="col.tip"/>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
