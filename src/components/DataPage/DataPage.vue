@@ -44,8 +44,12 @@
                                         &nbsp;Filters
                                     </v-btn>
                                     <csv-button
-                                            :data="items"
+                                            :cols="cols"
+                                            :visible-cols="visibleCols"
                                             :fields="headers"
+                                            :get-data-func="loadCsv"
+                                            :prop-name="lName"
+                                            :pre-refresh-prop="preRefreshProp"
                                     ></csv-button>
                                 </v-card-text>
                             </v-card>
@@ -63,9 +67,8 @@
                                     <v-layout row wrap class="text-xs-left col-row compact" justify-start>
                                         <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
                                                 v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
-                                            <v-switch tile flat
-                                                      :label="col.labelMain ? col.labelMain : col.label"
-                                                      v-model="visibleCols" :value="col.label" :title="col.tip"/>
+                                            <v-switch tile
+                                                      l="visibleCols" :value="col.label" :title="col.tip"/>
                                         </v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -346,7 +349,6 @@ export default {
       }
     }
   },
-
   methods: {
     paginate() {
       const { sortBy, descending, page, rowsPerPage } = this.pagination;
@@ -382,7 +384,7 @@ export default {
     },
     refreshData: Vue._.debounce(function() {
       if (this.preRefreshProp) {
-        this.$store
+        return this.$store
           .dispatch("api/get" + this.preRefreshProp, {
             params: this.preRefreshFuncParam
           })
@@ -395,11 +397,23 @@ export default {
       } else {
         if (this.$refs.settings.validate()) {
           // noinspection JSIgnoredPromiseFromCall
-          this.$store.dispatch("api/get" + this.lName, {
+          return this.$store.dispatch("api/get" + this.lName, {
             params: this.refreshParams
           });
         }
       }
+    }, 500),
+    loadCsv: Vue._.debounce(function(func) {
+      return this.refreshData().then(() => {
+        if (this.$refs.settings.validate()) {
+          // noinspection JSIgnoredPromiseFromCall
+          return this.$store
+            .dispatch("api/get" + this.lName + "Csv", {
+              params: this.refreshParams
+            })
+            .then(func);
+        }
+      });
     }, 500),
     toggleSettings() {
       // noinspection JSIgnoredPromiseFromCall

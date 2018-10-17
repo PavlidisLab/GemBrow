@@ -1,7 +1,7 @@
 /* eslint-disable */
 import Vue from "vue";
 import Vuex from "vuex";
-import createPersistedState from "vuex-persistedstate";
+import CreatePersistedState from "vuex-persistedstate";
 import api from "./modules/vapi";
 import main from "./modules/main"
 import {ds, pf} from "./modules/searchSettings";
@@ -15,7 +15,14 @@ const debug = process.env.NODE_ENV !== "production";
 api.namespaced = true;
 
 export default new Vuex.Store({
-    plugins: [createPersistedState()],
+    plugins: [CreatePersistedState({
+        reducer: (persistedState) => {
+            const stateFilter = JSON.parse( JSON.stringify( persistedState ) );
+            // Remove stuff we do not want to persist for any reason
+            delete stateFilter.api['datasetsCsv']; // Data is usually too big and serialization fails
+            return stateFilter
+        }
+    })],
     modules: {
         main: main,
         api: api,

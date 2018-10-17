@@ -28,7 +28,7 @@
                         placeholder="Add keywords"
                         tags multiple chips solo dense flat autocomplete cache-items return-object
                         max-height="40%"
-                        :append-icon=" keywordsPending ? 'mdi-sync mdi-spin' : '' "
+                        :append-icon=" keywordsPending ? 'mdi-loading mdi-spin' : '' "
                         :append-icon-cb="null"
                         item-text="value"
                         :items="keywordsFiltered"

@@ -5,6 +5,7 @@ const local = true;
 const apiURL = "/rest/v2/";
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
+const C_DSS_CSV = "datasetsCsv";
 const C_PFS = "platforms";
 const C_TXA = "taxa";
 const C_USR = "users";
@@ -181,6 +182,9 @@ export default vapi
   .attachEndpoint(C_DSS_Search, query => {
     return apiURL + "annotations/search/" + query + "/datasets";
   })
+  .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
+    composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id)
+  )
   .attachLogoutEndpoint()
   .getStore({
     createStateFn: true // Using modules
