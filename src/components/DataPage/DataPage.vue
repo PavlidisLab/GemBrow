@@ -47,9 +47,10 @@
                                             :cols="cols"
                                             :visible-cols="visibleCols"
                                             :fields="headers"
-                                            :get-data-func="loadCsv"
+                                            :get-data-func="refreshData"
                                             :prop-name="lName"
                                             :prop-download-name="downloadName"
+                                            :refresh-params="refreshParams"
                                     ></csv-button>
                                 </v-card-text>
                             </v-card>
@@ -187,9 +188,9 @@
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
                                 <div>
-                                    <v-btn class="light-blue darken-1" block round type="submit" v-on:click="refreshData()" :loading="pending">
+                                    <v-btn class="light-blue darken-1" block round type="submit" v-on:click="refreshData()" :loading="pending" :disabled="pending">
                                         <span slot="loader" class="custom-loader">
-                                            <v-icon class="spin inv">sync</v-icon>
+                                            <v-icon>mdi-loading spin</v-icon>
                                         </span>
                                         <v-icon left dark>mdi-filter</v-icon>
                                         Apply filters
@@ -403,18 +404,6 @@ export default {
           });
         }
       }
-    }, 500),
-    loadCsv: Vue._.debounce(function(func) {
-      return this.refreshData().then(() => {
-        if (this.$refs.settings.validate()) {
-          // noinspection JSIgnoredPromiseFromCall
-          return this.$store
-            .dispatch("api/get" + this.lName + "Csv", {
-              params: this.refreshParams
-            })
-            .then(func);
-        }
-      });
     }, 500),
     toggleSettings() {
       // noinspection JSIgnoredPromiseFromCall

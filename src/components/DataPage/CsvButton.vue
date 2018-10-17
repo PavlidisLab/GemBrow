@@ -2,9 +2,10 @@
         <v-btn round flat medium class="text-xs-center"
                title="Download all data matching the current filters as a csv file. Respects the 'columns' settings."
                color="light-blue"
+               :disabled="pending || this.itemsPage.length < 1"
                 v-on:click="downloadData()">
             <v-icon v-if="!pending">mdi-file-download</v-icon>
-            <v-icon v-if="pending" class="spin inv">mdi-loading</v-icon>
+            <v-icon v-if="pending">mdi-loading spin</v-icon>
             &nbsp;CSV
         </v-btn>
 </template>
@@ -21,10 +22,15 @@ export default {
     visibleCols: Array,
     getDataFunc: Function,
     propName: String,
-    propDownloadName: String
+    propDownloadName: String,
+    refreshParams: Object
   },
-  created() {
-    this.$store.state.api.pending[this.propNameCsv] = false;
+  data: function() {
+    return {
+      unsubscribe_dss: Function,
+      unsubscribe_csv: Function,
+      pendingLocal: false
+    };
   },
   computed: {
     ...mapState({
@@ -35,7 +41,11 @@ export default {
         return state.api[this.propNameCsv];
       },
       pending(state) {
-        return state.api.pending[this.propNameCsv];
+        return (
+          this.pendingLocal &&
+          (state.api.pending[this.propName] ||
+            state.api.pending[this.propNameCsv])
+        );
       },
       error(state) {
         return state.api.error[this.propNameCsv];
@@ -52,13 +62,6 @@ export default {
     },
     propNameCsv() {
       return this.propName + "Csv";
-    },
-    downloadUrl() {
-      const parser = new json2csv.Parser({ fields: this.fields, quote: "" });
-      return this.itemsPage.length > 0
-        ? "data:text/csv," +
-            encodeURIComponent(parser.parse(this.items_rendered))
-        : "javascript:void(0);";
     },
     items_rendered: {
       get() {
@@ -80,16 +83,46 @@ export default {
   methods: {
     downloadData() {
       if (!this.pending) {
-        this.getDataFunc(() => {
-          const url = this.downloadUrl;
-          const link = document.createElement("a");
-          link.href = url;
-          link.setAttribute("download", this.downloadName); //or any other extension
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+        this.pendingLocal = true;
+        this.getDataFunc();
+
+        this.unsubscribe_dss = this.$store.subscribe(mutation => {
+          if (mutation.type === "api/GETDATASETS_SUCCEEDED") {
+            this.$store
+              .dispatch("api/get" + this.propNameCsv, {
+                params: this.refreshParams
+              })
+              .then(() => {
+                this.unsubscribe_dss();
+              });
+          }
+        });
+
+        this.unsubscribe_csv = this.$store.subscribe(mutation => {
+          if (mutation.type === "api/GETDATASETS_CSV_SUCCEEDED") {
+            let link = document.createElement("a");
+            link.href = this.getUrl();
+            link.setAttribute("download", this.downloadName);
+            document.body.appendChild(link);
+            link.click();
+
+            this.unsubscribe_csv();
+            this.pendingLocal = false;
+
+            // Cleanup is necessary for when the downloaded data is very big
+            document.body.removeChild(link);
+            link.href = null;
+            link = null;
+          }
         });
       }
+    },
+    getUrl() {
+      const parser = new json2csv.Parser({ fields: this.fields, quote: "" });
+      return this.itemsPage.length > 0
+        ? "data:text/csv," +
+            encodeURIComponent(parser.parse(this.items_rendered))
+        : "javascript:void(0);";
     }
   }
 };
