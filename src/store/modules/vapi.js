@@ -1,7 +1,7 @@
 import Vapi from "vuex-rest-api";
 import axios from "axios";
 
-const local = true;
+const local = false;
 const apiURL = "/rest/v2/";
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
