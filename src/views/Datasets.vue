@@ -332,7 +332,7 @@ export default {
         let name = "_";
         for (let i = 0; i < this.search_query.length; i++) {
           const ann = this.search_query[i];
-          name += ann.value + "_";
+          name += ann.value.replace(/ /g, "_") + "_";
         }
         return name;
       }
