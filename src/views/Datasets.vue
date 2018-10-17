@@ -10,6 +10,7 @@
             :sort-mapping="mapSort"
             :pre-refresh-prop="search_on ? 'datasetSearch' : null"
             :pre-refresh-func-param="datasetKeywordSearchParams"
+            :download-name="csvDownloadName"
     >
         <template slot="settingsForm">
             <div>
@@ -326,6 +327,16 @@ export default {
       annotations: state => state.api.annotations,
       foundDatasetsForKeywords: state => state.api.datasetSearch
     }),
+    csvDownloadName: {
+      get() {
+        let name = "_";
+        for (let i = 0; i < this.search_query.length; i++) {
+          const ann = this.search_query[i];
+          name += ann.value + "_";
+        }
+        return name;
+      }
+    },
     datasetKeywordSearchParams: {
       get() {
         const kwrds = this.$store.state.dss.search_query;

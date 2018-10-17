@@ -11,6 +11,7 @@
 
 <script>
 import json2csv from "json2csv";
+import moment from "moment";
 import { mapState } from "vuex";
 
 export default {
@@ -19,10 +20,8 @@ export default {
     cols: Array,
     visibleCols: Array,
     getDataFunc: Function,
-    downloadName: {
-      default: "export.csv"
-    },
-    propName: String
+    propName: String,
+    propDownloadName: String
   },
   created() {
     this.$store.state.api.pending[this.propNameCsv] = false;
@@ -42,6 +41,15 @@ export default {
         return state.api.error[this.propNameCsv];
       }
     }),
+    downloadName() {
+      return (
+        moment.unix(moment().valueOf() / 1000).format("L") +
+        "_gembrow" +
+        (this.propDownloadName ? this.propDownloadName : "_") +
+        this.propName +
+        ".csv"
+      );
+    },
     propNameCsv() {
       return this.propName + "Csv";
     },

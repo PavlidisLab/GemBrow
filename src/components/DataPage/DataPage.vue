@@ -49,7 +49,7 @@
                                             :fields="headers"
                                             :get-data-func="loadCsv"
                                             :prop-name="lName"
-                                            :pre-refresh-prop="preRefreshProp"
+                                            :prop-download-name="downloadName"
                                     ></csv-button>
                                 </v-card-text>
                             </v-card>
@@ -223,7 +223,8 @@ export default {
     cName: String,
     sortMapping: Function,
     preRefreshProp: String,
-    preRefreshFuncParam: String
+    preRefreshFuncParam: String,
+    downloadName: String
   },
   data() {
     return {
