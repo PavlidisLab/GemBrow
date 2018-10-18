@@ -204,6 +204,27 @@ export default {
           }
         },
         {
+          label: "Samples",
+          value: "bioAssayCount",
+          tip: "The amount of samples in the dataset.",
+          renderer(props) {
+            return props.item.bioAssayCount
+              ? props.item.bioAssayCount.toString()
+              : "";
+          }
+        },
+        {
+          label: "Biomaterials",
+          value: "bioMaterialCount",
+          adminOnly: true,
+          tip: "The amount of biomaterials the dataset uses.",
+          renderer(props) {
+            return props.item.bioMaterialCount
+              ? props.item.bioMaterialCount.toString()
+              : "";
+          }
+        },
+        {
           labelMain: "Curation",
           label: "Uncurated",
           value: "needsAttention",

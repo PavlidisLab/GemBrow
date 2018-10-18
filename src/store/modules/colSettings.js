@@ -7,6 +7,8 @@ const ds_cols_state = {
   Taxon: true,
   Updated: true,
   Platforms: false,
+  Samples: false,
+  Biomaterials: false,
   Uncurated: true,
   Unusable: false,
   Quality: true,
