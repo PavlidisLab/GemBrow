@@ -487,7 +487,7 @@ export default {
         let newSearch = [];
         for (let i = 0; i < value.length; i++) {
           let item = value[i];
-          if (!item.valueUri && !item.typeFreeText) {
+          if (item.valueUri === undefined && !item.typeFreeText) {
             item = {
               value: item,
               typeFreeText: true
