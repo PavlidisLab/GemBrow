@@ -154,7 +154,7 @@ export default {
           tip: "The Gemma ID of the Dataset. For internal use only.",
           adminOnly: true,
           renderer(props) {
-            return props.item.id.toString();
+            return props.item.id ? props.item.id.toString() : "";
           }
         },
         {
@@ -178,7 +178,9 @@ export default {
           value: "taxon",
           tip: "The taxon of the dataset samples.",
           renderer(props) {
-            return viewUtils.methods.capitalize(props.item.taxon);
+            return props.item.taxon
+              ? viewUtils.methods.capitalize(props.item.taxon)
+              : "";
           }
         },
         {
@@ -186,7 +188,9 @@ export default {
           value: "lastUpdated",
           tip: "The date the dataset was last changed within Gemma.",
           renderer(props) {
-            return moment.unix(props.item.lastUpdated / 1000).format("L");
+            return props.item.lastUpdated
+              ? moment.unix(props.item.lastUpdated / 1000).format("L")
+              : "";
           }
         },
         {
@@ -194,7 +198,9 @@ export default {
           value: "arrayDesignCount",
           tip: "The amount of usable platforms the dataset uses.",
           renderer(props) {
-            return props.item.arrayDesignCount.toString();
+            return props.item.arrayDesignCount
+              ? props.item.arrayDesignCount.toString()
+              : "";
           }
         },
         {

@@ -12,11 +12,11 @@
         >
             <template slot="selection" slot-scope="data">
                 <div class="input-group__selections__comma">
-                    {{data.item.scientificName }} ({{data.item.commonName}})
+                    {{data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{data.item.commonName}})</span>
                 </div>
             </template>
             <template slot="item" slot-scope="data">
-                {{data.item.scientificName }} ({{data.item.commonName}})
+                {{data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{data.item.commonName}})</span>
             </template>
         </v-select>
     </span>

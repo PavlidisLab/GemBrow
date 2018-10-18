@@ -85,12 +85,14 @@
                                     :total-items="total"
                                     :rows-per-page-items="[10,20,50,100]"
                                     no-data-text="No entries for given filters."
-                                    disable-initial-sort>
+                                    disable-initial-sort
+                                    :class="pending ? 'data loading' : ''">
+                                <v-progress-linear slot="progress" color="blue" indeterminate height="3"></v-progress-linear>
                                 <template slot="headerCell" slot-scope="props">
                                     <span :title="props.header.tip">{{ props.header.labelMain ? props.header.labelMain : props.header.label }}</span>
                                 </template>
                                 <template slot="items" slot-scope="props">
-                                    <tr @click="props.expanded = !props.expanded">
+                                    <tr v-on:click="props.expanded = !props.expanded">
                                         <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
                                             v-show="visibleCols.includes(col.label) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
                                             <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
@@ -184,7 +186,14 @@
                 <v-flex d-flex xs12 :class="settingsVisible ? 'md3' : 'md0'" v-show="settingsVisible" order-xs1
                         order-md2>
                     <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
-                        <v-card-title primary class="title">Filters</v-card-title>
+                        <v-card-title primary class="filters title">
+                            Filters
+                            <v-spacer/>
+                            <v-btn icon flat small class="text-xs-center" color="grey lighten-3">
+                                <v-icon>mdi-help-circle</v-icon>
+                                <span hidden>Help</span>
+                            </v-btn>
+                        </v-card-title>
                         <v-card-text class="text-xs-justify full-dividers compact">
                             <v-form ref="settings" lazy-validation>
                                 <slot name="settingsForm"/>
@@ -436,6 +445,10 @@ td i {
   width: $dim5;
 }
 
+.data.loading {
+  filter: opacity(70%) grayscale(100%);
+}
+
 .col-row {
   padding-left: $dim2;
   padding-bottom: $dim3;
@@ -455,6 +468,10 @@ td i {
 
 .description {
   white-space: pre-wrap;
+}
+
+.filters.title {
+  padding-bottom: 0;
 }
 
 .full-dividers {
