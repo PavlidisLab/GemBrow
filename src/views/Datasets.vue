@@ -33,7 +33,7 @@
                         :append-icon-cb="null"
                         item-text="value"
                         :items="keywordsFiltered"
-                        :search-input.sync="annot_search"
+                        :search-input.sync="annotSearch"
                 >
                     <template slot="selection" slot-scope="data">
                         <v-chip class="keyword chip"
@@ -101,6 +101,19 @@
                           step="1" ticks min="1" max="3"></v-slider>
             </div>
             <v-divider v-if="this.user && this.user.isAdmin && platform_amount_on"/>
+
+            <div>
+                <v-switch v-model="sample_size_on" label="Min. samples"/>
+                <v-radio-group v-show="sample_size_on" v-model="sample_size">
+                    <v-radio
+                            v-for="item in sampleSizeItems"
+                            :key="item.value"
+                            :label="`${item.label}`"
+                            :value="item.value"
+                    ></v-radio>
+                </v-radio-group>
+            </div>
+            <v-divider v-if="sample_size_on"/>
 
             <div >
                 <SelectorTaxon
@@ -214,17 +227,6 @@ export default {
           }
         },
         {
-          label: "Biomaterials",
-          value: "bioMaterialCount",
-          adminOnly: true,
-          tip: "The amount of biomaterials the dataset uses.",
-          renderer(props) {
-            return props.item.bioMaterialCount
-              ? props.item.bioMaterialCount.toString()
-              : "";
-          }
-        },
-        {
           labelMain: "Curation",
           label: "Uncurated",
           value: "needsAttention",
@@ -323,12 +325,30 @@ export default {
           }
         }
       ],
-      annot_search: null,
-      keywords: _keywords
+      annotSearch: null,
+      keywords: _keywords,
+      sampleSizeItems: [
+        {
+          label: "< 10",
+          value: -1
+        },
+        {
+          label: "10 - 19",
+          value: -0.3
+        },
+        {
+          label: "20 - 49",
+          value: 0.3
+        },
+        {
+          label: "≥ 50",
+          value: 1
+        }
+      ]
     };
   },
   watch: {
-    annot_search(val) {
+    annotSearch(val) {
       val && this.searchAnnotations(val);
     },
     annotations() {
@@ -489,6 +509,22 @@ export default {
         this.$store.dispatch("dss/setPlatform_amount", setVal);
       }
     },
+    sample_size_on: {
+      get() {
+        return this.$store.state.dss.sample_size_on;
+      },
+      set(value) {
+        this.$store.dispatch("dss/setSample_size_on", value);
+      }
+    },
+    sample_size: {
+      get() {
+        return this.$store.state.dss.sample_size;
+      },
+      set(value) {
+        this.$store.dispatch("dss/setSample_size", value);
+      }
+    },
     search_on: {
       get() {
         return this.$store.state.dss.search_on;
@@ -570,6 +606,7 @@ div.input-group.search {
   padding-top: $dim2;
   padding-bottom: $dim2;
 }
+
 .select.row {
   overflow: hidden;
   max-height: 40px;

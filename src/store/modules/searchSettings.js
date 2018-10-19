@@ -34,6 +34,8 @@ const ds_state = {
   publication: 1,
   platform_amount_on: false,
   platform_amount: 1,
+  sample_size_on: false,
+  sample_size: 1,
   taxon_on: false,
   taxon: null,
   search_on: false,
@@ -58,7 +60,8 @@ const ds_getters = {
         op: " >= "
       },
       { value: "publication", url: "geeq.sScorePublication", op: " = " },
-      { value: "platform_amount", url: "geeq.sScorePlatformAmount", op: " = " }
+      { value: "platform_amount", url: "geeq.sScorePlatformAmount", op: " = " },
+      { value: "sample_size", url: "geeq.sScoreSampleSize", op: " = " }
     ];
     return formFilter(state, filters);
   }

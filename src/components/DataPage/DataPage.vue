@@ -309,7 +309,7 @@ export default {
         // noinspection JSIgnoredPromiseFromCall
         this.$store.dispatch(this.sName + "/setLimit", value);
         // ...mapActions({ setLimit: "dss/setLimit" }) :: not using mapActions because this exposes the method to the
-        // template directly, which may lead to bugs when they are used instead of the designated wrapper function.
+        // template directly, which may lead to bugs when they are used instead of the designated wrapper property getter.
       }
     },
     offset: {
