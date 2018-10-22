@@ -3,8 +3,8 @@
         <v-layout row wrap class="elevation-4">
             <v-flex xs12>
                 <v-card flat>
-                    <v-layout row justify-space-between>
-                        <v-flex xs2>
+                    <v-layout justify-space-between wrap>
+                        <v-flex xs6  md2 order-md1 order-xs1 >
                             <v-card tile flat>
                                 <v-card-text>
                                     <v-btn round flat medium class="text-xs-center" v-on:click="toggleColsSettings()"
@@ -15,7 +15,7 @@
                                 </v-card-text>
                             </v-card>
                         </v-flex>
-                        <v-flex xs9 d-flex align-center v-if="error">
+                        <v-flex xs12 md6 order-md2 order-xs3 d-flex align-center v-if="error">
                             <v-card tile flat>
                                 <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
                                     {{error}}
@@ -34,7 +34,7 @@
                                 </v-alert>
                             </v-card>
                         </v-flex>
-                        <v-flex xs3 text-xs-right>
+                        <v-flex xs6  md4 order-md3 order-xs2 text-xs-right>
                             <v-card tile flat>
                                 <v-card-text>
                                     <v-btn round flat medium class="text-xs-center" v-on:click="toggleSettings()"
