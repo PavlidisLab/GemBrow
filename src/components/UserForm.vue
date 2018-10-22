@@ -1,6 +1,7 @@
+<!--suppress JSIgnoredPromiseFromCall -->
 <template>
     <v-card flat v-if="!this.user">
-        <v-card-text>
+        <v-card-text v-on:keyup="checkKey">
             <v-text-field
                     v-model="uname"
                     type="text"
@@ -79,6 +80,14 @@ export default {
     })
   },
   methods: {
+    checkKey(event) {
+      if (event.keyCode === 13) {
+        this.login();
+      } else if (event.keyCode === 27) {
+        this.closeDialog();
+        this.pwd = "";
+      }
+    },
     closeDialog() {
       if (this.value) {
         this.$emit("input", false);
@@ -99,6 +108,7 @@ export default {
           if (!this.$store.state.api.error.users) {
             // If we got a successful reply from backend, execute frontend login
             this.$store.dispatch("main/login", this.$store.state.api.users);
+            this.closeDialog();
           }
           // Apply details from received object
           this.updateAuth();
