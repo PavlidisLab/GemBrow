@@ -63,6 +63,9 @@ export default {
     propNameCsv() {
       return this.propName + "Csv";
     },
+    mutationName() {
+      return "api/GET" + this.propName.toUpperCase();
+    },
     items_rendered: {
       get() {
         {
@@ -89,7 +92,7 @@ export default {
         this.getDataFunc();
 
         this.unsubscribe_dss = this.$store.subscribe(mutation => {
-          if (mutation.type === "api/GETDATASETS_SUCCEEDED") {
+          if (mutation.type === this.mutationName + "_SUCCEEDED") {
             this.$store
               .dispatch("api/get" + this.propNameCsv, {
                 params: this.refreshParams
@@ -101,7 +104,7 @@ export default {
         });
 
         this.unsubscribe_csv = this.$store.subscribe(mutation => {
-          if (mutation.type === "api/GETDATASETS_CSV_SUCCEEDED") {
+          if (mutation.type === this.mutationName + "_CSV_SUCCEEDED") {
             let link = document.createElement("a");
             link.href = this.getUrl();
             link.setAttribute("download", this.downloadName);

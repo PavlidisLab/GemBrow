@@ -1,12 +1,14 @@
+<!--suppress JSIgnoredPromiseFromCall, JSUnresolvedVariable -->
 <template>
     <DataPage
             :title="title"
+            :cols="cols"
+            :detail-rows="detailRows"
             :s-name="sName"
             :l-name="lName"
             :c-name="cName"
-            :cols="cols"
-            :detail-rows="detailRows"
             :sort-mapping="mapSort"
+            download
     >
         <template slot="settingsForm">
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
@@ -66,16 +68,16 @@ export default {
       ],
       cols: [
         {
-          text: "ID",
+          label: "ID",
           value: "id",
           tip: "The Gemma ID of the platform. For internal use only",
           adminOnly: true,
           renderer(props) {
-            return props.item.id.toString();
+            return props.item.id ? props.item.id.toString() : "";
           }
         },
         {
-          text: "Accession",
+          label: "Accession",
           value: "shortName",
           tip: "The GEO accession or a short name of the platform.",
           renderer(props) {
@@ -83,7 +85,7 @@ export default {
           }
         },
         {
-          text: "Name",
+          label: "Name",
           value: "name",
           tip: "The full name of the platform.",
           renderer(props) {
@@ -91,31 +93,38 @@ export default {
           }
         },
         {
-          text: "Taxon",
+          label: "Taxon",
           value: "taxon",
           tip: "The taxon of the platform.",
           renderer(props) {
-            return viewUtils.methods.capitalize(props.item.taxon);
+            return props.item.taxon
+              ? viewUtils.methods.capitalize(props.item.taxon)
+              : "";
           }
         },
         {
-          text: "Updated",
+          label: "Updated",
           value: "lastUpdated",
           tip: "The date the platform was last changed within Gemma.",
           renderer(props) {
-            return moment.unix(props.item.lastUpdated / 1000).format("L");
+            return props.item.lastUpdated
+              ? moment.unix(props.item.lastUpdated / 1000).format("L")
+              : "";
           }
         },
         {
-          text: "Datasets",
+          label: "Datasets",
           value: "arrayDesignCount",
           tip: "The amount of usable platforms the dataset uses.",
           renderer(props) {
-            return props.item.expressionExperimentCount.toString();
+            return props.item.expressionExperimentCount
+              ? props.item.expressionExperimentCount.toString()
+              : "";
           }
         },
         {
-          text: "Curation",
+          labelMain: "Curation",
+          label: "Uncurated",
           value: "needsAttention",
           tip:
             "Displays a warning icon if the platform curation is not finished.",
@@ -134,7 +143,8 @@ export default {
           }
         },
         {
-          text: "Usability",
+          labelMain: "Usability",
+          label: "Unusable",
           value: "troubled",
           tip:
             "Displays a warning icon if the platform is unusable for any reason.",
@@ -150,7 +160,7 @@ export default {
           }
         },
         {
-          text: "Gemma",
+          label: "Gemma",
           value: "gLink",
           tip: "Show platform details page in Gemma",
           link(props) {

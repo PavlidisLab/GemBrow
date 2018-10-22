@@ -44,6 +44,7 @@
                                         &nbsp;Filters
                                     </v-btn>
                                     <csv-button
+                                            v-if="download"
                                             :cols="cols"
                                             :visible-cols="visibleCols"
                                             :fields="headers"
@@ -86,7 +87,7 @@
                                     :rows-per-page-items="[10,20,50,100]"
                                     no-data-text="No entries for given filters."
                                     disable-initial-sort
-                                    :class="pending ? 'data loading' : ''">
+                                    >
                                 <v-progress-linear slot="progress" color="blue" indeterminate height="3"></v-progress-linear>
                                 <template slot="headerCell" slot-scope="props">
                                     <span :title="props.header.tip">{{ props.header.labelMain ? props.header.labelMain : props.header.label }}</span>
@@ -94,6 +95,7 @@
                                 <template slot="items" slot-scope="props">
                                     <tr v-on:click="props.expanded = !props.expanded">
                                         <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
+                                            :class="pending ? 'data loading' : ''"
                                             v-show="visibleCols.includes(col.label) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
                                             <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
                                                 <TableCell
@@ -215,7 +217,6 @@
     </v-container>
 </template>
 
-
 <script>
 import { mapState } from "vuex";
 import Vue from "vue";
@@ -235,7 +236,8 @@ export default {
     sortMapping: Function,
     preRefreshProp: String,
     preRefreshFuncParam: String,
-    downloadName: String
+    downloadName: String,
+    download: Boolean
   },
   data() {
     return {

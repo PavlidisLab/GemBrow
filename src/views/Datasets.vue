@@ -8,6 +8,7 @@
             :l-name="lName"
             :c-name="cName"
             :sort-mapping="mapSort"
+            download
             :pre-refresh-prop="search_on ? 'datasetSearch' : null"
             :pre-refresh-func-param="datasetKeywordSearchParams"
             :download-name="csvDownloadName"

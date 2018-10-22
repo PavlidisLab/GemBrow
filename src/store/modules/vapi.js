@@ -7,6 +7,7 @@ const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_DSS_CSV = "datasetsCsv";
 const C_PFS = "platforms";
+const C_PFS_CSV = "platformsCsv";
 const C_TXA = "taxa";
 const C_USR = "users";
 const C_ANN = "annotations";
@@ -184,6 +185,9 @@ export default vapi
   })
   .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
     composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id)
+  )
+  .attachEndpoint(C_PFS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
+    composePath("platforms", id, pwd, "0", 0, sort, filter, taxon_id)
   )
   .attachLogoutEndpoint()
   .getStore({
