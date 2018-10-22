@@ -109,6 +109,7 @@ export default {
 
       // Reset admin-only filters
       this.$store.dispatch("dss/setTroubled_on", false);
+      this.$store.dispatch("dss/setAttention_on", false);
       this.$store.dispatch("dss/setPublication_on", false);
       this.$store.dispatch("dss/setPlatform_amount_on", false);
       this.$store.dispatch("pfs/setTroubled_on", false);
