@@ -62,9 +62,15 @@ export default {
       hidePwd: true
     };
   },
+  created() {},
   mounted() {
-    // Update axios headers with state stored info
-    this.updateAuth();
+    if (this.user) {
+      // Check if backend login is still valid
+      this.check();
+    } else {
+      // Update axios headers with state stored info
+      this.updateAuth();
+    }
   },
   computed: {
     ...mapState({
@@ -100,6 +106,25 @@ export default {
       // Wipe the password input
       this.pwd = "";
       this.updateAuth();
+    },
+    check() {
+      // Call the rest api endpoint to retrieve user information
+      this.$store
+        .dispatch("api/getusers", {
+          params: {
+            id: this.user.userName
+          }
+        })
+        .then(() => {
+          if (!this.$store.state.api.error.users) {
+            // If we got a successful reply from backend, execute frontend login
+            this.$store.dispatch("main/login", this.$store.state.api.users);
+          } else {
+            this.logout();
+          }
+          // Apply details from received object
+          this.updateAuth();
+        });
     },
     logout() {
       // Execute backend logout
