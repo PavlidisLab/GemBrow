@@ -268,17 +268,21 @@ export default {
           value: "geeq.publicQualityScore",
           tip: "The quality score of the dataset.",
           rowTip(props) {
-            return props.item.geeq.publicQualityScore.toFixed(1);
+            return props.item.geeq
+              ? props.item.geeq.publicQualityScore.toFixed(1)
+              : "Unknown";
           },
           icon(props) {
             return viewUtils.methods.scoreToIcon(
-              props.item.geeq.publicQualityScore
+              props.item.geeq ? props.item.geeq.publicQualityScore : null
             );
           },
           iconStyle(props) {
             return (
               "background-color: " +
-              viewUtils.methods.scoreToColor(props.item.geeq.publicQualityScore)
+              viewUtils.methods.scoreToColor(
+                props.item.geeq ? props.item.geeq.publicQualityScore : 2
+              )
             );
           },
           iconClass() {
@@ -291,18 +295,20 @@ export default {
           tip: "The suitability score of the dataset.",
           adminOnly: true,
           rowTip(props) {
-            return props.item.geeq.publicSuitabilityScore.toFixed(1);
+            return props.item.geeq
+              ? props.item.geeq.publicSuitabilityScore.toFixed(1)
+              : "Unknown";
           },
           icon(props) {
             return viewUtils.methods.scoreToIcon(
-              props.item.geeq.publicSuitabilityScore
+              props.item.geeq ? props.item.geeq.publicSuitabilityScore : null
             );
           },
           iconStyle(props) {
             return (
               "background-color: " +
               viewUtils.methods.scoreToColor(
-                props.item.geeq.publicSuitabilityScore
+                props.item.geeq ? props.item.geeq.publicSuitabilityScore : 2
               )
             );
           },
