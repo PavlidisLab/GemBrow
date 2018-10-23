@@ -127,58 +127,66 @@
         <template slot="settingsHelp">
             <HelpRow prop-name="help_keywords_on" label="keywords">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Type in a keyword you would like to search for, or select one from the dropdown menu. The dropdown menu is updated
+                    each type a new string is typed in, which may take few seconds.
                 </template>
             </HelpRow>
 
             <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_troubled_on" label="Usability">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by usability. Either show only usable or only unusable datasets.
                 </template>
             </HelpRow>
 
             <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_attention_on" label="Curation">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by curation status. Either show only curated datasets, or datasets that are still being curated (i.e.
+                    have the 'need curators attention' flag on).
                 </template>
             </HelpRow>
 
             <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_publication_on" label="Publication">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by publication availability. Either show only datasets with a publication, or without.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_quality_on" label="Min. quality">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by quality. Only show datasets with a quality score equal or higher to the
+                    number set in the filter.
                 </template>
             </HelpRow>
 
             <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_suitability_on" label="Min. suitability">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by suitability. Only show datasets with a suitability score equal or higher to the
+                    number set in the filter.
                 </template>
             </HelpRow>
 
             <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_platforms_on" label="Min. platforms">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by amount of used platforms. Only show datasets that use the amount set or more
+                    platforms.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_samples_on" label="Min. samples">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by amount of samples in the dataset. Only show datasets that have the amount of samples within the
+                    selected range.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_taxon_on" label="Taxon">
                 <template slot="content">
-                    Lorem ipsum dolor sit amet
+                    Filter by taxon. Only show datasets that have samples for the selected taxon.
                 </template>
             </HelpRow>
-
+            <v-container>
+                Each filter creates a new restriction that will be applied after clicking the "Apply Filters" button.
+            </v-container>
         </template>
     </DataPage>
 </template>

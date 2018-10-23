@@ -208,6 +208,7 @@ footer {
   margin-top: $dim4;
   padding: $dim4 $dim3 $dim2 $dim3;
   background: #212121;
+  box-shadow: inset 0 5px 5px -5px #ccc;
 }
 
 footer h3 {

@@ -31,12 +31,36 @@
             </div>
             <v-divider/>
         </template>
+        <template slot="settingsHelp">
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_troubled_on" label="Usability">
+                <template slot="content">
+                    Filter by usability. Either show only usable or only unusable datasets.
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_attention_on" label="Curation">
+                <template slot="content">
+                    Filter by curation status. Either show only curated datasets, or datasets that are still being curated (i.e.
+                    have the 'need curators attention' flag on).
+                </template>
+            </HelpRow>
+
+            <HelpRow prop-name="help_taxon_on" label="Taxon">
+                <template slot="content">
+                    Filter by taxon. Only show datasets that have samples for the selected taxon.
+                </template>
+            </HelpRow>
+            <v-container>
+                Each filter creates a new restriction that will be applied after clicking the "Apply Filters" button.
+            </v-container>
+        </template>
     </DataPage>
 </template>
 
 <script>
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
+import HelpRow from "../components/DataPage/HelpRow";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
@@ -44,7 +68,8 @@ import { mapState } from "vuex";
 export default {
   components: {
     DataPage: DataPage,
-    SelectorTaxon: SelectorTaxon
+    SelectorTaxon: SelectorTaxon,
+    HelpRow: HelpRow
   },
   data() {
     return {

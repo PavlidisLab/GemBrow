@@ -3,7 +3,7 @@
         <v-flex xs12>
             <v-card flat>
                 <v-layout justify-space-between wrap>
-                    <v-flex xs6  md2 order-md1 order-xs1 >
+                    <v-flex xs6  md2 order-md1 order-xs1 text-xs-left>
                         <v-card tile flat>
                             <v-card-text>
                                 <v-btn round flat medium class="text-xs-center" v-on:click="toggleColsSettings()"
