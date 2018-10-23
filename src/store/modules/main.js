@@ -1,6 +1,7 @@
 const state = {
   themeDark: false,
   searchSettVisible: false,
+  searchHelpVisible: false,
   tableSettVisible: false,
   user: null
 };
@@ -12,6 +13,9 @@ const mutations = {
   },
   toggleSearchSettings(state) {
     state.searchSettVisible = !state.searchSettVisible;
+  },
+  toggleSearchHelpSettings(state) {
+    state.searchHelpVisible = !state.searchHelpVisible;
   },
   toggleTableSettings(state) {
     state.tableSettVisible = !state.tableSettVisible;
@@ -38,6 +42,9 @@ const actions = {
   },
   toggleSearchSettings({ commit }) {
     commit("toggleSearchSettings");
+  },
+  toggleSearchHelpSettings({ commit }) {
+    commit("toggleSearchHelpSettings");
   },
   toggleTableSettings({ commit }) {
     commit("toggleTableSettings");

@@ -124,6 +124,62 @@
             </div>
             <v-divider/>
         </template>
+        <template slot="settingsHelp">
+            <HelpRow prop-name="help_keywords_on" label="keywords">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_troubled_on" label="Usability">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_attention_on" label="Curation">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_publication_on" label="Publication">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow prop-name="help_quality_on" label="Min. quality">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_suitability_on" label="Min. suitability">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_platforms_on" label="Min. platforms">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow prop-name="help_samples_on" label="Min. samples">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+            <HelpRow prop-name="help_taxon_on" label="Taxon">
+                <template slot="content">
+                    Lorem ipsum dolor sit amet
+                </template>
+            </HelpRow>
+
+        </template>
     </DataPage>
 </template>
 
@@ -131,6 +187,7 @@
 import Vue from "vue";
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
+import HelpRow from "../components/DataPage/HelpRow";
 import { _keywords } from "../assets/Characteristics.js";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
@@ -139,7 +196,8 @@ import { mapState } from "vuex";
 export default {
   components: {
     DataPage: DataPage,
-    SelectorTaxon: SelectorTaxon
+    SelectorTaxon: SelectorTaxon,
+    HelpRow: HelpRow
   },
   data: function() {
     return {

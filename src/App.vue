@@ -79,9 +79,13 @@
         <v-content>
             <router-view/>
         </v-content>
-        <v-footer app absolute>
-            <v-flex xs12 text-xs-center>&copy; 2018 UBC</v-flex>
-        </v-footer>
+        <footer class="themeable light">
+            <a href="http://www.ubc.ca/" target="_blank" title="UBC home page">
+                <h3>&copy; 2018 &nbsp;&nbsp;</h3>
+                <h3>University of British Columbia</h3>
+                <img :src="require('@/assets/ubcLogo.png')" height="100px">
+            </a>
+        </footer>
     </v-app>
 </template>
 
@@ -198,6 +202,20 @@ a {
 
 .btn.lcase {
   text-transform: none !important;
+}
+
+footer {
+  margin-top: $dim4;
+  padding: $dim4 $dim3 $dim2 $dim3;
+  background: #212121;
+}
+
+footer h3 {
+  color: #f5f5f5 !important;
+}
+
+footer img {
+  margin: $dim3;
 }
 
 // Theme dependent

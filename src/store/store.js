@@ -3,7 +3,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 import CreatePersistedState from "vuex-persistedstate";
 import api from "./modules/vapi";
-import main from "./modules/main"
+import main from "./modules/main";
+import help from "./modules/help";
 import {ds, pf} from "./modules/searchSettings";
 import {ds_cols, pf_cols} from "./modules/colSettings";
 
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     })],
     modules: {
         main: main,
+        help: help,
         api: api,
         dss: ds, // dss for DataSets Settings
         pfs: pf, // pfs for PlatForms Settings

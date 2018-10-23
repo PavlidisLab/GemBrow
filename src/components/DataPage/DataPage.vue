@@ -1,220 +1,242 @@
 <template>
-    <v-container fluid class="text-xs-left">
-        <v-layout row wrap class="elevation-4">
-            <v-flex xs12>
-                <v-card flat>
-                    <v-layout justify-space-between wrap>
-                        <v-flex xs6  md2 order-md1 order-xs1 >
-                            <v-card tile flat>
-                                <v-card-text>
-                                    <v-btn round flat medium class="text-xs-center" v-on:click="toggleColsSettings()"
-                                           title="Table column settings" color="light-blue">
-                                        <v-icon>view_week</v-icon>
-                                        &nbsp;Columns
-                                    </v-btn>
-                                </v-card-text>
-                            </v-card>
-                        </v-flex>
-                        <v-flex xs12 md6 order-md2 order-xs3 d-flex align-center v-if="error">
-                            <v-card tile flat>
-                                <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
-                                    {{error}}
-                                </v-alert>
-                                <v-alert xs10 v-else-if="error && items.length > 0" :value="error && items.length > 0"
-                                         type="error" outline>
-                                    <v-layout row align-center d-flex>
-                                        <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
-                                        <v-flex text-xs-right>
-                                            <v-btn xs2 small v-on:click="refreshData()" color="error"
-                                                   class="lcase" title="Try to refresh the data">
-                                                <v-icon>sync</v-icon>
-                                            </v-btn>
-                                        </v-flex>
-                                    </v-layout>
-                                </v-alert>
-                            </v-card>
-                        </v-flex>
-                        <v-flex xs6  md4 order-md3 order-xs2 text-xs-right>
-                            <v-card tile flat>
-                                <v-card-text>
-                                    <v-btn round flat medium class="text-xs-center" v-on:click="toggleSettings()"
-                                           title="Data filters"
-                                           color="light-blue">
-                                        <v-icon>mdi-filter</v-icon>
-                                        &nbsp;Filters
-                                    </v-btn>
-                                    <csv-button
-                                            v-if="download"
-                                            :cols="cols"
-                                            :visible-cols="visibleCols"
-                                            :fields="headers"
-                                            :get-data-func="refreshData"
-                                            :prop-name="lName"
-                                            :prop-download-name="downloadName"
-                                            :refresh-params="refreshParams"
-                                    ></csv-button>
-                                </v-card-text>
-                            </v-card>
-                        </v-flex>
-                    </v-layout>
+    <v-layout row wrap class="elevation-1">
+        <v-flex xs12>
+            <v-card flat>
+                <v-layout justify-space-between wrap>
+                    <v-flex xs6  md2 order-md1 order-xs1 >
+                        <v-card tile flat>
+                            <v-card-text>
+                                <v-btn round flat medium class="text-xs-center" v-on:click="toggleColsSettings()"
+                                       title="Table column settings" color="light-blue">
+                                    <v-icon>view_week</v-icon>
+                                    &nbsp;Columns
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                    <v-flex xs12 md6 order-md2 order-xs3 d-flex align-center v-if="error">
+                        <v-card tile flat>
+                            <v-alert xs10 v-if="error && items.length === 0" :value="error" type="error" outline>
+                                {{error}}
+                            </v-alert>
+                            <v-alert xs10 v-else-if="error && items.length > 0" :value="error && items.length > 0"
+                                     type="error" outline>
+                                <v-layout row align-center d-flex>
+                                    <v-flex text-xs-right>Connection problem, showing cached data.</v-flex>
+                                    <v-flex text-xs-right>
+                                        <v-btn xs2 small v-on:click="refreshData()" color="error"
+                                               class="lcase" title="Try to refresh the data">
+                                            <v-icon>sync</v-icon>
+                                        </v-btn>
+                                    </v-flex>
+                                </v-layout>
+                            </v-alert>
+                        </v-card>
+                    </v-flex>
+                    <v-flex xs6  md4 order-md3 order-xs2 text-xs-right>
+                        <v-card tile flat>
+                            <v-card-text>
+                                <v-btn round flat medium class="text-xs-center" v-on:click="toggleSettings()"
+                                       title="Data filters"
+                                       color="light-blue">
+                                    <v-icon>mdi-filter</v-icon>
+                                    &nbsp;Filters
+                                </v-btn>
+                                <csv-button
+                                        v-if="download"
+                                        :cols="cols"
+                                        :visible-cols="visibleCols"
+                                        :fields="headers"
+                                        :get-data-func="refreshData"
+                                        :prop-name="lName"
+                                        :prop-download-name="downloadName"
+                                        :refresh-params="refreshParams"
+                                ></csv-button>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                </v-layout>
+            </v-card>
+        </v-flex>
+        <v-layout row wrap>
+            <v-flex xs12 wrap :class="this.longClass" order-xs3 order-md1>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
+                            <v-card-title primary class="title">Columns</v-card-title>
+                            <v-card-text class="col-switches">
+                                <v-layout row wrap class="text-xs-left col-row compact" justify-start>
+                                    <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
+                                            v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
+                                        <v-switch tile flat
+                                                  :label="col.labelMain ? col.labelMain : col.label"
+                                                  v-model="visibleCols" :value="col.label" :title="col.tip"/>
+                                    </v-flex>
+                                </v-layout>
+                            </v-card-text>
+                        </v-card>
+                    </v-flex>
+                    <v-flex xs12>
+                        <v-data-table
+                                :headers="headers"
+                                :items="items"
+                                :loading="pending"
+                                :pagination.sync="pagination"
+                                :total-items="total"
+                                :rows-per-page-items="[10,20,50,100]"
+                                no-data-text="No entries for given filters."
+                                disable-initial-sort
+                                >
+                            <v-progress-linear slot="progress" color="blue" indeterminate height="3"></v-progress-linear>
+                            <template slot="headerCell" slot-scope="props">
+                                <span :title="props.header.tip">{{ props.header.labelMain ? props.header.labelMain : props.header.label }}</span>
+                            </template>
+                            <template slot="items" slot-scope="props">
+                                <tr v-on:click="props.expanded = !props.expanded">
+                                    <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
+                                        :class="pending ? 'data loading' : ''"
+                                        v-show="visibleCols.includes(col.label) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
+                                        <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
+                                            <TableCell
+                                                    :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                    :icon="col.icon ? col.icon(props) : ''"
+                                                    :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                    :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                    :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                    :text="col.renderer ? col.renderer(props) : ''"
+                                            />
+                                        </a>
+                                        <TableCell v-else
+                                                   :tip="col.rowTip ? col.rowTip(props) : ''"
+                                                   :icon="col.icon ? col.icon(props) : ''"
+                                                   :iconColor="col.iconColor ? col.iconColor(props) : ''"
+                                                   :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
+                                                   :iconClass="col.iconClass ? col.iconClass(props) : ''"
+                                                   :text="col.renderer ? col.renderer(props) : ''"
+                                        />
+                                    </td>
+                                </tr>
+                            </template>
+                            <template slot="expand" slot-scope="props">
+                                <v-card :color="$store.state.main.themeDark ? 'blue-grey darken-4' : 'blue-grey lighten-5'">
+                                    <v-card-text>
+                                        <v-layout row>
+                                            <v-flex xs3>
+                                                <v-subheader class="headline">
+                                                    {{ props.item.shortName }}
+                                                </v-subheader>
+                                            </v-flex>
+                                            <v-flex xs10>
+                                                <v-subheader class="headline">
+                                                    {{ props.item.name }}
+                                                </v-subheader>
+                                            </v-flex>
+                                        </v-layout>
+                                        <v-divider/>
+                                        <v-layout row>
+                                            <v-flex sm3>
+                                                <v-layout row>
+                                                    <v-flex xs4>
+                                                        <v-subheader>Taxon:</v-subheader>
+                                                    </v-flex>
+                                                    <v-flex xs6>
+                                                        <v-subheader>{{ props.item.taxon }}</v-subheader>
+                                                    </v-flex>
+                                                </v-layout>
+                                                <v-layout row>
+                                                    <v-flex xs4>
+                                                        <v-subheader>Updated:</v-subheader>
+                                                    </v-flex>
+                                                    <v-flex xs6>
+                                                        <v-subheader>{{ formatDate(props.item.lastUpdated) }}</v-subheader>
+                                                    </v-flex>
+                                                </v-layout>
+                                                <v-layout row v-for="row in detailRows" :key="row.label">
+                                                    <v-flex xs4>
+                                                        <v-subheader>{{ row.label }}</v-subheader>
+                                                    </v-flex>
+                                                    <v-flex xs6>
+                                                        <v-subheader v-html="row.renderer(props)"></v-subheader>
+                                                    </v-flex>
+                                                </v-layout>
+                                            </v-flex>
+                                            <v-flex sm9>
+                                                <v-layout row>
+                                                    <v-flex xs1>
+                                                        <v-subheader>Description:</v-subheader>
+                                                    </v-flex>
+                                                </v-layout>
+                                                <v-flex xs12>
+                                                    <v-card tile>
+                                                        <v-card-text>
+                                                            <span class="description body-1">
+                                                                {{ props.item.description.trim() }}
+                                                            </span>
+                                                        </v-card-text>
+                                                    </v-card>
+                                                </v-flex>
+                                            </v-flex>
+                                        </v-layout>
+                                    </v-card-text>
+                                </v-card>
+                            </template>
+                        </v-data-table>
+                    </v-flex>
+                </v-layout>
+            </v-flex>
+            <v-flex d-flex xs12 :class="settingsVisible ? 'md3' : 'md0'" v-show="settingsVisible" order-xs2
+                    order-md2>
+                <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
+                    <v-card-title primary class="filters title">
+                        Filters
+                        <v-spacer/>
+                        <v-btn icon flat small class="text-xs-center" color="grey lighten-3"
+                               v-show="!settingsHelpVisible"
+                               v-on:click="toggleSettingsHelp()">
+                            <v-icon>mdi-help-circle</v-icon>
+                            <span hidden>Help</span>
+                        </v-btn>
+                        <v-btn icon flat small class="text-xs-center" color="grey lighten-3"
+                               v-show="settingsHelpVisible">
+                                <!--Placeholder button so the row is rendered correctly-->
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class="text-xs-justify full-dividers compact">
+                        <v-form ref="settings" lazy-validation>
+                            <slot name="settingsForm"/>
+                            <div>
+                                <v-btn class="light-blue darken-1" block round type="submit" v-on:click="refreshData()" :loading="pending" :disabled="pending">
+                                    <span slot="loader" class="custom-loader">
+                                        <v-icon>mdi-loading spin</v-icon>
+                                    </span>
+                                    <v-icon left dark>mdi-filter</v-icon>
+                                    Apply filters
+                                </v-btn>
+                            </div>
+                        </v-form>
+                    </v-card-text>
                 </v-card>
             </v-flex>
-            <v-layout row wrap>
-                <v-flex xs12 wrap :class="settingsVisible ? 'md9' : 'md12'" order-xs2 order-md1>
-                    <v-layout row wrap>
-                        <v-flex xs12>
-                            <v-card tile flat v-show="colSettingsVisible" color="blue-grey darken-1" dark>
-                                <v-card-title primary class="title">Columns</v-card-title>
-                                <v-card-text>
-                                    <v-layout row wrap class="text-xs-left col-row compact" justify-start>
-                                        <v-flex v-for="col in cols" v-bind:key="col.value" xs12 sm6 md3
-                                                v-if="!col.adminOnly || (col.adminOnly && user && user.isAdmin) ">
-                                            <v-switch tile flat
-                                                      :label="col.labelMain ? col.labelMain : col.label"
-                                                      v-model="visibleCols" :value="col.label" :title="col.tip"/>
-                                        </v-flex>
-                                    </v-layout>
-                                </v-card-text>
-                            </v-card>
-                        </v-flex>
-                        <v-flex xs12>
-                            <v-data-table
-                                    :headers="headers"
-                                    :items="items"
-                                    :loading="pending"
-                                    :pagination.sync="pagination"
-                                    :total-items="total"
-                                    :rows-per-page-items="[10,20,50,100]"
-                                    no-data-text="No entries for given filters."
-                                    disable-initial-sort
-                                    >
-                                <v-progress-linear slot="progress" color="blue" indeterminate height="3"></v-progress-linear>
-                                <template slot="headerCell" slot-scope="props">
-                                    <span :title="props.header.tip">{{ props.header.labelMain ? props.header.labelMain : props.header.label }}</span>
-                                </template>
-                                <template slot="items" slot-scope="props">
-                                    <tr v-on:click="props.expanded = !props.expanded">
-                                        <td class="text-xs-left" v-for="col in headers" v-bind:key="col.value"
-                                            :class="pending ? 'data loading' : ''"
-                                            v-show="visibleCols.includes(col.label) && (!col.adminOnly || (col.adminOnly && user && user.isAdmin)) ">
-                                            <a v-if="col.link" v-bind:href="col.link(props)" target="_blank">
-                                                <TableCell
-                                                        :tip="col.rowTip ? col.rowTip(props) : ''"
-                                                        :icon="col.icon ? col.icon(props) : ''"
-                                                        :iconColor="col.iconColor ? col.iconColor(props) : ''"
-                                                        :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
-                                                        :iconClass="col.iconClass ? col.iconClass(props) : ''"
-                                                        :text="col.renderer ? col.renderer(props) : ''"
-                                                />
-                                            </a>
-                                            <TableCell v-else
-                                                       :tip="col.rowTip ? col.rowTip(props) : ''"
-                                                       :icon="col.icon ? col.icon(props) : ''"
-                                                       :iconColor="col.iconColor ? col.iconColor(props) : ''"
-                                                       :iconStyle="col.iconStyle ? col.iconStyle(props) : ''"
-                                                       :iconClass="col.iconClass ? col.iconClass(props) : ''"
-                                                       :text="col.renderer ? col.renderer(props) : ''"
-                                            />
-                                        </td>
-                                    </tr>
-                                </template>
-                                <template slot="expand" slot-scope="props">
-                                    <v-card :color="$store.state.main.themeDark ? 'blue-grey darken-4' : 'blue-grey lighten-5'">
-                                        <v-card-text>
-                                            <v-layout row>
-                                                <v-flex xs3>
-                                                    <v-subheader class="headline">
-                                                        {{ props.item.shortName }}
-                                                    </v-subheader>
-                                                </v-flex>
-                                                <v-flex xs10>
-                                                    <v-subheader class="headline">
-                                                        {{ props.item.name }}
-                                                    </v-subheader>
-                                                </v-flex>
-                                            </v-layout>
-                                            <v-divider/>
-                                            <v-layout row>
-                                                <v-flex sm3>
-                                                    <v-layout row>
-                                                        <v-flex xs4>
-                                                            <v-subheader>Taxon:</v-subheader>
-                                                        </v-flex>
-                                                        <v-flex xs6>
-                                                            <v-subheader>{{ props.item.taxon }}</v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                    <v-layout row>
-                                                        <v-flex xs4>
-                                                            <v-subheader>Updated:</v-subheader>
-                                                        </v-flex>
-                                                        <v-flex xs6>
-                                                            <v-subheader>{{ formatDate(props.item.lastUpdated) }}</v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                    <v-layout row v-for="row in detailRows" :key="row.label">
-                                                        <v-flex xs4>
-                                                            <v-subheader>{{ row.label }}</v-subheader>
-                                                        </v-flex>
-                                                        <v-flex xs6>
-                                                            <v-subheader v-html="row.renderer(props)"></v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                </v-flex>
-                                                <v-flex sm9>
-                                                    <v-layout row>
-                                                        <v-flex xs1>
-                                                            <v-subheader>Description:</v-subheader>
-                                                        </v-flex>
-                                                    </v-layout>
-                                                    <v-flex xs12>
-                                                        <v-card tile>
-                                                            <v-card-text>
-                                                                <span class="description body-1">
-                                                                    {{ props.item.description.trim() }}
-                                                                </span>
-                                                            </v-card-text>
-                                                        </v-card>
-                                                    </v-flex>
-                                                </v-flex>
-                                            </v-layout>
-                                        </v-card-text>
-                                    </v-card>
-                                </template>
-                            </v-data-table>
-                        </v-flex>
-                    </v-layout>
-                </v-flex>
-                <v-flex d-flex xs12 :class="settingsVisible ? 'md3' : 'md0'" v-show="settingsVisible" order-xs1
-                        order-md2>
-                    <v-card tile flat color="grey darken-1" v-show="settingsVisible" dark>
-                        <v-card-title primary class="filters title">
-                            Filters
-                            <v-spacer/>
-                            <v-btn icon flat small class="text-xs-center" color="grey lighten-3">
-                                <v-icon>mdi-help-circle</v-icon>
-                                <span hidden>Help</span>
-                            </v-btn>
-                        </v-card-title>
-                        <v-card-text class="text-xs-justify full-dividers compact">
-                            <v-form ref="settings" lazy-validation>
-                                <slot name="settingsForm"/>
-                                <div>
-                                    <v-btn class="light-blue darken-1" block round type="submit" v-on:click="refreshData()" :loading="pending" :disabled="pending">
-                                        <span slot="loader" class="custom-loader">
-                                            <v-icon>mdi-loading spin</v-icon>
-                                        </span>
-                                        <v-icon left dark>mdi-filter</v-icon>
-                                        Apply filters
-                                    </v-btn>
-                                </div>
-                            </v-form>
-                        </v-card-text>
-                    </v-card>
-                </v-flex>
-            </v-layout>
+            <v-flex d-flex xs12 class="help" :class="settingsVisible&&settingsHelpVisible ? 'md2' : 'md0'" v-show="settingsVisible&&settingsHelpVisible" order-xs1
+                    order-md3>
+                <v-card tile flat color="grey darken-1" v-show="settingsVisible&&settingsHelpVisible" dark>
+                    <v-card-title primary class="filters title">
+                        <v-spacer/>
+                        <v-btn icon flat small class="text-xs-center" color="blue lighten-2"
+                               v-on:click="toggleSettingsHelp()">
+                            <v-icon>mdi-help-circle</v-icon>
+                            <span hidden>Help</span>
+                        </v-btn>
+                    </v-card-title>
+                    <v-card-text class="text-xs-justify full-dividers compact">
+                        <v-form ref="settings" lazy-validation>
+                            <slot name="settingsHelp"/>
+                        </v-form>
+                    </v-card-text>
+                </v-card>
+            </v-flex>
         </v-layout>
-    </v-container>
+    </v-layout>
 </template>
 
 <script>
@@ -267,6 +289,7 @@ export default {
     ...mapState({
       user: state => state.main.user,
       settingsVisible: state => state.main.searchSettVisible,
+      settingsHelpVisible: state => state.main.searchHelpVisible,
       colSettingsVisible: state => state.main.tableSettVisible,
       items(state) {
         return state.api[this.lName];
@@ -284,6 +307,14 @@ export default {
         return state.api.error[this.lName];
       }
     }),
+    longClass: {
+      get() {
+        let len = 12;
+        if (this.settingsVisible) len -= 3;
+        if (this.settingsVisible && this.settingsHelpVisible) len -= 2;
+        return "md" + len.toString();
+      }
+    },
     headers: {
       get() {
         const arr = [];
@@ -421,6 +452,10 @@ export default {
       // noinspection JSIgnoredPromiseFromCall
       this.$store.dispatch("main/toggleSearchSettings");
     },
+    toggleSettingsHelp() {
+      // noinspection JSIgnoredPromiseFromCall
+      this.$store.dispatch("main/toggleSearchHelpSettings");
+    },
     toggleColsSettings() {
       // noinspection JSIgnoredPromiseFromCall
       this.$store.dispatch("main/toggleTableSettings");
@@ -487,5 +522,31 @@ td i {
 
 .compact .input-group__details {
   display: none;
+}
+
+.col-switches {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.help {
+  border-left: 1px solid gray;
+}
+
+.help .switch-row:hover .icon {
+  color: lightblue !important;
+}
+
+.help .switch .input-group--selection-controls__container {
+  display: none;
+}
+
+.help .switch label {
+  padding-left: 0 !important;
+  margin-left: -$dim3 !important;
+}
+
+.help .content {
+  background: none;
 }
 </style>
