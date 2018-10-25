@@ -21,6 +21,8 @@ export default new Vuex.Store({
             const stateFilter = JSON.parse( JSON.stringify( persistedState ) );
             // Remove stuff we do not want to persist for any reason
             delete stateFilter.api['datasetsCsv']; // Data is usually too big and serialization fails
+            delete stateFilter.api['platformsCsv']; // Data is usually too big and serialization fails
+            delete stateFilter.api['datasetSearch']; // For very general queries the returned array can be too big
             return stateFilter
         }
     })],
