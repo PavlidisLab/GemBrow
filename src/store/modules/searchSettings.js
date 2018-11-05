@@ -18,8 +18,6 @@ const ds_state = {
   limit: 20,
   offset: 0,
   sort: "%2Bid",
-  ids_on: false,
-  ids: [],
   troubled_on: true,
   troubled: false,
   attention_on: false,
@@ -50,7 +48,6 @@ const ds_getters = {
   },
   filter(state) {
     const filters = [
-      { value: "ids", url: "id", op: " in " },
       { value: "troubled", url: "curationDetails.troubled", op: " = " },
       { value: "attention", url: "curationDetails.needsAttention", op: " = " },
       { value: "score_q_min", url: "geeq.detectedQualityScore", op: " >= " },
@@ -64,6 +61,22 @@ const ds_getters = {
       { value: "sample_size", url: "geeq.sScoreSampleSize", op: " = " }
     ];
     return formFilter(state, filters);
+  },
+  keywords(state) {
+    if (!state.search_on) {
+      return null;
+    }
+    const kwrds = state.search_query;
+    let query = "";
+    for (let i = 0; i < kwrds.length; i++) {
+      const kwrd = kwrds[i];
+      if (kwrd.valueUri) {
+        query += encodeURIComponent(kwrd.valueUri) + ",";
+      } else {
+        query += kwrd.value + ",";
+      }
+    }
+    return query;
   }
 };
 

@@ -256,8 +256,6 @@ export default {
     sName: String,
     cName: String,
     sortMapping: Function,
-    preRefreshProp: String,
-    preRefreshFuncParam: String,
     downloadName: String,
     download: Boolean
   },
@@ -295,12 +293,6 @@ export default {
         return state.api[this.lName];
       },
       pending(state) {
-        if (this.preRefreshProp) {
-          return (
-            state.api.pending[this.lName] ||
-            state.api.pending[this.preRefreshProp]
-          );
-        }
         return state.api.pending[this.lName];
       },
       error(state) {
@@ -368,6 +360,7 @@ export default {
         const params = Vue.util.extend({}, this.$store.state[this.sName]);
         params.filter = this.$store.getters[this.sName + "/filter"];
         params.taxon_id = this.$store.getters[this.sName + "/taxon_id"];
+        params.keywords = this.$store.getters[this.sName + "/keywords"];
         return params;
       }
     }
@@ -428,24 +421,11 @@ export default {
       }
     },
     refreshData: Vue._.debounce(function() {
-      if (this.preRefreshProp) {
-        return this.$store
-          .dispatch("api/get" + this.preRefreshProp, {
-            params: this.preRefreshFuncParam
-          })
-          .then(() => {
-            // noinspection JSIgnoredPromiseFromCall
-            this.$store.dispatch("api/get" + this.lName, {
-              params: this.refreshParams
-            });
-          });
-      } else {
-        if (this.$refs.settings.validate()) {
-          // noinspection JSIgnoredPromiseFromCall
-          return this.$store.dispatch("api/get" + this.lName, {
-            params: this.refreshParams
-          });
-        }
+      if (this.$refs.settings.validate()) {
+        // noinspection JSIgnoredPromiseFromCall
+        return this.$store.dispatch("api/get" + this.lName, {
+          params: this.refreshParams
+        });
       }
     }, 500),
     toggleSettings() {

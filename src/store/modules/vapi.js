@@ -11,7 +11,6 @@ const C_PFS_CSV = "platformsCsv";
 const C_TXA = "taxa";
 const C_USR = "users";
 const C_ANN = "annotations";
-const C_DSS_Search = "datasetSearch";
 
 const axiosInst = axios.create({
   headers: null
@@ -32,7 +31,17 @@ function p(first) {
   return first.get() ? "?" : "&";
 }
 
-function composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id) {
+function composePath(
+  propName,
+  id,
+  pwd,
+  limit,
+  offset,
+  sort,
+  filter,
+  taxon_id,
+  keywords
+) {
   let path = apiURL;
   let _firstArg = true;
   let firstArg = {
@@ -50,8 +59,19 @@ function composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id) {
 
   // Filtering by taxon works differently for EEs and ADs
   if (propName === "datasets") {
-    // EE taxa
-    path += (taxon_id != null ? "taxa/" + taxon_id + "/" : "") + propName;
+    if (keywords) {
+      // keywords enabled, checks whether taxon is also enabled
+      path +=
+        "annotations/" +
+        (taxon_id != null ? taxon_id + "/" : "") +
+        "search/" +
+        keywords +
+        "/" +
+        propName;
+    } else {
+      // no keywords, deciding only on taxa
+      path += (taxon_id != null ? "taxa/" + taxon_id + "/" : "") + propName;
+    }
   } else {
     // ADs have taxon included in the filter
     path += propName;
@@ -107,8 +127,18 @@ vapi.attachEndpoint = function(propName, pathFunc) {
     property: propName,
     path: pathFunc
       ? pathFunc
-      : ({ id, pwd, limit, offset, sort, filter, taxon_id }) =>
-          composePath(propName, id, pwd, limit, offset, sort, filter, taxon_id),
+      : ({ id, pwd, limit, offset, sort, filter, taxon_id, keywords }) =>
+          composePath(
+            propName,
+            id,
+            pwd,
+            limit,
+            offset,
+            sort,
+            filter,
+            taxon_id,
+            keywords
+          ),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
@@ -180,11 +210,8 @@ export default vapi
   .attachEndpoint(C_ANN, query => {
     return apiURL + "annotations/search/" + query;
   })
-  .attachEndpoint(C_DSS_Search, query => {
-    return apiURL + "annotations/search/" + query + "/datasets";
-  })
-  .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
-    composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id)
+  .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id, keywords }) =>
+    composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id, keywords)
   )
   .attachEndpoint(C_PFS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
     composePath("platforms", id, pwd, "0", 0, sort, filter, taxon_id)

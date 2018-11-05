@@ -17,7 +17,7 @@
                             :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
             </v-layout>
 
-            <v-layout row wrap>
+            <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="attention_on" label="Curation"/>
                 <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
                             :label="attention_on ? ('Only '+(+attention ? 'curated':'uncurated')) : 'All'"/>
@@ -151,6 +151,7 @@ export default {
           labelMain: "Curation",
           label: "Uncurated",
           value: "needsAttention",
+          adminOnly: true,
           tip:
             "Displays a warning icon if the platform curation is not finished.",
           rowTip(props) {

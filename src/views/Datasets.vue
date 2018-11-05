@@ -9,8 +9,6 @@
             :c-name="cName"
             :sort-mapping="mapSort"
             download
-            :pre-refresh-prop="search_on ? 'datasetSearch' : null"
-            :pre-refresh-func-param="datasetKeywordSearchParams"
             :download-name="csvDownloadName"
     >
         <template slot="settingsForm">
@@ -427,17 +425,6 @@ export default {
     },
     annotations() {
       this.keywords = _keywords.concat(this.annotations);
-    },
-    foundDatasetsForKeywords(val) {
-      let ids = [0];
-
-      for (let i = 0; i < val.length; i++) {
-        const dataset = val[i];
-        ids.push(dataset.id);
-      }
-
-      this.$store.dispatch("dss/setIds_on", ids.length > 0);
-      this.$store.dispatch("dss/setIds", ids);
     }
   },
   computed: {
@@ -445,8 +432,7 @@ export default {
       taxa: state => state.api.taxa,
       user: state => state.main.user,
       keywordsPending: state => state.api.pending.annotations,
-      annotations: state => state.api.annotations,
-      foundDatasetsForKeywords: state => state.api.datasetSearch
+      annotations: state => state.api.annotations
     }),
     csvDownloadName: {
       get() {
@@ -456,21 +442,6 @@ export default {
           name += ann.value.replace(/ /g, "_") + "_";
         }
         return name;
-      }
-    },
-    datasetKeywordSearchParams: {
-      get() {
-        const kwrds = this.$store.state.dss.search_query;
-        let query = "";
-        for (let i = 0; i < kwrds.length; i++) {
-          const kwrd = kwrds[i];
-          if (kwrd.valueUri) {
-            query += encodeURIComponent(kwrd.valueUri) + ",";
-          } else {
-            query += kwrd.value + ",";
-          }
-        }
-        return query;
       }
     },
     keywordsFiltered: {
@@ -605,9 +576,6 @@ export default {
       },
       set(value) {
         this.$store.dispatch("dss/setSearch_on", value);
-        if (!value) {
-          this.$store.dispatch("dss/setIds_on", value);
-        }
       }
     },
     search_query: {
@@ -628,7 +596,6 @@ export default {
         }
 
         this.$store.dispatch("dss/setSearch_query", newSearch);
-        this.$store.dispatch("dss/setIds_on", newSearch.length > 0);
       }
     }
   },
