@@ -217,7 +217,7 @@
                     </v-card-text>
                 </v-card>
             </v-flex>
-            <v-flex d-flex xs12 class="help" :class="settingsVisible&&settingsHelpVisible ? 'md2' : 'md0'" v-show="settingsVisible&&settingsHelpVisible" order-xs1
+            <v-flex d-flex xs12 class="help" :class="settingsVisible&&settingsHelpVisible ? 'md3' : 'md0'" v-show="settingsVisible&&settingsHelpVisible" order-xs1
                     order-md3>
                 <v-card tile flat color="grey darken-1" v-show="settingsVisible&&settingsHelpVisible" dark>
                     <v-card-title primary class="filters title">
@@ -303,7 +303,7 @@ export default {
       get() {
         let len = 12;
         if (this.settingsVisible) len -= 3;
-        if (this.settingsVisible && this.settingsHelpVisible) len -= 2;
+        if (this.settingsVisible && this.settingsHelpVisible) len -= 3;
         return "md" + len.toString();
       }
     },

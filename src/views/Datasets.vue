@@ -21,14 +21,19 @@
                         <v-icon>mdi-tag-remove</v-icon>
                     </v-btn>
                 </v-layout>
+                <v-progress-linear
+                        indeterminate color="white"
+                        :active="keywordsPending"
+                        height="3"
+                        class="no-margins"/>
                 <v-select
-                        class="search"
+                        class="search no-margins"
                         v-if="search_on" :disabled="!search_on"
                         v-model="search_query"
                         placeholder="Add keywords"
                         tags multiple chips solo dense flat autocomplete cache-items return-object
                         max-height="40%"
-                        :append-icon=" keywordsPending ? 'mdi-loading mdi-spin' : '' "
+                        :append-icon="''"
                         :append-icon-cb="null"
                         item-text="value"
                         :items="keywordsFiltered"
@@ -125,8 +130,25 @@
         <template slot="settingsHelp">
             <HelpRow prop-name="help_keywords_on" label="keywords">
                 <template slot="content">
-                    Type in a keyword you would like to search for, or select one from the dropdown menu. The dropdown menu is updated
-                    each type a new string is typed in, which may take few seconds.
+                    Type in a keyword you would like to search for, or select one from the dropdown menu.
+                    <br/>
+                    Your entries can be any of these types:
+                    <br/>
+                    A <v-chip class="keyword chip" light small :color="getChipColor({typeFreeText: true})">
+                    <strong>free text</strong></v-chip> keyword means the search will try to look for experiments that contain
+                    similar text in their name or tags. To insert an ontology term, press enter after typing the text.
+                    <br/>
+                    An <v-chip class="keyword chip" light small :color="getChipColor({typeFactorValue: true})">
+                    <strong>ontology term</strong></v-chip> will look for experiments that contain the term, or <strong>any
+                    descendant terms</strong>, either as an experiment tag, a factor value or as a biomaterial. To insert
+                    an ontology term, use one of the predefined entries from the dropdown menu when there is no text inserted.
+                    The icons next to each term identify how the term is usually used (hover over them for description).
+                    <br/>
+                    An <v-chip class="keyword chip" light small :color="getChipColor({})">
+                    <strong>experiment tag</strong></v-chip> is a value that is used to tag existing experiments in Gemma.
+                    To insert an experiment tag, type a name of the term and wait for matching terms to be loaded into the dropdown menu.
+                    Some terms will behave as an ontology term (will also include child terms). These can be identified by the term URI
+                    being shown when you hover over them in the dropdown.
                 </template>
             </HelpRow>
 
@@ -663,5 +685,9 @@ div.input-group.search {
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.no-margins {
+  margin: 0 !important;
 }
 </style>
