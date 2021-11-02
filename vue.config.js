@@ -1,8 +1,11 @@
 /* eslint-disable */
 // noinspection JSUnresolvedVariable
 module.exports = {
-  baseUrl:
-    process.env.NODE_ENV === "production"
-      ? "/resources/restapidocs/gembrow/"
-      : "/"
+  publicPath: "/",
+  configureWebpack: {
+    devServer: {
+      // Tomcat uses 8080 by default, so we're preventing a conflict with a local instance
+      port: 8081
+    }
+  }
 };

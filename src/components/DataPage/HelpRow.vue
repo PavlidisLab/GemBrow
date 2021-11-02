@@ -2,7 +2,7 @@
     <div class="wrapper">
         <div>
             <v-layout row wrap v-on:click="value = !value" class="switch-row">
-                <v-icon :color="value ? 'blue lighten-2' : '' ">mdi-help</v-icon>
+                <v-icon :color="value ? 'blue lighten-2' : ''">mdi-help</v-icon>
                 <v-icon v-if="!value">mdi-menu-right</v-icon>
                 <v-icon v-if="value" color="blue lighten-2">mdi-menu-down</v-icon>
                 <v-switch :label="label" class="switch">
@@ -18,7 +18,6 @@
         <v-divider v-if="value"></v-divider>
     </div>
 </template>
-
 
 <script>
 import ViewUtils from "../ViewUtils";

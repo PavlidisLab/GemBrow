@@ -1,5 +1,6 @@
 <template>
-    <v-app> <!--class is applied with the update() hook-->
+    <v-app>
+        <!--class is applied with the update() hook-->
         <v-dialog v-model="userDialog">
             <UserForm v-model="userDialog"/>
         </v-dialog>
@@ -24,20 +25,28 @@
                 </v-list-tile>
                 <v-divider/>
 
-                <v-list-tile @click.native.stop="userDialog = true" v-on:click="userDialog= true">
+                <v-list-tile
+                        @click.native.stop="userDialog = true"
+                        v-on:click="userDialog = true"
+                >
                     <v-list-tile-action>
                         <v-icon v-if="userPending">mdi-loading spin</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
-                        <v-list-tile-title>{{this.user === null ? "User login" : this.user.userName}}
+                        <v-list-tile-title
+                        >{{ this.user === null ? "User login" : this.user.userName }}
                         </v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
 
                 <v-divider/>
-                <v-list-tile v-for="item in actions" :key="item.title" v-on:click="item.action">
+                <v-list-tile
+                        v-for="item in actions"
+                        :key="item.title"
+                        v-on:click="item.action"
+                >
                     <v-list-tile-action>
                         <v-icon>{{ item.icon }}</v-icon>
                     </v-list-tile-action>
@@ -49,25 +58,46 @@
         </v-navigation-drawer>
         <v-toolbar app>
             <v-toolbar-side-icon to="/">
-                <img id="logo" src="./assets/logo_icon.png" class="themeable light">
+                <img
+                        id="logo"
+                        src="./assets/logo_icon.png"
+                        class="themeable light"
+                        alt="GemBrow Logo"
+                />
             </v-toolbar-side-icon>
             <v-toolbar-title>
-                <router-link to="/">Gembrow</router-link>
+                <router-link to="/">GemBrow</router-link>
             </v-toolbar-title>
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
-                <v-btn flat v-for="item in routes" :key="item.title" :to="item.route">{{item.title}}</v-btn>
-                <v-menu open-on-hover bottom offset-y :close-on-content-click="false" v-model="userMenu">
+                <v-btn flat v-for="item in routes" :key="item.title" :to="item.route"
+                >{{ item.title }}
+                </v-btn>
+                <v-menu
+                        open-on-hover
+                        bottom
+                        offset-y
+                        :close-on-content-click="false"
+                        v-model="userMenu"
+                >
                     <v-btn slot="activator" flat>
                         <v-icon v-if="userPending" class="spin inv">sync</v-icon>
-                        <v-icon v-else-if="this.user !== null && this.user.isAdmin">mdi-security-account</v-icon>
+                        <v-icon v-else-if="this.user !== null && this.user.isAdmin"
+                        >mdi-security-account
+                        </v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
                     </v-btn>
                     <UserForm v-model="userMenu"/>
                 </v-menu>
-                <v-btn flat v-for="item in actions" :key="item.title" v-on:click="item.action" :title="item.title">
-                    <v-icon>{{item.icon}}</v-icon>
+                <v-btn
+                        flat
+                        v-for="item in actions"
+                        :key="item.title"
+                        v-on:click="item.action"
+                        :title="item.title"
+                >
+                    <v-icon>{{ item.icon }}</v-icon>
                 </v-btn>
             </v-toolbar-items>
             <v-toolbar-items class="hidden-sm-and-up">
@@ -80,10 +110,14 @@
             <router-view/>
         </v-content>
         <footer class="themeable light">
-            <a href="http://www.ubc.ca/" target="_blank" title="UBC home page">
+            <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
                 <h3>&copy; 2018 &nbsp;&nbsp;</h3>
                 <h3>University of British Columbia</h3>
-                <img :src="require('@/assets/ubcLogo.png')" height="100px">
+                <img
+                        :src="require('@/assets/ubcLogo.png')"
+                        height="100px"
+                        alt="UBC Logo"
+                />
             </a>
         </footer>
     </v-app>
@@ -96,10 +130,9 @@ import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
 import { mapState } from "vuex";
-import VueLodash from "vue-lodash";
 import UserForm from "./components/UserForm";
+import gemmaConfig from "./config/gemma";
 
-Vue.use(VueLodash);
 Vue.use(Vuetify);
 
 const app = {
@@ -115,12 +148,15 @@ const app = {
       ]
     };
   },
+  config: {
+    gemma: gemmaConfig
+  },
   components: {
     UserForm: UserForm
   },
   computed: {
     ...mapState({
-      user: state => state.main.user
+      user: (state) => state.main.user
     }),
     dark() {
       return this.$store.state.main.themeDark;

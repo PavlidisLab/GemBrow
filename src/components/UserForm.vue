@@ -12,7 +12,7 @@
             <v-text-field
                     v-model="pwd"
                     :append-icon="hidePwd ? 'visibility' : 'visibility_off'"
-                    :append-icon-cb="() => (hidePwd = !hidePwd)"
+                    @click:append="() => (hidePwd = !hidePwd)"
                     :type="hidePwd ? 'password' : 'text'"
                     name="usr-pwd"
                     label="Password"
@@ -36,11 +36,11 @@
                     <v-icon slot="activator">mdi-account</v-icon>
                     User logged in
                 </v-tooltip>
-                {{this.user.userName}}
+                {{ this.user.userName }}
             </h3>
         </v-card-title>
         <v-card-text>
-            {{this.user.email}}
+            {{ this.user.email }}
         </v-card-text>
         <v-divider/>
         <v-card-actions>
@@ -63,7 +63,8 @@ export default {
       hidePwd: true
     };
   },
-  created() {},
+  created() {
+  },
   mounted() {
     if (this.user) {
       // Check if backend login is still valid
@@ -75,8 +76,8 @@ export default {
   },
   computed: {
     ...mapState({
-      user: state => state.main.user,
-      pending: state => state.api.users.pending
+      user: (state) => state.main.user,
+      pending: (state) => state.api.users.pending
     })
   },
   methods: {

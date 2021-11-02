@@ -1,20 +1,20 @@
 <template>
     <div class="home">
-        <v-jumbotron class="jumbotron">
+        <v-responsive class="jumbotron">
             <v-container fill-height>
                 <v-layout align-center>
                     <v-flex text-xs-center>
-                        <img src="../assets/logo.png"/>
+                        <img src="../assets/logo.png" alt="GemBrow Logo"/>
                         <h1 class="display-3">The Gemma Browser</h1>
                     </v-flex>
                 </v-layout>
             </v-container>
-        </v-jumbotron>
+        </v-responsive>
         <v-container fluid>
             <h2>Welcome to the Gemma dataset and platform browser</h2>
             <br/>
             <v-flex xs12>
-                <v-card color="warning" >
+                <v-card color="warning">
                     <v-card-title primary-title class="text-xs-center white--text">
                         <v-spacer/>
                         <div class="headline">Work in progress</div>

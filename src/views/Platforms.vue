@@ -13,51 +13,75 @@
         <template slot="settingsForm">
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
-                <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
-                            :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
+                <v-checkbox
+                        v-model="troubled"
+                        v-if="troubled_on"
+                        :disabled="!troubled_on"
+                        :label="
+            troubled_on ? 'Only ' + (troubled ? 'usable' : 'unusable') : 'All'
+          "
+                />
             </v-layout>
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="attention_on" label="Curation"/>
-                <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
-                            :label="attention_on ? ('Only '+(+attention ? 'curated':'uncurated')) : 'All'"/>
+                <v-checkbox
+                        v-model="attention"
+                        v-if="attention_on"
+                        :disabled="!attention_on"
+                        :label="
+            attention_on
+              ? 'Only ' + (+attention ? 'curated' : 'uncurated')
+              : 'All'
+          "
+                />
             </v-layout>
 
             <div>
-                <SelectorTaxon
-                        :taxa="taxa"
-                        :storeName="sName"
-                />
+                <SelectorTaxon :taxa="taxa" :storeName="sName"/>
             </div>
             <v-divider/>
         </template>
         <template slot="settingsHelp">
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_troubled_on" label="Usability">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_troubled_on"
+                    label="Usability"
+            >
                 <template slot="content">
-                    Filter by usability. Either show only usable or only unusable datasets.
+                    Filter by usability. Either show only usable or only unusable
+                    datasets.
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_attention_on" label="Curation">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_attention_on"
+                    label="Curation"
+            >
                 <template slot="content">
-                    Filter by curation status. Either show only curated datasets, or datasets that are still being curated (i.e.
-                    have the 'need curators attention' flag on).
+                    Filter by curation status. Either show only curated datasets, or
+                    datasets that are still being curated (i.e. have the 'need curators
+                    attention' flag on).
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_taxon_on" label="Taxon">
                 <template slot="content">
-                    Filter by taxon. Only show datasets that have samples for the selected taxon.
+                    Filter by taxon. Only show datasets that have samples for the selected
+                    taxon.
                 </template>
             </HelpRow>
             <v-container>
-                Each filter creates a new restriction that will be applied after clicking the "Apply Filters" button.
+                Each filter creates a new restriction that will be applied after
+                clicking the "Apply Filters" button.
             </v-container>
         </template>
     </DataPage>
 </template>
 
 <script>
+import gemmaConfig from "../config/gemma";
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import HelpRow from "../components/DataPage/HelpRow";
@@ -152,8 +176,7 @@ export default {
           label: "Uncurated",
           value: "needsAttention",
           adminOnly: true,
-          tip:
-            "Displays a warning icon if the platform curation is not finished.",
+          tip: "Displays a warning icon if the platform curation is not finished.",
           rowTip(props) {
             return props.item.needsAttention
               ? "Curation not finished"
@@ -172,8 +195,7 @@ export default {
           labelMain: "Usability",
           label: "Unusable",
           value: "troubled",
-          tip:
-            "Displays a warning icon if the platform is unusable for any reason.",
+          tip: "Displays a warning icon if the platform is unusable for any reason.",
           adminOnly: true,
           rowTip(props) {
             return props.item.troubled ? "Unusable" : "Usable";
@@ -191,7 +213,8 @@ export default {
           tip: "Show platform details page in Gemma",
           link(props) {
             return (
-              "https://gemma.msl.ubc.ca/arrays/showArrayDesign.html?id=" +
+              gemmaConfig.baseUrl +
+              "/arrays/showArrayDesign.html?id=" +
               props.item.id.toString()
             );
           },
@@ -204,8 +227,8 @@ export default {
   },
   computed: {
     ...mapState({
-      taxa: state => state.api.taxa,
-      user: state => state.main.user
+      taxa: (state) => state.api.taxa,
+      user: (state) => state.main.user
     }),
     troubled: {
       get() {

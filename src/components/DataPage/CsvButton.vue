@@ -1,13 +1,22 @@
 <template>
-        <v-btn round flat medium class="text-xs-center"
-               title="Download all data matching the current filters as a csv file. Respects the 'columns' settings."
-               color="light-blue"
-               :disabled="pending || this.itemsPage.length < 1 || this.$store.state.api.pending[this.propName]"
-                v-on:click="downloadData()">
-            <v-icon v-if="!pending">mdi-file-download</v-icon>
-            <v-icon v-if="pending">mdi-loading spin</v-icon>
-            &nbsp;CSV
-        </v-btn>
+    <v-btn
+            round
+            flat
+            medium
+            class="text-xs-center"
+            title="Download all data matching the current filters as a csv file. Respects the 'columns' settings."
+            color="light-blue"
+            :disabled="
+      pending ||
+      this.itemsPage.length < 1 ||
+      this.$store.state.api.pending[this.propName]
+    "
+            v-on:click="downloadData()"
+    >
+        <v-icon v-if="!pending">mdi-file-download</v-icon>
+        <v-icon v-if="pending">mdi-loading spin</v-icon>
+        &nbsp;CSV
+    </v-btn>
 </template>
 
 <script>
@@ -91,7 +100,7 @@ export default {
         this.pendingLocal = true;
         this.getDataFunc();
 
-        this.unsubscribe_dss = this.$store.subscribe(mutation => {
+        this.unsubscribe_dss = this.$store.subscribe((mutation) => {
           if (mutation.type === this.mutationName + "_SUCCEEDED") {
             this.$store
               .dispatch("api/get" + this.propNameCsv, {
@@ -103,7 +112,7 @@ export default {
           }
         });
 
-        this.unsubscribe_csv = this.$store.subscribe(mutation => {
+        this.unsubscribe_csv = this.$store.subscribe((mutation) => {
           if (mutation.type === this.mutationName + "_CSV_SUCCEEDED") {
             let link = document.createElement("a");
             link.href = this.getUrl();
@@ -126,7 +135,7 @@ export default {
       const parser = new json2csv.Parser({ fields: this.fields, quote: "" });
       return this.itemsPage.length > 0
         ? "data:text/csv," +
-            encodeURIComponent(parser.parse(this.items_rendered))
+        encodeURIComponent(parser.parse(this.items_rendered))
         : "javascript:void(0);";
     }
   }

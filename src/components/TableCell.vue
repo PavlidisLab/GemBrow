@@ -1,7 +1,7 @@
 <template>
     <span>
         <span :title="tip">
-            <v-icon :color="iconColor" :class="iconClass" :style="iconStyle" v-if="icon" >{{icon}}</v-icon>
+            <v-icon :color="iconColor" :class="iconClass" :style="iconStyle" v-if="icon">{{ icon }}</v-icon>
             {{ text }}
         </span>
     </span>

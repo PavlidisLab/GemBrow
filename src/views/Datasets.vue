@@ -17,21 +17,42 @@
                     <v-flex xs-12>
                         <v-switch v-model="search_on" label="Keywords"/>
                     </v-flex>
-                    <v-btn v-if="search_on" large round flat icon class="grey darken-2" color="red lighten-4" v-on:click="clearSearch()" title="Clear keywords">
+                    <v-btn
+                            v-if="search_on"
+                            large
+                            round
+                            flat
+                            icon
+                            class="grey darken-2"
+                            color="red lighten-4"
+                            v-on:click="clearSearch()"
+                            title="Clear keywords"
+                    >
                         <v-icon>mdi-tag-remove</v-icon>
                     </v-btn>
                 </v-layout>
                 <v-progress-linear
-                        indeterminate color="white"
+                        indeterminate
+                        color="white"
                         :active="keywordsPending"
                         height="3"
-                        class="no-margins"/>
+                        class="no-margins"
+                />
                 <v-select
                         class="search no-margins"
-                        v-if="search_on" :disabled="!search_on"
+                        v-if="search_on"
+                        :disabled="!search_on"
                         v-model="search_query"
                         placeholder="Add keywords"
-                        tags multiple chips solo dense flat autocomplete cache-items return-object
+                        tags
+                        multiple
+                        chips
+                        solo
+                        dense
+                        flat
+                        autocomplete
+                        cache-items
+                        return-object
                         max-height="40%"
                         :append-icon="''"
                         :append-icon-cb="null"
@@ -40,8 +61,11 @@
                         :search-input.sync="annotSearch"
                 >
                     <template slot="selection" slot-scope="data">
-                        <v-chip class="keyword chip"
-                                close light small
+                        <v-chip
+                                class="keyword chip"
+                                close
+                                light
+                                small
                                 :selected="data.selected"
                                 :color="getChipColor(data.item)"
                                 @input="data.parent.selectItem(data.item)"
@@ -52,15 +76,35 @@
                     <template slot="item" slot-scope="data">
                         <v-tooltip left style="width: 100%">
                             <v-layout slot="activator" row wrap class="select row">
-                                <span class="label">
-                                    <strong>{{ data.item.value }}</strong>
-                                </span>
+                <span class="label">
+                  <strong>{{ data.item.value }}</strong>
+                </span>
                                 <v-spacer/>
-                                <v-icon slot="activator" right v-if="data.item.typeBiomaterial" title="Used in biomaterials">mdi-dna</v-icon>
-                                <v-icon slot="activator" right v-if="data.item.typeTag" title="Used as a dataset tag">mdi-tag-outline</v-icon>
-                                <v-icon slot="activator" right v-if="data.item.typeFactorValue" title="Used as a factor value">mdi-flask-outline</v-icon>
+                                <v-icon
+                                        slot="activator"
+                                        right
+                                        v-if="data.item.typeBiomaterial"
+                                        title="Used in biomaterials"
+                                >mdi-dna
+                                </v-icon>
+                                <v-icon
+                                        slot="activator"
+                                        right
+                                        v-if="data.item.typeTag"
+                                        title="Used as a dataset tag"
+                                >mdi-tag-outline
+                                </v-icon>
+                                <v-icon
+                                        slot="activator"
+                                        right
+                                        v-if="data.item.typeFactorValue"
+                                        title="Used as a factor value"
+                                >mdi-flask-outline
+                                </v-icon>
                             </v-layout>
-                            <span>{{ data.item.category }}&nbsp;{{data.item.valueUri}}</span>
+                            <span
+                            >{{ data.item.category }}&nbsp;{{ data.item.valueUri }}</span
+                            >
                         </v-tooltip>
                     </template>
                 </v-select>
@@ -69,40 +113,87 @@
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="troubled_on" label="Usability"/>
-                <v-checkbox v-model="troubled" v-if="troubled_on" :disabled="!troubled_on"
-                            :label="troubled_on ? ('Only '+(troubled ? 'usable':'unusable')) : 'All'"/>
+                <v-checkbox
+                        v-model="troubled"
+                        v-if="troubled_on"
+                        :disabled="!troubled_on"
+                        :label="
+            troubled_on ? 'Only ' + (troubled ? 'usable' : 'unusable') : 'All'
+          "
+                />
             </v-layout>
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="attention_on" label="Curation"/>
-                <v-checkbox v-model="attention" v-if="attention_on" :disabled="!attention_on"
-                            :label="attention_on ? ('Only '+(+attention ? 'curated':'unfinished')) : 'All'"/>
+                <v-checkbox
+                        v-model="attention"
+                        v-if="attention_on"
+                        :disabled="!attention_on"
+                        :label="
+            attention_on
+              ? 'Only ' + (+attention ? 'curated' : 'unfinished')
+              : 'All'
+          "
+                />
             </v-layout>
 
             <v-layout row wrap v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="publication_on" label="Publication"/>
-                <v-checkbox v-model="publication" v-if="publication_on" :disabled="!publication_on"
-                            :label="publication_on ? ('Only '+(publication ? 'available' : 'unknown')) : 'all' "/>
+                <v-checkbox
+                        v-model="publication"
+                        v-if="publication_on"
+                        :disabled="!publication_on"
+                        :label="
+            publication_on
+              ? 'Only ' + (publication ? 'available' : 'unknown')
+              : 'all'
+          "
+                />
             </v-layout>
 
             <div>
                 <v-switch v-model="score_q_min_on" label="Min. quality"/>
-                    <v-slider v-show="score_q_min_on" :label="score_q_min.toFixed(1).toString()" :disabled="!score_q_min_on" v-model="score_q_min"
-                              thumb-label step="0.1" ticks min="-1" max="1"></v-slider>
+                <v-slider
+                        v-show="score_q_min_on"
+                        :label="score_q_min.toFixed(1).toString()"
+                        :disabled="!score_q_min_on"
+                        v-model="score_q_min"
+                        thumb-label
+                        step="0.1"
+                        ticks
+                        min="-1"
+                        max="1"
+                ></v-slider>
             </div>
             <v-divider v-if="score_q_min_on"/>
 
             <div v-if="this.user && this.user.isAdmin">
-                <v-switch v-model="score_s_min_on" label="Min. suitability" />
-                    <v-slider v-show="score_s_min_on" :label="score_s_min.toFixed(1).toString()" :disabled="!score_s_min_on" v-model="score_s_min"
-                              step="0.1" ticks min="-1" max="1"></v-slider>
+                <v-switch v-model="score_s_min_on" label="Min. suitability"/>
+                <v-slider
+                        v-show="score_s_min_on"
+                        :label="score_s_min.toFixed(1).toString()"
+                        :disabled="!score_s_min_on"
+                        v-model="score_s_min"
+                        step="0.1"
+                        ticks
+                        min="-1"
+                        max="1"
+                ></v-slider>
             </div>
             <v-divider v-if="this.user && this.user.isAdmin && score_s_min_on"/>
 
             <div v-if="this.user && this.user.isAdmin">
                 <v-switch v-model="platform_amount_on" label="Min. platforms"/>
-                <v-slider v-show="platform_amount_on" :label="platform_amount.toString()" :disabled="!platform_amount_on" v-model="platform_amount"
-                          step="1" ticks min="1" max="3"></v-slider>
+                <v-slider
+                        v-show="platform_amount_on"
+                        :label="platform_amount.toString()"
+                        :disabled="!platform_amount_on"
+                        v-model="platform_amount"
+                        step="1"
+                        ticks
+                        min="1"
+                        max="3"
+                ></v-slider>
             </div>
             <v-divider v-if="this.user && this.user.isAdmin && platform_amount_on"/>
 
@@ -119,107 +210,155 @@
             </div>
             <v-divider v-if="sample_size_on"/>
 
-            <div >
-                <SelectorTaxon
-                    :taxa="taxa"
-                    :storeName="sName"
-                />
+            <div>
+                <SelectorTaxon :taxa="taxa" :storeName="sName"/>
             </div>
             <v-divider/>
         </template>
         <template slot="settingsHelp">
             <HelpRow prop-name="help_keywords_on" label="keywords">
                 <template slot="content">
-                    Type in a keyword you would like to search for, or select one from the dropdown menu.
+                    Type in a keyword you would like to search for, or select one from the
+                    dropdown menu.
                     <br/>
                     Your entries can be any of these types:
                     <br/>
-                    A <v-chip class="keyword chip" light small :color="getChipColor({typeFreeText: true})">
-                    <strong>free text</strong></v-chip> keyword means the search will try to look for experiments that contain
-                    similar text in their name or tags. To insert an ontology term, press enter after typing the text.
+                    A
+                    <v-chip
+                            class="keyword chip"
+                            light
+                            small
+                            :color="getChipColor({ typeFreeText: true })"
+                    >
+                        <strong>free text</strong></v-chip
+                    >
+                    keyword means the search will try to look for experiments that contain
+                    similar text in their name or tags. To insert an ontology term, press
+                    enter after typing the text.
                     <br/>
-                    An <v-chip class="keyword chip" light small :color="getChipColor({typeFactorValue: true})">
-                    <strong>ontology term</strong></v-chip> will look for experiments that contain the term, or <strong>any
-                    descendant terms</strong>, either as an experiment tag, a factor value or as a biomaterial. To insert
-                    an ontology term, use one of the predefined entries from the dropdown menu when there is no text inserted.
-                    The icons next to each term identify how the term is usually used (hover over them for description).
+                    An
+                    <v-chip
+                            class="keyword chip"
+                            light
+                            small
+                            :color="getChipColor({ typeFactorValue: true })"
+                    >
+                        <strong>ontology term</strong></v-chip
+                    >
+                    will look for experiments that contain the term, or
+                    <strong>any descendant terms</strong>, either as an experiment tag, a
+                    factor value or as a biomaterial. To insert an ontology term, use one
+                    of the predefined entries from the dropdown menu when there is no text
+                    inserted. The icons next to each term identify how the term is usually
+                    used (hover over them for description).
                     <br/>
-                    An <v-chip class="keyword chip" light small :color="getChipColor({})">
-                    <strong>experiment tag</strong></v-chip> is a value that is used to tag existing experiments in Gemma.
-                    To insert an experiment tag, type a name of the term and wait for matching terms to be loaded into the dropdown menu.
-                    Some terms will behave as an ontology term (will also include child terms). These can be identified by the term URI
-                    being shown when you hover over them in the dropdown.
+                    An
+                    <v-chip class="keyword chip" light small :color="getChipColor({})">
+                        <strong>experiment tag</strong></v-chip
+                    >
+                    is a value that is used to tag existing experiments in Gemma. To
+                    insert an experiment tag, type a name of the term and wait for
+                    matching terms to be loaded into the dropdown menu. Some terms will
+                    behave as an ontology term (will also include child terms). These can
+                    be identified by the term URI being shown when you hover over them in
+                    the dropdown.
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_troubled_on" label="Usability">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_troubled_on"
+                    label="Usability"
+            >
                 <template slot="content">
-                    Filter by usability. Either show only usable or only unusable datasets.
+                    Filter by usability. Either show only usable or only unusable
+                    datasets.
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_attention_on" label="Curation">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_attention_on"
+                    label="Curation"
+            >
                 <template slot="content">
-                    Filter by curation status. Either show only curated datasets, or datasets that are still being curated (i.e.
-                    have the 'need curators attention' flag on).
+                    Filter by curation status. Either show only curated datasets, or
+                    datasets that are still being curated (i.e. have the 'need curators
+                    attention' flag on).
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_publication_on" label="Publication">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_publication_on"
+                    label="Publication"
+            >
                 <template slot="content">
-                    Filter by publication availability. Either show only datasets with a publication, or without.
+                    Filter by publication availability. Either show only datasets with a
+                    publication, or without.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_quality_on" label="Min. quality">
                 <template slot="content">
-                    Filter by quality. Only show datasets with a quality score equal or higher to the
-                    number set in the filter.
+                    Filter by quality. Only show datasets with a quality score equal or
+                    higher to the number set in the filter.
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_suitability_on" label="Min. suitability">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_suitability_on"
+                    label="Min. suitability"
+            >
                 <template slot="content">
-                    Filter by suitability. Only show datasets with a suitability score equal or higher to the
-                    number set in the filter.
+                    Filter by suitability. Only show datasets with a suitability score
+                    equal or higher to the number set in the filter.
                 </template>
             </HelpRow>
 
-            <HelpRow v-if="this.user && this.user.isAdmin" prop-name="help_platforms_on" label="Min. platforms">
+            <HelpRow
+                    v-if="this.user && this.user.isAdmin"
+                    prop-name="help_platforms_on"
+                    label="Min. platforms"
+            >
                 <template slot="content">
-                    Filter by amount of used platforms. Only show datasets that use the amount set or more
-                    platforms.
+                    Filter by amount of used platforms. Only show datasets that use the
+                    amount set or more platforms.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_samples_on" label="Min. samples">
                 <template slot="content">
-                    Filter by amount of samples in the dataset. Only show datasets that have the amount of samples within the
-                    selected range.
+                    Filter by amount of samples in the dataset. Only show datasets that
+                    have the amount of samples within the selected range.
                 </template>
             </HelpRow>
 
             <HelpRow prop-name="help_taxon_on" label="Taxon">
                 <template slot="content">
-                    Filter by taxon. Only show datasets that have samples for the selected taxon.
+                    Filter by taxon. Only show datasets that have samples for the selected
+                    taxon.
                 </template>
             </HelpRow>
             <v-container>
-                Each filter creates a new restriction that will be applied after clicking the "Apply Filters" button.
+                Each filter creates a new restriction that will be applied after
+                clicking the "Apply Filters" button.
             </v-container>
         </template>
     </DataPage>
 </template>
 
 <script>
-import Vue from "vue";
+import gemmaConfig from "../config/gemma";
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import HelpRow from "../components/DataPage/HelpRow";
-import { _keywords } from "../assets/Characteristics.js";
+import { _keywords } from "@/assets/Characteristics";
 import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
+import _ from "lodash";
 
 export default {
   components: {
@@ -317,8 +456,7 @@ export default {
           labelMain: "Curation",
           label: "Uncurated",
           value: "needsAttention",
-          tip:
-            "Displays a warning icon if the dataset curation is not finished.",
+          tip: "Displays a warning icon if the dataset curation is not finished.",
           adminOnly: true,
           rowTip(props) {
             return props.item.needsAttention
@@ -338,8 +476,7 @@ export default {
           labelMain: "Usability",
           label: "Unusable",
           value: "troubled",
-          tip:
-            "Displays a warning icon if the dataset is unusable for any reason.",
+          tip: "Displays a warning icon if the dataset is unusable for any reason.",
           adminOnly: true,
           rowTip(props) {
             return props.item.troubled ? "Unusable" : "Usable";
@@ -410,7 +547,8 @@ export default {
           tip: "Show dataset details page in Gemma",
           link(props) {
             return (
-              "https://gemma.msl.ubc.ca/expressionExperiment/showExpressionExperiment.html?id=" +
+              gemmaConfig.baseUrl +
+              "/expressionExperiment/showExpressionExperiment.html?id=" +
               props.item.id.toString()
             );
           },
@@ -451,10 +589,10 @@ export default {
   },
   computed: {
     ...mapState({
-      taxa: state => state.api.taxa,
-      user: state => state.main.user,
-      keywordsPending: state => state.api.pending.annotations,
-      annotations: state => state.api.annotations
+      taxa: (state) => state.api.taxa,
+      user: (state) => state.main.user,
+      keywordsPending: (state) => state.api.pending.annotations,
+      annotations: (state) => state.api.annotations
     }),
     csvDownloadName: {
       get() {
@@ -641,7 +779,7 @@ export default {
     clearSearch() {
       this.search_query = [];
     },
-    searchAnnotations: Vue._.debounce(function(val) {
+    searchAnnotations: _.debounce(function(val) {
       this.$store.dispatch("api/getannotations", {
         params: val
       });

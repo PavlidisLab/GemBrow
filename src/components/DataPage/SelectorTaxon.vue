@@ -1,25 +1,29 @@
 <template>
-    <span>
-        <v-switch v-model="taxon_on" label="Taxon"/>
-        <v-select
-                v-show="taxon_on"
-                :items="taxa"
-                item-value="id"
-                item-text="scientificName"
-                v-model="taxon"
-                :disabled="!taxon_on"
-                single-line
+  <span>
+    <v-switch v-model="taxon_on" label="Taxon"/>
+    <v-select
+            v-show="taxon_on"
+            :items="taxa"
+            item-value="id"
+            item-text="scientificName"
+            v-model="taxon"
+            :disabled="!taxon_on"
+            single-line
+    >
+      <template slot="selection" slot-scope="data">
+        <div class="input-group__selections__comma">
+          {{ data.item.scientificName }}&nbsp;<span v-if="data.item.commonName"
+        >({{ data.item.commonName }})</span
         >
-            <template slot="selection" slot-scope="data">
-                <div class="input-group__selections__comma">
-                    {{data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{data.item.commonName}})</span>
-                </div>
-            </template>
-            <template slot="item" slot-scope="data">
-                {{data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{data.item.commonName}})</span>
-            </template>
-        </v-select>
-    </span>
+        </div>
+      </template>
+      <template slot="item" slot-scope="data">
+        {{ data.item.scientificName }}&nbsp;<span v-if="data.item.commonName"
+      >({{ data.item.commonName }})</span
+      >
+      </template>
+    </v-select>
+  </span>
 </template>
 
 <script>
@@ -63,5 +67,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

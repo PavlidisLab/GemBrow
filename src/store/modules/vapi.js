@@ -1,8 +1,6 @@
 import Vapi from "vuex-rest-api";
 import axios from "axios";
 
-const local = false;
-const apiURL = "/rest/v2/";
 const MSG_ERR_NO_DATA = "No data received";
 const C_DSS = "datasets";
 const C_DSS_CSV = "datasetsCsv";
@@ -12,12 +10,14 @@ const C_TXA = "taxa";
 const C_USR = "users";
 const C_ANN = "annotations";
 
+import gemmaConfig from "../../config/gemma";
+
 const axiosInst = axios.create({
   headers: null
 });
 
 const vapi = new Vapi({
-  baseURL: local ? "http://local.net:8080/Gemma" : "https://gemma.msl.ubc.ca",
+  baseURL: gemmaConfig.baseUrl + "/rest/v2", // assigned in store.js
   axios: axiosInst,
   state: {
     // all endpoint properties set in attachEndpoint
@@ -42,7 +42,7 @@ function composePath(
   taxon_id,
   keywords
 ) {
-  let path = apiURL;
+  let path = "/";
   let _firstArg = true;
   let firstArg = {
     get() {
@@ -98,7 +98,8 @@ vapi.attachLogoutEndpoint = function() {
       state["users"] = null;
     },
 
-    onError() {},
+    onError() {
+    },
     requestConfig: {
       validateStatus(status) {
         return status >= 200 && status < 600; // default
@@ -128,17 +129,17 @@ vapi.attachEndpoint = function(propName, pathFunc) {
     path: pathFunc
       ? pathFunc
       : ({ id, pwd, limit, offset, sort, filter, taxon_id, keywords }) =>
-          composePath(
-            propName,
-            id,
-            pwd,
-            limit,
-            offset,
-            sort,
-            filter,
-            taxon_id,
-            keywords
-          ),
+        composePath(
+          propName,
+          id,
+          pwd,
+          limit,
+          offset,
+          sort,
+          filter,
+          taxon_id,
+          keywords
+        ),
 
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
@@ -207,8 +208,8 @@ export default vapi
   .attachEndpoint(C_PFS)
   .attachEndpoint(C_TXA)
   .attachEndpoint(C_USR)
-  .attachEndpoint(C_ANN, query => {
-    return apiURL + "annotations/search/" + query;
+  .attachEndpoint(C_ANN, (query) => {
+    return "/annotations/search/" + query;
   })
   .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id, keywords }) =>
     composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id, keywords)
