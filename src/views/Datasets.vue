@@ -20,8 +20,8 @@
                     <v-btn
                             v-if="search_on"
                             large
-                            round
-                            flat
+                            rounded
+                            text
                             icon
                             class="grey darken-2"
                             color="red lighten-4"
@@ -49,7 +49,7 @@
                         chips
                         solo
                         dense
-                        flat
+                        text
                         autocomplete
                         cache-items
                         return-object

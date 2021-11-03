@@ -7,8 +7,8 @@
                         <v-card tile flat>
                             <v-card-text>
                                 <v-btn
-                                        round
-                                        flat
+                                        rounded
+                                        text
                                         medium
                                         class="text-xs-center"
                                         v-on:click="toggleColsSettings()"
@@ -28,7 +28,7 @@
                                     v-if="error && items.length === 0"
                                     :value="error"
                                     type="error"
-                                    outline
+                                    outlined
                             >
                                 {{ error }}
                             </v-alert>
@@ -37,7 +37,7 @@
                                     v-else-if="error && items.length > 0"
                                     :value="error && items.length > 0"
                                     type="error"
-                                    outline
+                                    outlined
                             >
                                 <v-layout row align-center d-flex>
                                     <v-flex text-xs-right
@@ -63,8 +63,8 @@
                         <v-card tile flat>
                             <v-card-text>
                                 <v-btn
-                                        round
-                                        flat
+                                        rounded
+                                        text
                                         medium
                                         class="text-xs-center"
                                         v-on:click="toggleSettings()"
@@ -138,12 +138,11 @@
                                 :headers="headers"
                                 :items="items"
                                 :loading="pending"
-                                :pagination.sync="pagination"
-                                :total-items="total"
-                                :rows-per-page-items="[10, 20, 50, 100]"
+                                :options.sync="pagination"
+                                :server-items-length="total"
                                 no-data-text="No entries for given filters."
-                                disable-initial-sort
                         >
+                            <v-data-footer :items-per-page-options="[10, 20, 50, 100]"/>
                             <v-progress-linear
                                     slot="progress"
                                     color="blue"
@@ -291,7 +290,7 @@
                         <v-spacer/>
                         <v-btn
                                 icon
-                                flat
+                                text
                                 small
                                 class="text-xs-center"
                                 color="grey lighten-3"
@@ -303,7 +302,7 @@
                         </v-btn>
                         <v-btn
                                 icon
-                                flat
+                                text
                                 small
                                 class="text-xs-center"
                                 color="grey lighten-3"
@@ -319,7 +318,7 @@
                                 <v-btn
                                         class="light-blue darken-1"
                                         block
-                                        round
+                                        rounded
                                         type="submit"
                                         v-on:click="refreshData()"
                                         :loading="pending"
@@ -356,7 +355,7 @@
                         <v-spacer/>
                         <v-btn
                                 icon
-                                flat
+                                text
                                 small
                                 class="text-xs-center"
                                 color="blue lighten-2"

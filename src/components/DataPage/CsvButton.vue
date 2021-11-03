@@ -1,7 +1,7 @@
 <template>
     <v-btn
-            round
-            flat
+            rounded
+            text
             medium
             class="text-xs-center"
             title="Download all data matching the current filters as a csv file. Respects the 'columns' settings."

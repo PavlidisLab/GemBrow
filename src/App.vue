@@ -15,45 +15,45 @@
                 :value="false"
         >
             <v-list>
-                <v-list-tile v-for="item in routes" :key="item.title" :to="item.route">
-                    <v-list-tile-action>
+                <v-list-item v-for="item in routes" :key="item.title" :to="item.route">
+                    <v-list-item-action>
                         <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <v-divider/>
 
-                <v-list-tile
+                <v-list-item
                         @click.native.stop="userDialog = true"
                         v-on:click="userDialog = true"
                 >
-                    <v-list-tile-action>
+                    <v-list-item-action>
                         <v-icon v-if="userPending">mdi-loading spin</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title
                         >{{ this.user === null ? "User login" : this.user.userName }}
-                        </v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                        </v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
 
                 <v-divider/>
-                <v-list-tile
+                <v-list-item
                         v-for="item in actions"
                         :key="item.title"
                         v-on:click="item.action"
                 >
-                    <v-list-tile-action>
+                    <v-list-item-action>
                         <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
             </v-list>
         </v-navigation-drawer>
         <v-toolbar app>
@@ -70,7 +70,7 @@
             </v-toolbar-title>
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
-                <v-btn flat v-for="item in routes" :key="item.title" :to="item.route"
+                <v-btn text v-for="item in routes" :key="item.title" :to="item.route"
                 >{{ item.title }}
                 </v-btn>
                 <v-menu
@@ -80,7 +80,7 @@
                         :close-on-content-click="false"
                         v-model="userMenu"
                 >
-                    <v-btn slot="activator" flat>
+                    <v-btn slot="activator" text>
                         <v-icon v-if="userPending" class="spin inv">sync</v-icon>
                         <v-icon v-else-if="this.user !== null && this.user.isAdmin"
                         >mdi-security-account
@@ -91,7 +91,7 @@
                     <UserForm v-model="userMenu"/>
                 </v-menu>
                 <v-btn
-                        flat
+                        text
                         v-for="item in actions"
                         :key="item.title"
                         v-on:click="item.action"
@@ -101,14 +101,14 @@
                 </v-btn>
             </v-toolbar-items>
             <v-toolbar-items class="hidden-sm-and-up">
-                <v-btn flat @click.stop="drawer = !drawer">
+                <v-btn text @click.stop="drawer = !drawer">
                     <v-icon>menu</v-icon>
                 </v-btn>
             </v-toolbar-items>
         </v-toolbar>
-        <v-content>
+        <v-main>
             <router-view/>
-        </v-content>
+        </v-main>
         <footer class="themeable light">
             <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
                 <h3>&copy; 2018 &nbsp;&nbsp;</h3>
@@ -124,16 +124,12 @@
 </template>
 
 <script>
-import Vue from "vue";
-import Vuetify from "vuetify";
 import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
 import { mapState } from "vuex";
 import UserForm from "./components/UserForm";
 import gemmaConfig from "./config/gemma";
-
-Vue.use(Vuetify);
 
 const app = {
   data() {
