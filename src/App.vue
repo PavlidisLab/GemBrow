@@ -56,18 +56,18 @@
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar app>
-            <v-toolbar-side-icon to="/">
+        <v-app-bar app>
+            <v-app-bar-nav-icon to="/">
                 <img
                         id="logo"
                         src="./assets/logo_icon.png"
                         class="themeable light"
                         alt="GemBrow Logo"
                 />
-            </v-toolbar-side-icon>
-            <v-toolbar-title>
+            </v-app-bar-nav-icon>
+            <v-app-bar-title>
                 <router-link to="/">GemBrow</router-link>
-            </v-toolbar-title>
+            </v-app-bar-title>
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
                 <v-btn text v-for="item in routes" :key="item.title" :to="item.route"
@@ -105,20 +105,25 @@
                     <v-icon>menu</v-icon>
                 </v-btn>
             </v-toolbar-items>
-        </v-toolbar>
+        </v-app-bar>
         <v-main>
             <router-view/>
         </v-main>
-        <footer class="themeable light">
-            <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
-                <h3>&copy; 2018 &nbsp;&nbsp;</h3>
-                <h3>University of British Columbia</h3>
-                <img
-                        :src="require('@/assets/ubcLogo.png')"
-                        height="100px"
-                        alt="UBC Logo"
-                />
-            </a>
+        <footer app>
+            <v-container>
+                <v-row justify="center">
+                    <v-col>
+                        <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
+                            <img
+                                    :src="require('@/assets/ubcLogo.png')"
+                                    height="100px"
+                                    alt="UBC Logo"
+                            />
+                            <h3>University of British Columbia &copy; 2018 &nbsp;&nbsp;</h3>
+                        </a>
+                    </v-col>
+                </v-row>
+            </v-container>
         </footer>
     </v-app>
 </template>
@@ -219,9 +224,6 @@ body {
 }
 
 #app {
-  text-align: center;
-  display: flex;
-  flex-flow: column;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -237,8 +239,7 @@ a {
 }
 
 footer {
-  margin-top: $dim4;
-  padding: $dim4 $dim3 $dim2 $dim3;
+  text-align: center;
   background: #212121;
   box-shadow: inset 0 5px 5px -5px #ccc;
 }
