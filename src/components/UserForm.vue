@@ -21,7 +21,7 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer/>
-            <v-btn flat v-on:click="closeDialog()">Cancel</v-btn>
+            <v-btn text v-on:click="closeDialog()">Cancel</v-btn>
             <v-btn color="primary" v-on:click="login()">Login</v-btn>
         </v-card-actions>
     </v-card>

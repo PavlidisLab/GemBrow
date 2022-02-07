@@ -13,15 +13,15 @@
     >
         <template slot="settingsForm">
             <div>
-                <v-layout row wrap>
-                    <v-flex xs-12>
+                <v-row wrap>
+                    <v-col xs-12>
                         <v-switch v-model="search_on" label="Keywords"/>
-                    </v-flex>
+                    </v-col>
                     <v-btn
                             v-if="search_on"
                             large
-                            round
-                            flat
+                            rounded
+                            text
                             icon
                             class="grey darken-2"
                             color="red lighten-4"
@@ -30,7 +30,7 @@
                     >
                         <v-icon>mdi-tag-remove</v-icon>
                     </v-btn>
-                </v-layout>
+                </v-row>
                 <v-progress-linear
                         indeterminate
                         color="white"
@@ -49,7 +49,7 @@
                         chips
                         solo
                         dense
-                        flat
+                        text
                         autocomplete
                         cache-items
                         return-object

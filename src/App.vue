@@ -15,62 +15,62 @@
                 :value="false"
         >
             <v-list>
-                <v-list-tile v-for="item in routes" :key="item.title" :to="item.route">
-                    <v-list-tile-action>
+                <v-list-item v-for="item in routes" :key="item.title" :to="item.route">
+                    <v-list-item-action>
                         <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
                 <v-divider/>
 
-                <v-list-tile
+                <v-list-item
                         @click.native.stop="userDialog = true"
                         v-on:click="userDialog = true"
                 >
-                    <v-list-tile-action>
+                    <v-list-item-action>
                         <v-icon v-if="userPending">mdi-loading spin</v-icon>
                         <v-icon v-else-if="this.user !== null">mdi-account</v-icon>
                         <v-icon v-else>mdi-account-outline</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title
                         >{{ this.user === null ? "User login" : this.user.userName }}
-                        </v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                        </v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
 
                 <v-divider/>
-                <v-list-tile
+                <v-list-item
                         v-for="item in actions"
                         :key="item.title"
                         v-on:click="item.action"
                 >
-                    <v-list-tile-action>
+                    <v-list-item-action>
                         <v-icon>{{ item.icon }}</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ item.title }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar app>
-            <v-toolbar-side-icon to="/">
+        <v-app-bar app>
+            <v-app-bar-nav-icon to="/">
                 <img
                         id="logo"
                         src="./assets/logo_icon.png"
                         class="themeable light"
                         alt="GemBrow Logo"
                 />
-            </v-toolbar-side-icon>
-            <v-toolbar-title>
+            </v-app-bar-nav-icon>
+            <v-app-bar-title>
                 <router-link to="/">GemBrow</router-link>
-            </v-toolbar-title>
+            </v-app-bar-title>
             <v-spacer/>
             <v-toolbar-items class="hidden-xs-only">
-                <v-btn flat v-for="item in routes" :key="item.title" :to="item.route"
+                <v-btn text v-for="item in routes" :key="item.title" :to="item.route"
                 >{{ item.title }}
                 </v-btn>
                 <v-menu
@@ -80,7 +80,7 @@
                         :close-on-content-click="false"
                         v-model="userMenu"
                 >
-                    <v-btn slot="activator" flat>
+                    <v-btn slot="activator" text>
                         <v-icon v-if="userPending" class="spin inv">sync</v-icon>
                         <v-icon v-else-if="this.user !== null && this.user.isAdmin"
                         >mdi-security-account
@@ -91,7 +91,7 @@
                     <UserForm v-model="userMenu"/>
                 </v-menu>
                 <v-btn
-                        flat
+                        text
                         v-for="item in actions"
                         :key="item.title"
                         v-on:click="item.action"
@@ -101,39 +101,40 @@
                 </v-btn>
             </v-toolbar-items>
             <v-toolbar-items class="hidden-sm-and-up">
-                <v-btn flat @click.stop="drawer = !drawer">
+                <v-btn text @click.stop="drawer = !drawer">
                     <v-icon>menu</v-icon>
                 </v-btn>
             </v-toolbar-items>
-        </v-toolbar>
-        <v-content>
+        </v-app-bar>
+        <v-main>
             <router-view/>
-        </v-content>
-        <footer class="themeable light">
-            <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
-                <h3>&copy; 2018 &nbsp;&nbsp;</h3>
-                <h3>University of British Columbia</h3>
-                <img
-                        :src="require('@/assets/ubcLogo.png')"
-                        height="100px"
-                        alt="UBC Logo"
-                />
-            </a>
+        </v-main>
+        <footer app>
+            <v-container>
+                <v-row justify="center">
+                    <v-col>
+                        <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
+                            <img
+                                    :src="require('@/assets/ubcLogo.png')"
+                                    height="100px"
+                                    alt="UBC Logo"
+                            />
+                            <h3>University of British Columbia &copy; 2018 &nbsp;&nbsp;</h3>
+                        </a>
+                    </v-col>
+                </v-row>
+            </v-container>
         </footer>
     </v-app>
 </template>
 
 <script>
-import Vue from "vue";
-import Vuetify from "vuetify";
 import "babel-polyfill";
 import "vuetify/dist/vuetify.css";
 import "material-icons";
 import { mapState } from "vuex";
 import UserForm from "./components/UserForm";
 import gemmaConfig from "./config/gemma";
-
-Vue.use(Vuetify);
 
 const app = {
   data() {
@@ -223,9 +224,6 @@ body {
 }
 
 #app {
-  text-align: center;
-  display: flex;
-  flex-flow: column;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -241,8 +239,7 @@ a {
 }
 
 footer {
-  margin-top: $dim4;
-  padding: $dim4 $dim3 $dim2 $dim3;
+  text-align: center;
   background: #212121;
   box-shadow: inset 0 5px 5px -5px #ccc;
 }

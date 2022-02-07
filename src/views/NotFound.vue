@@ -1,7 +1,7 @@
 <template>
     <v-container grid-list-xl>
-        <v-layout row wrap>
-            <v-flex xs12 md4 order-md2>
+        <v-row wrap>
+            <v-col xs12 md4 order-md2>
                 <v-card fill-height flat>
                     <v-card-media
                             :src="require('@/assets/sadGemma.png')"
@@ -11,8 +11,8 @@
                             class="themeable light"
                     />
                 </v-card>
-            </v-flex>
-            <v-flex xs12 md8>
+            </v-col>
+            <v-col xs12 md8>
                 <v-card class="text-xs-left">
                     <v-card-title primary-title class="headline error">
                         Gemma could not find what you were looking for...
@@ -40,8 +40,8 @@
                         </v-container>
                     </v-card-text>
                 </v-card>
-            </v-flex>
-        </v-layout>
+            </v-col>
+        </v-row>
     </v-container>
 </template>
 

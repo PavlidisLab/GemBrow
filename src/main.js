@@ -1,12 +1,14 @@
 import Vue from "vue";
-import App from "./App";
-import router from "./router";
-import store from "./store/store";
+import vuetify from "@/plugins/vuetify";
+import router from "@/router";
+import store from "@/store/store";
+import App from "@/App";
 
 Vue.config.productionTip = false;
 
 // noinspection JSUnusedGlobalSymbols
 new Vue({
+  vuetify,
   el: "#app",
   router,
   store,
