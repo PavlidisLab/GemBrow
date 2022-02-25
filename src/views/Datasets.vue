@@ -355,7 +355,6 @@ import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import HelpRow from "../components/DataPage/HelpRow";
 import { _keywords } from "@/assets/Characteristics";
-import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
 import _ from "lodash";
@@ -428,7 +427,7 @@ export default {
           tip: "The date the dataset was last changed within Gemma.",
           renderer(props) {
             return props.item.lastUpdated
-              ? moment.unix(props.item.lastUpdated / 1000).format("L")
+              ? new Date(props.item.lastUpdated).toLocaleString()
               : "";
           }
         },

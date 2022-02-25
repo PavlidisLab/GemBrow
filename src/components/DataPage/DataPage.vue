@@ -383,7 +383,6 @@
 <script>
 import { mapState } from "vuex";
 import Vue from "vue";
-import moment from "moment";
 import TableCell from "../TableCell";
 import CsvButton from "./CsvButton";
 import _ from "lodash";
@@ -583,7 +582,7 @@ export default {
       this.$store.dispatch("main/toggleTableSettings");
     },
     formatDate(date) {
-      return moment.unix(date / 1000).format("L");
+      return new Date(date).toLocaleString();
     }
   }
 };

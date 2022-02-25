@@ -85,7 +85,6 @@ import gemmaConfig from "../config/gemma";
 import DataPage from "../components/DataPage/DataPage";
 import SelectorTaxon from "../components/DataPage/SelectorTaxon";
 import HelpRow from "../components/DataPage/HelpRow";
-import moment from "moment";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
 
@@ -157,7 +156,7 @@ export default {
           tip: "The date the platform was last changed within Gemma.",
           renderer(props) {
             return props.item.lastUpdated
-              ? moment.unix(props.item.lastUpdated / 1000).format("L")
+              ? new Date(props.item.lastUpdated).toLocaleString()
               : "";
           }
         },

@@ -21,7 +21,6 @@
 
 <script>
 import json2csv from "json2csv";
-import moment from "moment";
 import { mapState } from "vuex";
 
 export default {
@@ -62,7 +61,7 @@ export default {
     }),
     downloadName() {
       return (
-        moment.unix(moment().valueOf() / 1000).format("L") +
+        new Date().toLocaleString() +
         "_gembrow" +
         (this.propDownloadName ? this.propDownloadName : "_") +
         this.propName +
