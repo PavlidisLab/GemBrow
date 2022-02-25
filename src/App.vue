@@ -60,7 +60,7 @@
             <v-app-bar-nav-icon to="/">
                 <img
                         id="logo"
-                        src="./assets/logo_icon.png"
+                        src="./assets/logo-icon.png"
                         class="themeable light"
                         alt="GemBrow Logo"
                 />
@@ -115,7 +115,7 @@
                     <v-col>
                         <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
                             <img
-                                    :src="require('@/assets/ubcLogo.png')"
+                                    :src="require('@/assets/ubc-logo.png')"
                                     height="100px"
                                     alt="UBC Logo"
                             />

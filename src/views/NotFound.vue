@@ -4,7 +4,7 @@
             <v-col xs12 md4 order-md2>
                 <v-card fill-height flat>
                     <v-card-media
-                            :src="require('@/assets/sadGemma.png')"
+                            :src="require('@/assets/gemma-sad.png')"
                             height="200px"
                             fill-height
                             contain
