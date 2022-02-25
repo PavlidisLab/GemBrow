@@ -385,7 +385,7 @@ import { mapState } from "vuex";
 import Vue from "vue";
 import TableCell from "../TableCell";
 import CsvButton from "./CsvButton";
-import _ from "lodash";
+import debounce from "lodash/debounce";
 
 export default {
   components: { TableCell, CsvButton },
@@ -561,7 +561,7 @@ export default {
         this.refreshData();
       }
     },
-    refreshData: _.debounce(function() {
+    refreshData: debounce(function() {
       if (this.$refs.settings.validate()) {
         // noinspection JSIgnoredPromiseFromCall
         return this.$store.dispatch("api/get" + this.lName, {

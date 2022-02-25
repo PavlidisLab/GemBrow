@@ -357,7 +357,7 @@ import HelpRow from "../components/DataPage/HelpRow";
 import { _keywords } from "@/assets/Characteristics";
 import viewUtils from "../components/ViewUtils";
 import { mapState } from "vuex";
-import _ from "lodash";
+import debounce from "lodash/debounce";
 
 export default {
   components: {
@@ -778,7 +778,7 @@ export default {
     clearSearch() {
       this.search_query = [];
     },
-    searchAnnotations: _.debounce(function(val) {
+    searchAnnotations: debounce(function(val) {
       this.$store.dispatch("api/getannotations", {
         params: val
       });

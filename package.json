@@ -15,7 +15,6 @@
     "lodash": "^4.17.21",
     "material-icons": "^1.10.0",
     "vue": "^2.6.14",
-    "vue-lodash": "^2.1.2",
     "vue-router": "^3.5.3",
     "vuetify": "^2.5.10",
     "vuex": "^3.6.2",
