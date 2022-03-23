@@ -250,9 +250,9 @@
                                                         <v-subheader>{{ row.label }}</v-subheader>
                                                     </v-col>
                                                     <v-col xs6>
-                                                        <v-subheader
-                                                                v-html="row.renderer(props)"
-                                                        ></v-subheader>
+                                                        <v-subheader>
+                                                            <span v-html="row.renderer(props)"></span>
+                                                        </v-subheader>
                                                     </v-col>
                                                 </v-row>
                                             </v-col>
