@@ -1,191 +1,88 @@
 import Vapi from "vuex-rest-api";
-import axios from "axios";
-
-const MSG_ERR_NO_DATA = "No data received";
-const C_DSS = "datasets";
-const C_DSS_CSV = "datasetsCsv";
-const C_PFS = "platforms";
-const C_PFS_CSV = "platformsCsv";
-const C_TXA = "taxa";
-const C_USR = "users";
-const C_ANN = "annotations";
-
-import gemmaConfig from "../../config/gemma";
-
-const axiosInst = axios.create({
-  headers: null
-});
+import gemmaConfig from "@/config/gemma";
+import { merge } from "lodash";
+import qs from "qs";
 
 const vapi = new Vapi({
-  baseURL: gemmaConfig.baseUrl + "/rest/v2", // assigned in store.js
-  axios: axiosInst,
+  baseURL: gemmaConfig.baseUrl, // assigned in store.js
+  axios: gemmaConfig.axiosInst,
   state: {
     // all endpoint properties set in attachEndpoint
     cached: {},
+    pending: {},
+    error: {},
+    /**
+     * Logs of error.
+     */
     error_log: {},
-    cancel: {}
+    // only for code insights, the field is initialized in vapi.endpoint() below
+    openApiSpecification: {},
+    search: {},
+    datasets: {},
+    datasetsAnnotations: {},
+    datasetsPlatforms: {},
+    platforms: {},
+    taxa: {}
   }
 });
 
-function p(first) {
-  return first.get() ? "?" : "&";
-}
+/**
+ * Register an endpoint.
+ *
+ * TODO: use the OpenAPI specification for registering endpoints.
+ *
+ * @param action the action name, which matches the operationId in the OpenAPI specification
+ * @param property the property named used as a key in the state
+ * @param path the path or path function
+ * @param config extra config
+ * @returns {Vapi|*}
+ */
+vapi.endpoint = function(action, property, path, config = {}) {
+  // Add Vapi state properties required for proper functionality
+  this.resource.state[property] = {};
+  this.resource.state.cached[property] = false;
+  this.resource.state.error_log[property] = [];
 
-function composePath(
-  propName,
-  id,
-  pwd,
-  limit,
-  offset,
-  sort,
-  filter,
-  taxon_id,
-  keywords
-) {
-  let path = "/";
-  let _firstArg = true;
-  let firstArg = {
-    get() {
-      if (_firstArg) {
-        _firstArg = false;
-        return true;
-      }
-      return _firstArg;
-    },
-    set(value) {
-      _firstArg = value;
-    }
-  };
-
-  // Filtering by taxon works differently for EEs and ADs
-  if (propName === "datasets") {
-    if (keywords) {
-      // keywords enabled, checks whether taxon is also enabled
-      path +=
-        "annotations/" +
-        (taxon_id != null ? taxon_id + "/" : "") +
-        "search/" +
-        keywords +
-        "/" +
-        propName;
-    } else {
-      // no keywords, deciding only on taxa
-      path += (taxon_id != null ? "taxa/" + taxon_id + "/" : "") + propName;
-    }
+  // add /rest/v2 prefix to path (or path function)
+  if (typeof (path) === "function") {
+    let origPath = path;
+    path = () => "/rest/v2" + origPath(...arguments);
   } else {
-    // ADs have taxon included in the filter
-    path += propName;
+    path = "/rest/v2" + path;
   }
 
-  // Add rest of URL parameters
-  path +=
-    (id ? `/${id}` : "") +
-    (pwd ? p(firstArg) + `psha=${pwd}` : "") +
-    (limit ? p(firstArg) + `limit=${limit}` : "") +
-    (offset ? p(firstArg) + `offset=${offset}` : "") +
-    (sort ? p(firstArg) + `sort=${sort}` : "") +
-    (filter ? p(firstArg) + `filter=${filter}` : "");
-  return path;
-}
-
-// noinspection JSUndefinedPropertyAssignment // yeah we are defining it here
-vapi.attachLogoutEndpoint = function() {
-  return this.get({
-    action: "logout",
-    path: "j_spring_security_logout",
-
-    onSuccess(state) {
-      state["users"] = null;
-    },
-
-    onError() {
-    },
-    requestConfig: {
-      validateStatus(status) {
-        return status >= 200 && status < 600; // default
-      }
-    }
-  });
-};
-
-// noinspection JSUndefinedPropertyAssignment // yeah we are defining it here
-/**
- * Helper function for easy attachment of new endpoints using extra properties (cached and error_log).
- * @param propName the name of the property to attach the endpoint for.
- * @param pathFunc custom function to create the call path. If none is provided, composePath is used.
- * @returns {*|Vapi} the same vapi instance this method was called on.
- */
-vapi.attachEndpoint = function(propName, pathFunc) {
-  // Add Vapi state properties required for proper functionality
-  this.resource.state[propName] = [];
-  this.resource.state.cached[propName] = false;
-  this.resource.state.error_log[propName] = [];
-
   // Add the endpoint get call
-  // noinspection SpellCheckingInspection
-  return this.get({
-    action: "get" + propName,
-    property: propName,
-    path: pathFunc
-      ? pathFunc
-      : ({ id, pwd, limit, offset, sort, filter, taxon_id, keywords }) =>
-        composePath(
-          propName,
-          id,
-          pwd,
-          limit,
-          offset,
-          sort,
-          filter,
-          taxon_id,
-          keywords
-        ),
-
+  return this.get(merge({
+    action: action,
+    property: property,
+    path: path,
+    queryParams: false,
     /**
      * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
      * 400 and 500 http status errors, as
      */
     onSuccess(state, payload) {
-      // TODO Throw away old requests that took too long to execute and another request for the same data was successful
-
-      // Handle errors
-      if (payload.data && payload.data.error) {
-        state.error_log[propName].push(payload.data.error);
-        state.cached[propName] = !!state[propName];
-        state.error[propName] = payload.data.error.message;
-        return;
-      }
-
       // Handle success
-      if (payload.data && payload.data.data) {
-        state[propName] = payload.data.data;
-        state.cached[propName] = false;
-        state.error[propName] = null;
-      } else {
-        state.error[propName] = MSG_ERR_NO_DATA;
-        state.error_log[propName].push({
-          error: MSG_ERR_NO_DATA,
-          data: payload
-        });
-        state.cached[propName] = !!state[propName];
-      }
-      state.pending[propName] = false;
+      state[property] = payload.data;
+      state.cached[property] = false;
+      state.error[property] = null;
+      state.pending[property] = false;
     },
 
     /**
      * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
      * handled in the onSuccess method, so this method only handles errors on higher layers.
      */
-    onError(state, error) {
+    onError(state, error, axios) {
+      console.log(arguments);
       if (axios.isCancel(error)) {
-        state.error[propName] = "";
+        state.error[property] = "";
       } else {
-        state.error_log[propName].push({ error });
-        state.cached[propName] = !!state[propName];
-        state.error[propName] =
-          "Can not connect to the Gemma database right now";
+        state.error_log[property].push({ error });
+        state.cached[property] = !!state[property];
+        state.error[property] = "Can not connect to the Gemma database right now";
       }
-      state.pending[propName] = false;
+      state.pending[property] = false;
     },
 
     /**
@@ -198,26 +95,34 @@ vapi.attachEndpoint = function(propName, pathFunc) {
         return status >= 200 && status < 600; // default
       }
     }
-  });
+  }, config));
 };
 
-export { axiosInst };
-
 export default vapi
-  .attachEndpoint(C_DSS)
-  .attachEndpoint(C_PFS)
-  .attachEndpoint(C_TXA)
-  .attachEndpoint(C_USR)
-  .attachEndpoint(C_ANN, (query) => {
-    return "/annotations/search/" + query;
+  .endpoint("getOpenApiSpecification", "openApiSpecification", "/openapi.json")
+  .endpoint("getDatasets", "datasets", "/datasets", { queryParams: true })
+  .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
+  .endpoint("getDatasetsAnnotations", "datasetsAnnotations", "/datasets/annotations", { queryParams: true })
+  .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })
+  .endpoint("getTaxa", "taxa", "/taxa")
+  .endpoint("getPlatforms", "platforms", "/platforms", { queryParams: true })
+  .endpoint("getPlatformsByIds", "platforms", ({ ids }) => "/platforms/" + encodeURIComponent(ids))
+  .endpoint("search", "search", "/search", {
+    queryParams: true,
+    requestConfig: {
+      paramsSerializer: function(params) {
+        if (params.platform) {
+          params = Object.assign({}, params, { platform: params.platform.id });
+        }
+        if (params.taxon) {
+          params = Object.assign({}, params, { taxon: params.taxon.id });
+        }
+        params.limit = 100;
+        console.log("Params: " + qs.stringify(params, { arrayFormat: "repeat" }));
+        return qs.stringify(params, { arrayFormat: "repeat" });
+      }
+    }
   })
-  .attachEndpoint(C_DSS_CSV, ({ id, pwd, sort, filter, taxon_id, keywords }) =>
-    composePath("datasets", id, pwd, "0", 0, sort, filter, taxon_id, keywords)
-  )
-  .attachEndpoint(C_PFS_CSV, ({ id, pwd, sort, filter, taxon_id }) =>
-    composePath("platforms", id, pwd, "0", 0, sort, filter, taxon_id)
-  )
-  .attachLogoutEndpoint()
   .getStore({
     createStateFn: true // Using modules
   });

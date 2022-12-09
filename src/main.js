@@ -8,8 +8,8 @@ Vue.config.productionTip = false;
 
 // noinspection JSUnusedGlobalSymbols
 new Vue({
-  vuetify,
   el: "#app",
+  vuetify,
   router,
   store,
   render: (h) => h(App)
