@@ -62,14 +62,15 @@ export function QualityRange(low, high) {
  * @param quality {QualityRange} Filter results by quality, if applicable
  * @param maxResults {Number} Maximum number of results
  */
-export function SearchSettings(query, resultTypes, platform, taxon, quality) {
+export function SearchSettings(query, resultTypes) {
   this.query = query;
   this.resultTypes = resultTypes || [];
-  this.platform = platform;
-  this.taxon = taxon;
-  this.quality = quality;
+  this.platform = null;
+  this.taxon = null;
+  this.quality = [0, 3];
   this.technologyTypes = [];
   this.annotations = [];
+  this.categories = [];
 }
 
 export const ExpressionExperimentType = "ubic.gemma.model.expression.experiment.ExpressionExperiment";

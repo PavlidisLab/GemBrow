@@ -1,5 +1,6 @@
 <template>
     <v-app>
+        <!--
         <v-app-bar app>
             <v-app-bar-nav-icon to="/">
                 <img
@@ -10,9 +11,11 @@
                 />
             </v-app-bar-nav-icon>
         </v-app-bar>
+        -->
         <v-main>
             <router-view/>
         </v-main>
+        <!--
         <v-footer app>
             <v-container>
                 <v-row justify="center">
@@ -29,6 +32,7 @@
                 </v-row>
             </v-container>
         </v-footer>
+        -->
     </v-app>
 </template>
 

@@ -1,69 +1,61 @@
 <template>
-    <v-navigation-drawer permanent width="100%">
-        <v-form
-        >
-            <v-list-item v-show="false">
-                <v-list-item-content>
-                    <v-btn-toggle multiple
-                                  v-model="searchSettings.resultTypes"
-                                  @input="$emit('input')">
-                        <v-btn
-                                v-for="m in supportedResultTypes"
-                                :key="m.id"
-                                :value="m.id"
-                        >
-                            {{ m.title }}
-                        </v-btn>
-                    </v-btn-toggle>
-                </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-                <v-list-item-content>
-                    <v-text-field
-                            v-model="searchSettings.query"
-                            label="Search"
-                            prepend-inner-icon="mdi-magnify"
-                            outlined
-                            :disabled="disabled"
-                    ></v-text-field>
-                </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1">
-                <PlatformSelector
-                        v-model="searchSettings.platform"
-                        :taxon="searchSettings.taxon"
-                        :platforms="platforms"
-                        :disabled="disabled"/>
-            </v-list-item>
-            <v-list-item>
-                <TaxonSelector
-                        v-model="searchSettings.taxon"
-                        :taxa="taxa"
-                        :disabled="disabled"/>
-            </v-list-item>
-            <v-list-item>
-                <TechnologyTypeSelector
-                        v-model="searchSettings.technologyTypes"
-                        :technology-types="technologyTypes"
-                        :disabled="disabled"/>
-            </v-list-item>
-            <v-list-item v-show="false">
-                <v-range-slider
-                        v-model="searchSettings.quality"
-                        min="0" max="3"
-                        ticks="always"
-                        :tick-labels="['trash', 'low', 'mid', 'high']"
-                        label="Quality" title="Filter based on GEEQ scores or curation status"
-                        :disabled="disabled"/>
-            </v-list-item>
-            <v-list-item>
-                <AnnotationSelector
-                        v-model="searchSettings.annotations"
-                        :annotations="annotations"
-                        :disabled="disabled"/>
-            </v-list-item>
-        </v-form>
-    </v-navigation-drawer>
+    <v-form class="search-settings"
+    >
+        <v-list-item v-show="false">
+            <v-btn-toggle multiple
+                          v-model="searchSettings.resultTypes"
+                          @input="$emit('input')">
+                <v-btn
+                        v-for="m in supportedResultTypes"
+                        :key="m.id"
+                        :value="m.id"
+                >
+                    {{ m.title }}
+                </v-btn>
+            </v-btn-toggle>
+        </v-list-item>
+        <v-list-item>
+            <v-text-field
+                    v-model="searchSettings.query"
+                    label="Search"
+                    prepend-inner-icon="mdi-magnify"
+                    outlined
+                    :disabled="disabled"
+            ></v-text-field>
+        </v-list-item>
+        <v-divider/>
+        <v-list-item>
+            <PlatformSelector
+                    v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
+                    v-model="searchSettings.platform"
+                    :platforms="platforms"
+                    :technology-types="technologyTypes"
+                    :disabled="disabled"/>
+        </v-list-item>
+        <v-list-item>
+            <TaxonSelector
+                    v-model="searchSettings.taxon"
+                    :taxa="taxa"
+                    :disabled="disabled"/>
+        </v-list-item>
+        <v-list-item v-show="false">
+            <v-range-slider
+                    v-model="searchSettings.quality"
+                    min="0" max="3"
+                    ticks="always"
+                    :tick-labels="['trash', 'low', 'mid', 'high']"
+                    label="Quality" title="Filter based on GEEQ scores or curation status"
+                    :disabled="disabled"/>
+        </v-list-item>
+        <v-list-item>
+            <AnnotationSelector
+                    v-model="searchSettings.annotations"
+                    :annotations="annotations"
+                    :disabled="disabled"
+                    :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                    :selectedCategories.sync="searchSettings.categories"/>
+        </v-list-item>
+    </v-form>
 </template>
 
 <script>
@@ -75,11 +67,10 @@ import {
   SearchSettings,
   SUPPORTED_RESULT_TYPES
 } from "@/models";
-import TechnologyTypeSelector from "@/components/TechnologyTypeSelector.vue";
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
 
 export default {
-  components: { AnnotationSelector, TechnologyTypeSelector, TaxonSelector, PlatformSelector },
+  components: { AnnotationSelector, TaxonSelector, PlatformSelector },
   props: {
     value: {
       type: SearchSettings,
@@ -92,7 +83,8 @@ export default {
     taxa: Array,
     annotations: Array,
     technologyTypes: Array,
-    disabled: Boolean
+    disabled: Boolean,
+    totalNumberOfExpressionExperiments: Number
   },
   emits: ["input"],
   data() {
@@ -118,4 +110,5 @@ export default {
 </script>
 
 <style scoped>
+
 </style>

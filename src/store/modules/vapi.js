@@ -1,6 +1,7 @@
 import Vapi from "vuex-rest-api";
 import gemmaConfig from "@/config/gemma";
 import { merge } from "lodash";
+import axios from "axios";
 import qs from "qs";
 
 const vapi = new Vapi({
@@ -40,7 +41,6 @@ const vapi = new Vapi({
 vapi.endpoint = function(action, property, path, config = {}) {
   // Add Vapi state properties required for proper functionality
   this.resource.state[property] = {};
-  this.resource.state.cached[property] = false;
   this.resource.state.error_log[property] = [];
 
   // add /rest/v2 prefix to path (or path function)
@@ -58,41 +58,14 @@ vapi.endpoint = function(action, property, path, config = {}) {
     path: path,
     queryParams: false,
     /**
-     * Custom success functionality utilizing the cache and error log. Note that this method also handles all the
-     * 400 and 500 http status errors, as
-     */
-    onSuccess(state, payload) {
-      // Handle success
-      state[property] = payload.data;
-      state.cached[property] = false;
-      state.error[property] = null;
-      state.pending[property] = false;
-    },
-
-    /**
      * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
      * handled in the onSuccess method, so this method only handles errors on higher layers.
      */
-    onError(state, error, axios) {
-      console.log(arguments);
+    onError(state, error) {
       if (axios.isCancel(error)) {
-        state.error[property] = "";
+        state.error[property] = null;
       } else {
         state.error_log[property].push({ error });
-        state.cached[property] = !!state[property];
-        state.error[property] = "Can not connect to the Gemma database right now";
-      }
-      state.pending[property] = false;
-    },
-
-    /**
-     * Set custom validate status, that allows all 400 and 500 http states to be passed into the onSuccess method.
-     * This is necessary because Vapi passes a useless JS Error to the onError method, instead of the response
-     * payload.
-     */
-    requestConfig: {
-      validateStatus(status) {
-        return status >= 200 && status < 600; // default
       }
     }
   }, config));
@@ -105,8 +78,6 @@ export default vapi
   .endpoint("getDatasetsAnnotations", "datasetsAnnotations", "/datasets/annotations", { queryParams: true })
   .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })
   .endpoint("getTaxa", "taxa", "/taxa")
-  .endpoint("getPlatforms", "platforms", "/platforms", { queryParams: true })
-  .endpoint("getPlatformsByIds", "platforms", ({ ids }) => "/platforms/" + encodeURIComponent(ids))
   .endpoint("search", "search", "/search", {
     queryParams: true,
     requestConfig: {
@@ -117,7 +88,6 @@ export default vapi
         if (params.taxon) {
           params = Object.assign({}, params, { taxon: params.taxon.id });
         }
-        params.limit = 100;
         console.log("Params: " + qs.stringify(params, { arrayFormat: "repeat" }));
         return qs.stringify(params, { arrayFormat: "repeat" });
       }
