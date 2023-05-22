@@ -17,13 +17,12 @@ const vapi = new Vapi({
      */
     error_log: {},
     // only for code insights, the field is initialized in vapi.endpoint() below
-    openApiSpecification: {},
-    search: {},
-    datasets: {},
-    datasetsAnnotations: {},
-    datasetsPlatforms: {},
-    platforms: {},
-    taxa: {}
+    openApiSpecification: undefined,
+    datasets: undefined,
+    datasetsAnnotations: undefined,
+    datasetsPlatforms: undefined,
+    platforms: undefined,
+    taxa: undefined
   }
 });
 
@@ -57,6 +56,13 @@ vapi.endpoint = function(action, property, path, config = {}) {
     property: property,
     path: path,
     queryParams: false,
+    headers() {
+      if (window.clientId !== undefined) {
+        return { "X-Gemma-Client-ID": window.clientId };
+      } else {
+        return {};
+      }
+    },
     /**
      * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
      * handled in the onSuccess method, so this method only handles errors on higher layers.
@@ -77,6 +83,7 @@ export default vapi
   .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
   .endpoint("getDatasetsAnnotations", "datasetsAnnotations", "/datasets/annotations", { queryParams: true })
   .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })
+  .endpoint("getDatasetsTaxa", "datasetsTaxa", "/datasets/taxa", { queryParam: true })
   .endpoint("getTaxa", "taxa", "/taxa")
   .endpoint("search", "search", "/search", {
     queryParams: true,

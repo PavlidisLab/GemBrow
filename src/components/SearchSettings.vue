@@ -20,23 +20,23 @@
                     label="Search"
                     prepend-inner-icon="mdi-magnify"
                     outlined
-                    :disabled="disabled"
+                    clearable
+                    hide-details
             ></v-text-field>
         </v-list-item>
-        <v-divider/>
+        <v-list-item>
+            <TaxonSelector
+                    v-model="searchSettings.taxon"
+                    :taxa="taxa"
+                    :disabled="taxonDisabled"/>
+        </v-list-item>
         <v-list-item>
             <PlatformSelector
                     v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                     v-model="searchSettings.platform"
                     :platforms="platforms"
                     :technology-types="technologyTypes"
-                    :disabled="disabled"/>
-        </v-list-item>
-        <v-list-item>
-            <TaxonSelector
-                    v-model="searchSettings.taxon"
-                    :taxa="taxa"
-                    :disabled="disabled"/>
+                    :disabled="platformDisabled"/>
         </v-list-item>
         <v-list-item v-show="false">
             <v-range-slider
@@ -44,14 +44,13 @@
                     min="0" max="3"
                     ticks="always"
                     :tick-labels="['trash', 'low', 'mid', 'high']"
-                    label="Quality" title="Filter based on GEEQ scores or curation status"
-                    :disabled="disabled"/>
+                    label="Quality" title="Filter based on GEEQ scores or curation status"/>
         </v-list-item>
         <v-list-item>
             <AnnotationSelector
                     v-model="searchSettings.annotations"
                     :annotations="annotations"
-                    :disabled="disabled"
+                    :disabled="annotationDisabled"
                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                     :selectedCategories.sync="searchSettings.categories"/>
         </v-list-item>
@@ -61,12 +60,7 @@
 <script>
 import TaxonSelector from "@/components/TaxonSelector";
 import PlatformSelector from "@/components/PlatformSelector.vue";
-import {
-  ArrayDesignType,
-  ExpressionExperimentType,
-  SearchSettings,
-  SUPPORTED_RESULT_TYPES
-} from "@/models";
+import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/models";
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
 
 export default {
@@ -83,7 +77,9 @@ export default {
     taxa: Array,
     annotations: Array,
     technologyTypes: Array,
-    disabled: Boolean,
+    platformDisabled: Boolean,
+    taxonDisabled: Boolean,
+    annotationDisabled: Boolean,
     totalNumberOfExpressionExperiments: Number
   },
   emits: ["input"],

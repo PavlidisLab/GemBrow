@@ -1,6 +1,6 @@
 <template>
     <v-select
-            :items="taxa"
+            :items="rankedTaxa"
             item-value="id"
             item-text="scientificName"
             v-model="selectedTaxonId"
@@ -17,8 +17,12 @@
             </div>
         </template>
         <!-- slot for the dropdown -->
-        <template v-slot="data">
-            {{ data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{ data.item.commonName }})</span>
+        <template v-slot:item="data">
+            <v-list-item-content>
+                <v-list-item-title>{{ data.item.scientificName }}&nbsp;<span
+                        v-if="data.item.commonName">({{ data.item.commonName }})</span></v-list-item-title>
+                <v-list-item-subtitle>{{ data.item.numberOfExpressionExperiments }} experiments</v-list-item-subtitle>
+            </v-list-item-content>
         </template>
     </v-select>
 </template>
@@ -45,6 +49,13 @@ export default {
     };
   },
   computed: {
+    rankedTaxa() {
+      let sortedTaxa = [...this.taxa];
+      sortedTaxa.sort(function(a, b) {
+        return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+      });
+      return sortedTaxa;
+    },
     selectedTaxonId: {
       get: function() {
         return this.selectedTaxon && this.selectedTaxon.id;

@@ -12,9 +12,7 @@
             </v-app-bar-nav-icon>
         </v-app-bar>
         -->
-        <v-main>
-            <router-view/>
-        </v-main>
+        <router-view/>
         <!--
         <v-footer app>
             <v-container>

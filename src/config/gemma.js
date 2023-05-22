@@ -5,12 +5,11 @@ export default {
   /**
    * Base URL for Gemma
    */
-  baseUrl: process.env.NODE_ENV === "production" ? "https://gemma.msl.ubc.ca" : "https://dev.gemma.msl.ubc.ca",
+  baseUrl: process.env.VUE_APP_GEMMA_BASE_URL,
   /**
    * Axios instance suitable for querying Gemma.
    */
   axiosInst: axios.create({
-    headers: null,
     paramsSerializer: function(params) {
       return qs.stringify(params, { arrayFormat: "repeat" });
     }

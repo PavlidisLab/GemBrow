@@ -1,35 +1,39 @@
 <template>
     <v-select v-model="selectedPlatformId" :items="selectablePlatforms"
               item-value="id" item-text="name" label="Platform" clearable
-              :disabled="disabled">
+              :disabled="disabled"
+              :menu-props="menuProps">
         <template v-slot:prepend-item>
-            <v-list-item>
+            <v-list-item v-for="technologyType in selectableTechnologyTypes" :key="technologyType.id" dense>
                 <v-list-item-content>
                     <v-list-item-title>
-                        Technology types:
-                        <v-checkbox v-for="technologyType in selectableTechnologyTypes"
-                                    :key="technologyType.id"
-                                    v-model="selectedTechnologyTypes"
-                                    :value="technologyType.id">
-                            <template v-slot:label>
-                                {{ technologyType.label }}<br>
-                            </template>
-                            <template v-slot:append>
-                                {{ getTechnologyTypeNumberOfExpressionExperiments(technologyType.id) }}
-                            </template>
-                        </v-checkbox>
+                        {{ technologyType.label }}
                     </v-list-item-title>
+                    <v-list-item-subtitle>
+                        Technology type with {{ getTechnologyTypeNumberOfExpressionExperiments(technologyType.id) }}
+                        experiments
+                    </v-list-item-subtitle>
                 </v-list-item-content>
+                <v-list-item-action>
+                    <v-checkbox
+                            v-model="selectedTechnologyTypes"
+                            :value="technologyType.id">
+                    </v-checkbox>
+                </v-list-item-action>
             </v-list-item>
             <v-divider/>
         </template>
         <template v-slot:item="{item}">
-            {{ item.name }}
-            <v-chip :color="getTechnologyTypeColor(item.technologyType)">{{
-                    getTechnologyTypeLabel(item.technologyType)
-                }}
-            </v-chip>
-            {{ item.numberOfExpressionExperiments }}
+            <v-list-item-content>
+                <v-list-item-title class="text-truncate">
+                    {{ item.name }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                    <span class="technology-type">{{ getTechnologyTypeLabel(item.technologyType) }}</span>
+                    platform with
+                    {{ item.numberOfExpressionExperiments }} experiments
+                </v-list-item-subtitle>
+            </v-list-item-content>
         </template>
     </v-select>
 </template>
@@ -57,7 +61,10 @@ export default {
   data() {
     return {
       selectedPlatform: this.value,
-      selectedTechnologyTypes: []
+      selectedTechnologyTypes: [],
+      menuProps: {
+        maxWidth: 430
+      }
     };
   },
   emits: ["input"],
@@ -106,8 +113,13 @@ export default {
 };
 </script>
 
-<style>
-.v-menu__content {
-    max-width: 240px;
+<style scoped>
+.technology-type {
+    display: inline-block;
+    text-transform: lowercase;
+}
+
+.technology-type:first-letter {
+    text-transform: uppercase;
 }
 </style>
