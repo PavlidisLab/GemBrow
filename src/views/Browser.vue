@@ -2,7 +2,7 @@
     <v-layout>
         <v-navigation-drawer app permanent width="400">
             <SearchSettings v-model="searchSettings"
-                            class="py-3"
+                            class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
                             :annotation-disabled="loadingAnnotation"
                             :platform-disabled="loadingPlatforms"
@@ -98,21 +98,10 @@
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
 import { mapState } from "vuex";
-import gemmaConfig from "@/config/gemma";
+import { baseUrl, blacklistedTerms, marked } from "@/config/gemma";
 import { debounce, groupBy, sumBy } from "lodash";
-import { marked } from "marked";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
-
-marked.use({
-  walkTokens(token) {
-    if (token.type === "link") {
-      let url = new URL(token.href, gemmaConfig.baseUrl);
-      url.fragment = url.pathname;
-      token.href = url.href;
-    }
-  }
-});
 
 const MAX_URIS_IN_CLAUSE = 100;
 
@@ -135,7 +124,7 @@ export default {
   },
   data() {
     return {
-      searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
+      searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
       options: {
         page: 1,
         itemsPerPage: 25,
@@ -143,7 +132,8 @@ export default {
         sortDesc: []
       },
       dispatchedBrowsingOptions: null,
-      baseUrl: gemmaConfig.baseUrl
+      baseUrl: baseUrl,
+      blacklistedTerms: blacklistedTerms
     };
   },
   computed: {
@@ -248,7 +238,7 @@ export default {
     ...mapState({
       errors: state => Object.values(state.api.error).filter(e => e !== null).map(e => e.response?.data?.error?.message || e.message),
       datasets: state => state.api.datasets.data || [],
-      totalNumberOfExpressionExperiments: state => state.api.datasets.totalElements,
+      totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
         return {
           pagination: {
@@ -278,7 +268,8 @@ export default {
         };
       },
       technologyTypes(state) {
-        if (state.api.openApiSpecification) {
+        // FIXME: I don't understand how state.api.openApiSpecification
+        if (state.api.openApiSpecification && state.api.openApiSpecification.components !== undefined) {
           const filterableProperties = state.api.openApiSpecification.components.schemas["FilterArgExpressionExperiment"]["x-gemma-filterable-properties"];
           const technologyTypes = filterableProperties.find(prop => prop.name === "bioAssays.arrayDesignUsed.technologyType");
           return technologyTypes["allowedValues"].map(elem => {
@@ -298,16 +289,16 @@ export default {
       loadingAnnotation: state => !!state.api.pending["datasetsAnnotations"],
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       loadingEndpoints: state => Object.entries(state.api.pending).filter(e => e[1]).map(e => e[0]),
-      datasetsPlatforms: state => state.api.datasetsPlatforms.data,
-      datasetsTaxa: state => state.api.datasetsTaxa.data,
-      taxa: state => state.api.datasetsTaxa.data,
+      datasetsPlatforms: state => state.api.datasetsPlatforms.data || [],
+      datasetsTaxa: state => state.api.datasetsTaxa.data || [],
+      taxa: state => state.api.datasetsTaxa.data || [],
       datasetsAnnotations(state) {
         if (state.api.datasetsAnnotations.data === undefined) {
           return [];
         }
         // first grouping by category
         let filteredTerms = state.api.datasetsAnnotations.data
-          .filter(elem => !gemmaConfig.blacklistedTerms.has(elem.classUri) && !gemmaConfig.blacklistedTerms.has(elem.termUri));
+          .filter(elem => !this.blacklistedTerms.has(elem.classUri) && !this.blacklistedTerms.has(elem.termUri));
         let termsByCategory = groupBy(filteredTerms, elem => (elem.classUri || elem.className?.toLowerCase()));
         let annotations = [];
         for (let key in termsByCategory) {
@@ -374,7 +365,7 @@ export default {
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
         .filter(h => h[0] !== "name") // the name is highlighted in the table
-        .map(h => marked.parseInline("**Tagged " + h[0] + ":** " + h[1], { headerIds: false, mangle: false }))
+        .map(h => marked.parseInline("**Tagged " + h[0] + ":** " + h[1]))
         .join("<br/>");
     },
     getName(item) {

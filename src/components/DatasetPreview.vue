@@ -7,7 +7,7 @@
 
 <script>
 import { highlight } from "@/search-utils";
-import { marked } from "marked";
+import { marked } from "@/config/gemma";
 
 export default {
   name: "DatasetPreview",
@@ -17,10 +17,8 @@ export default {
   computed: {
     description() {
       if (this.dataset.searchResult !== undefined && this.dataset.searchResult.highlights !== null && "description" in this.dataset.searchResult.highlights) {
-        console.log(this.dataset.description, this.dataset.searchResult.highlights.description);
         return marked.parseInline(highlight(this.dataset.description, this.dataset.searchResult.highlights.description));
       }
-      console.log(this.dataset);
       return marked.parseInline(this.dataset.description);
     }
   }

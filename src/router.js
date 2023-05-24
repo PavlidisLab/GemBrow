@@ -19,7 +19,7 @@ export default new Router({
     },
     {
       path: "/q/:query",
-      name: "browser",
+      name: "query",
       component: Browser,
       props: true
     }

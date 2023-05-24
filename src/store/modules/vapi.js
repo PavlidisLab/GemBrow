@@ -1,12 +1,12 @@
 import Vapi from "vuex-rest-api";
-import gemmaConfig from "@/config/gemma";
+import { axiosInst, baseUrl } from "@/config/gemma";
 import { merge } from "lodash";
 import axios from "axios";
 import qs from "qs";
 
 const vapi = new Vapi({
-  baseURL: gemmaConfig.baseUrl, // assigned in store.js
-  axios: gemmaConfig.axiosInst,
+  baseURL: baseUrl, // assigned in store.js
+  axios: axiosInst,
   state: {
     // all endpoint properties set in attachEndpoint
     cached: {},

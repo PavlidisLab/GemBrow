@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { max, sum, flattenDeep, uniq } from "lodash";
+import { flattenDeep, max, sum, uniq } from "lodash";
 
 const numberFormatter = Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
