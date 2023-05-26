@@ -16,6 +16,15 @@
             <v-alert v-for="(error, key) in errors" :key="key" type="error">
                 <div v-html="error"></div>
             </v-alert>
+            <v-toolbar dense>
+                <div v-show="searchSettings.query">
+                    Displaying {{ totalNumberOfExpressionExperiments }} search results
+                </div>
+                <div class="flex-grow-1"></div>
+                <DownloadButton :browsing-options="browsingOptions"
+                                :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                                :max-datasets="100"/>
+            </v-toolbar>
             <v-data-table title="Search Results"
                           loading-text="We're working hard on your query..."
                           no-data-text="Put something in the search bar to get some results."
@@ -102,6 +111,7 @@ import { baseUrl, blacklistedTerms, marked } from "@/config/gemma";
 import { debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
+import DownloadButton from "@/components/DownloadButton.vue";
 
 const MAX_URIS_IN_CLAUSE = 100;
 
@@ -115,7 +125,7 @@ function quoteIfNecessary(s) {
 
 export default {
   name: "Browser",
-  components: { SearchSettings, DatasetPreview },
+  components: { DownloadButton, SearchSettings, DatasetPreview },
   props: {
     /**
      * Initial query
