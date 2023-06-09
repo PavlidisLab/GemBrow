@@ -361,7 +361,7 @@ export default {
     search: debounce(function(browsingOptions) {
       return this.browse(browsingOptions, true)
         .then(() => {
-          let location = browsingOptions.query ? "/q/" + browsingOptions.query : "/";
+          let location = browsingOptions.query ? "/q/" + encodeURIComponent(browsingOptions.query) : "/";
           // because this is debounced, it's possible that two consecutive searches are performed with the same query
           // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
           // in less than 1s
