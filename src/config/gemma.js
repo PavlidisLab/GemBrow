@@ -11,6 +11,7 @@ export let baseUrl = process.env.VUE_APP_GEMMA_BASE_URL;
  * Axios instance suitable for querying Gemma.
  */
 export let axiosInst = axios.create({
+  withCredentials: true,
   paramsSerializer: function(params) {
     return qs.stringify(params, { arrayFormat: "repeat" });
   }

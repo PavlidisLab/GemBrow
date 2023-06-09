@@ -100,6 +100,13 @@ export default vapi
       }
     }
   })
+  .endpoint("getMyself", "myself", "/users/me", {
+    requestConfig: {
+      validateStatus(status) {
+        return (status >= 200 && status < 300) || status === 401;
+      }
+    }
+  })
   .getStore({
     createStateFn: true // Using modules
   });

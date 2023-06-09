@@ -18,25 +18,31 @@
             </v-alert>
             <v-toolbar dense>
                 <div v-show="searchSettings.query">
-                    Displaying {{ totalNumberOfExpressionExperiments }} search results
+                    Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
                 </div>
-                <div class="flex-grow-1"></div>
-                <DownloadButton :browsing-options="browsingOptions"
-                                :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                                :max-datasets="100"/>
+                <v-spacer/>
+                <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon>
+                    <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
+                </v-progress-circular>
+                <v-toolbar-items>
+                    <DownloadButton :browsing-options="browsingOptions"
+                                    :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                                    :max-datasets="100"
+                                    :progress.sync="downloadProgress"/>
+                </v-toolbar-items>
             </v-toolbar>
-            <v-data-table title="Search Results"
-                          loading-text="We're working hard on your query..."
-                          no-data-text="Put something in the search bar to get some results."
-                          :loading="loadingDatasets"
-                          :headers="headers"
-                          :items="datasets"
-                          :options.sync="options"
-                          :server-items-length="totalNumberOfExpressionExperiments"
-                          :footer-props="footerProps"
-                          show-expand
-                          fixed-header
-                          dense class="mb-3">
+            <v-data-table
+                    loading-text="We're working hard on your query..."
+                    no-data-text="Put something in the search bar to get some results."
+                    :loading="loadingDatasets"
+                    :headers="headers"
+                    :items="datasets"
+                    :options.sync="options"
+                    :server-items-length="totalNumberOfExpressionExperiments"
+                    :footer-props="footerProps"
+                    show-expand
+                    fixed-header
+                    dense class="mb-3">
                 <template v-slot:item.shortName="{item}">
                     <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + item.id">{{
                             item.shortName
@@ -60,6 +66,9 @@
                 </template>
                 <template v-slot:item.bioAssays.size="{item}">
                     <span v-text="item.numberOfBioAssays"/>
+                </template>
+                <template v-slot:item.searchResult.score="{item}">
+                    {{ formatDecimal(item.searchResult.score) }}
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
@@ -112,8 +121,10 @@ import { debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
+import { formatDecimal, formatNumber, formatPercent } from "../utils";
 
 const MAX_URIS_IN_CLAUSE = 100;
+const debug = process.env.NODE_ENV !== "production";
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
@@ -143,7 +154,8 @@ export default {
       },
       dispatchedBrowsingOptions: null,
       baseUrl: baseUrl,
-      blacklistedTerms: blacklistedTerms
+      blacklistedTerms: blacklistedTerms,
+      downloadProgress: null
     };
   },
   computed: {
@@ -170,13 +182,22 @@ export default {
         },
         {
           text: "Number of Samples",
-          value: "bioAssays.size"
+          value: "bioAssays.size",
+          align: "center"
         },
         {
           text: "Last Updated",
           value: "lastUpdated"
         }
       );
+      if (debug && this.searchSettings.query) {
+        h.push({
+          text: "Score (dev only)",
+          value: "searchResult.score",
+          align: "center",
+          sortable: false
+        });
+      }
       return h;
     },
     filter() {
@@ -331,11 +352,23 @@ export default {
     })
   },
   methods: {
+    formatDecimal,
+    formatNumber,
+    formatPercent,
     /**
      * Basically a browse with a debounce when the user is actively typing a query.
      */
     search: debounce(function(browsingOptions) {
-      return this.browse(browsingOptions, true);
+      return this.browse(browsingOptions, true)
+        .then(() => {
+          let location = browsingOptions.query ? "/q/" + browsingOptions.query : "/";
+          // because this is debounced, it's possible that two consecutive searches are performed with the same query
+          // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
+          // in less than 1s
+          if (location !== this.$router.currentRoute.fullPath) {
+            return this.$router.push(location);
+          }
+        });
     }, 1000),
     browse(browsingOptions, updateEverything) {
       // update available annotations and number of datasets

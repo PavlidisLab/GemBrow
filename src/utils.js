@@ -16,3 +16,19 @@ export function downloadAs(data, filename) {
     a.remove();
   }
 }
+
+const numberFormat = new Intl.NumberFormat();
+const percentFormatter = Intl.NumberFormat(undefined, { style: "percent" });
+const decimalFormatter = Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+export function formatNumber(n) {
+  return numberFormat.format(n);
+}
+
+export function formatPercent(p) {
+  return percentFormatter.format(p);
+}
+
+export function formatDecimal(d) {
+  return decimalFormatter.format(d);
+}

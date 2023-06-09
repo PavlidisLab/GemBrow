@@ -14,9 +14,9 @@
         </template>
         <template v-slot:append="{item}">
             <span v-if="!item.isCategory"
-                  :title="'Entropy: ' + formatNumber(entropy(item))"
+                  :title="'Entropy: ' + formatDecimal(entropy(item))"
             >
-                {{ item.numberOfExpressionExperiments }}
+                {{ formatNumber(item.numberOfExpressionExperiments) }}
             </span>
         </template>
     </v-treeview>
@@ -24,8 +24,7 @@
 
 <script>
 import { flattenDeep, max, sum, uniq } from "lodash";
-
-const numberFormatter = Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+import { formatDecimal, formatNumber } from "@/utils";
 
 export default {
   name: "AnnotationSelector",
@@ -87,6 +86,8 @@ export default {
     }
   },
   methods: {
+    formatNumber,
+    formatDecimal,
     entropy(item) {
       if (this.isUncategorized(item)) {
         return 0;
@@ -101,9 +102,6 @@ export default {
       }
       let distribution = [p, 1 - p];
       return -sum(distribution.map(p => p * Math.log(p)));
-    },
-    formatNumber(e) {
-      return numberFormatter.format(e);
     },
     isUncategorized(item) {
       return !item.className && !item.classUri;

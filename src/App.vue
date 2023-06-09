@@ -1,51 +1,18 @@
 <template>
     <v-app>
-        <!--
-        <v-app-bar app>
-            <v-app-bar-nav-icon to="/">
-                <img
-                        id="logo"
-                        :src="require('@/assets/logo-icon.png')"
-                        class="themeable light"
-                        alt="The Gemma Browser logo"
-                />
-            </v-app-bar-nav-icon>
-        </v-app-bar>
-        -->
+        <AppBar/>
         <router-view/>
-        <!--
-        <v-footer app>
-            <v-container>
-                <v-row justify="center">
-                    <v-col>
-                        <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
-                            <img
-                                    :src="require('@/assets/ubc-logo.png')"
-                                    height="50px"
-                                    alt="UBC Logo"
-                            />
-                            University of British Columbia &copy; 2018-2023
-                        </a>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-footer>
-        -->
     </v-app>
 </template>
 
 <script>
 import "vuetify/dist/vuetify.css";
 import "material-icons";
-import gemmaConfig from "./config/gemma";
+import AppBar from "@/components/AppBar.vue";
 
-const app = {
-  config: {
-    gemma: gemmaConfig
-  }
+export default {
+  components: { AppBar }
 };
-
-export default app;
 </script>
 
 <style lang="scss">

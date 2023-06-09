@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!--suppress HtmlUnknownTarget -->
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>GemBrow - The Gemma Browser</title>
+    <title>Browse | Gemma</title>
   </head>
   <body>
     <noscript>
@@ -20,7 +20,7 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', '<%= VUE_APP_GA_TRACKER %>', { 'debug_mode':true });
+      gtag('config', '<%= VUE_APP_GA_TRACKER %>');
 
       gtag('get', '<%= VUE_APP_GA_TRACKER %>', 'client_id', function(clientId) {
         window.clientId = clientId;
