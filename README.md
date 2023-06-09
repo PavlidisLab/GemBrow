@@ -9,6 +9,14 @@ The Gemma Browser is a modern frontend for [Gemma][^gemma] built on top of the [
  - npm
  - an HTTP server capable of delivering static assets (for deployment)
 
+## Installation
+
+For local development or deployment, you must install the dependencies first:
+
+```bash
+npm install
+```
+
 ## Local development
 
 Configurations are located in `.env.development`. Use `.env.development.local` to supply secrets.
