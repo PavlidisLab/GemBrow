@@ -225,19 +225,22 @@ export default {
           const categoryProps = [
             "allCharacteristics.category",
             "allCharacteristics.categoryUri"];
-          filter.push(categoryProps.map(prop => prop + " in (" + categoryUris.map(quoteIfNecessary).join(", ") + ")"));
+          for (const categoryUri of categoryUris) {
+            filter.push(categoryProps.map(prop => prop + " = " + quoteIfNecessary(categoryUri)));
+          }
         }
 
-        let annotationUris = this.searchSettings.annotations
-          .filter(a => !c.has(a.split("|")[0])) // exclude terms which are covered by a category URI
-          .map(a => a.split("|")[1]);
-        if (annotationUris.length > MAX_URIS_IN_CLAUSE) {
-          console.error("Too many term URIs (" + annotationUris.length + ") in clause.", annotationUris);
-        } else if (annotationUris.length > 0) {
+        let annotationByCategory = groupBy(this.searchSettings.annotations.map(a => a.split("|")), a => a[0]);
+        for (const categoryUri in annotationByCategory) {
+          // category is already included as a whole
+          if (categoryUris.includes(categoryUri)) {
+            continue;
+          }
+          let termUris = annotationByCategory[categoryUri].map(a => a[1]);
           const props = [
             "allCharacteristics.value",
             "allCharacteristics.valueUri"];
-          filter.push(props.map(prop => prop + " in (" + annotationUris.map(quoteIfNecessary).join(", ") + ")"));
+          filter.push([props.map(prop => prop + " in (" + termUris.map(quoteIfNecessary).join(", ") + ")")]);
         }
       }
       let numberOfClauses = sumBy(filter, f => f.length);
