@@ -57,11 +57,11 @@ vapi.endpoint = function(action, property, path, config = {}) {
     path: path,
     queryParams: false,
     headers() {
+      let h = {"X-Requested-With": "XMLHttpRequest"};
       if (window.clientId !== undefined) {
-        return { "X-Gemma-Client-ID": window.clientId };
-      } else {
-        return {};
+        h["X-Gemma-Client-ID"] = window.clientId;
       }
+      return h;
     },
     /**
      * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
