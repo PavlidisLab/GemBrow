@@ -16,21 +16,6 @@
             <v-alert v-for="(error, key) in errors" :key="key" type="error">
                 <div v-html="error"></div>
             </v-alert>
-            <v-toolbar dense>
-                <div v-show="searchSettings.query">
-                    Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
-                </div>
-                <v-spacer/>
-                <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon>
-                    <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
-                </v-progress-circular>
-                <v-toolbar-items>
-                    <DownloadButton :browsing-options="browsingOptions"
-                                    :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                                    :max-datasets="100"
-                                    :progress.sync="downloadProgress"/>
-                </v-toolbar-items>
-            </v-toolbar>
             <v-data-table
                     loading-text="We're working hard on your query..."
                     no-data-text="Put something in the search bar to get some results."
@@ -74,6 +59,21 @@
                     <td :colspan="headers.length + 1">
                         <DatasetPreview :dataset="item"></DatasetPreview>
                     </td>
+                </template>
+                <template v-slot:footer.prepend>
+                    <div v-show="searchSettings.query">
+                        Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
+                    </div>
+                    <v-spacer/>
+                    <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
+                                         class="mr-3">
+                        <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
+                    </v-progress-circular>
+                    <DownloadButton :browsing-options="browsingOptions"
+                                    :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                                    :max-datasets="100"
+                                    :progress.sync="downloadProgress"
+                                    class="mr-3"/>
                 </template>
             </v-data-table>
         </v-main>
@@ -450,6 +450,24 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+.v-data-table__wrapper {
+    margin-bottom: 59px;
+    max-height: 100%;
+}
 
+thead.v-data-table-header > tr > th {
+    background: white;
+    position: sticky;
+    top: 0;
+}
+
+.v-data-footer {
+    background: white;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    margin-right: 0 !important;
+}
 </style>
