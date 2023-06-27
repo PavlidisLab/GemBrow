@@ -1,14 +1,13 @@
 <template>
-    <v-treeview v-model="selectedAnnotations" :items="rankedAnnotations" :disabled="disabled" item-key="id"
+    <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
                 selectable
                 dense>
         <template v-slot:label="{item}">
             <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
-            <span v-else v-text="getTitle(item)" :title="getParentTerms(item)"
-                  class="text-capitalize text-truncate"/>
+            <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"/>
             <span v-if="isTermLinkable(item)">&nbsp;<a :href="getExternalUrl(item)" target="_blank"
                                                        class="mdi mdi-open-in-new"></a></span>
-            <div v-if="getUri(item)">
+            <div v-if="debug && getUri(item)">
                 <small>{{ getUri(item) }}</small>
             </div>
         </template>
@@ -23,16 +22,16 @@
 </template>
 
 <script>
-import { flattenDeep, max, sum, uniq } from "lodash";
+import { chain, isEqual, max, sum } from "lodash";
 import { formatDecimal, formatNumber } from "@/utils";
 
 export default {
   name: "AnnotationSelector",
   props: {
     /**
-     * Pre-selected annotations.
+     * Pre-selected annotations, grouped by category.
      */
-    value: Array,
+    value: Object,
     /**
      * Annotations to be displayed in this selector.
      */
@@ -45,24 +44,29 @@ export default {
      * In order to rank annotations, we need to know how many datasets total are
      * matched.
      */
-    totalNumberOfExpressionExperiments: Number
+    totalNumberOfExpressionExperiments: Number,
+    debug: Boolean
   },
   data() {
     return {
       /**
+       * An array of selected values formatted as "category|term".
        * @type Array
        */
-      selectedAnnotations: this.value
+      selectedValues: chain(this.value)
+        .map((terms, category) => terms.map(term => `${category}|${term}`))
+        .flatten()
+        .value()
     };
   },
   emits: ["input", "update:selectedCategories"],
   computed: {
     rankedAnnotations() {
-      let selectedAnnotations = new Set(this.selectedAnnotations);
+      let selectedValues = new Set(this.selectedValues);
       let byEntropy = (a, b) => {
         // prioritize selected annotations
-        if (selectedAnnotations.has(a.id) !== selectedAnnotations.has(b.id)) {
-          return selectedAnnotations.has(a.id) ? -1 : 1;
+        if (selectedValues.has(a.id) !== selectedValues.has(b.id)) {
+          return selectedValues.has(a.id) ? -1 : 1;
         }
         return this.entropy(b) - this.entropy(a);
       };
@@ -76,13 +80,17 @@ export default {
           };
         })
         .filter(c => c.children.length > 0)
-        .sort(byEntropy);
-    },
-    selectedCategories() {
-      let s = new Set(this.selectedAnnotations);
-      return this.rankedAnnotations
-        .filter(a => a.children.every(b => s.has(b.id)))
-        .map(a => a.id);
+        .sort((a, b) => {
+          if (a.className && b.className) {
+            return a.className.localeCompare(b.className);
+          } else if (a.className) {
+            return -1;
+          } else if (b.className) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
     }
   },
   methods: {
@@ -113,16 +121,6 @@ export default {
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
     },
-    getParentTerms(item) {
-      let collectParentTerms = function(item) {
-        if (item.parentTerms) {
-          return [item.parentTerms.map(t => t.name || t.uri), item.parentTerms.map(t => collectParentTerms(t))];
-        } else {
-          return [];
-        }
-      };
-      return uniq(flattenDeep(collectParentTerms(item))).join(", ");
-    },
     /**
      * Check if a term can be externally linked.
      */
@@ -145,14 +143,43 @@ export default {
           return "https://ontobee.org/ontology/OBI?iri=" + encodeURIComponent(uri);
         }
       }
+    },
+    /**
+     * Selected annotations, grouped by category and excluding selected categories.
+     */
+    computeSelectedAnnotations(newVal, selectedCategories) {
+      let sc = new Set(selectedCategories);
+      return chain(newVal)
+        .map(a => a.split("|"))
+        .filter(a => !sc.has(a[0]))
+        .groupBy(a => a[0])
+        .mapValues(a => a.map(b => b[1]))
+        .value();
+    },
+    /**
+     * Selected categories.
+     */
+    computeSelectedCategories(newVal) {
+      let s = new Set(newVal);
+      return this.annotations
+        .filter(a => a.children.every(b => s.has(b.id)))
+        .map(a => a.id);
     }
   },
   watch: {
-    selectedAnnotations(val) {
-      this.$emit("input", val);
-    },
-    selectedCategories(val) {
-      this.$emit("update:selectedCategories", val);
+    selectedValues(newVal, oldVal) {
+      let sc = this.computeSelectedCategories(newVal);
+      let sa = this.computeSelectedAnnotations(newVal, sc);
+      let scOld = this.computeSelectedCategories(oldVal);
+      let saOld = this.computeSelectedAnnotations(oldVal, scOld);
+      if (!isEqual(sa, saOld)) {
+        console.log("Selection changed", sa, saOld);
+        this.$emit("input", sa);
+      }
+      if (!isEqual(sc, scOld)) {
+        console.log("Selection changed", sc, scOld);
+        this.$emit("update:selectedCategories", sc);
+      }
     }
   }
 };

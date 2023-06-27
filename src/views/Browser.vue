@@ -213,30 +213,27 @@ export default {
       if (this.searchSettings.technologyTypes.length > 0) {
         filter.push(["bioAssays.arrayDesignUsed.technologyType in (" + this.searchSettings.technologyTypes.map(quoteIfNecessary).join(", ") + ")"]);
       }
-      if (this.searchSettings.annotations.length > 0) {
-        let c = new Set(this.searchSettings.categories);
-
+      const categoryProps = [
+        "allCharacteristics.category",
+        "allCharacteristics.categoryUri"];
+      if (this.searchSettings.categories.length > 0) {
         // check if all categories are picked
         let categoryUris = this.searchSettings.categories;
-
         if (categoryUris.length > MAX_URIS_IN_CLAUSE) {
           console.error("Too many category URIs (" + categoryUris.length + ") in clause.");
         } else if (categoryUris.length > 0) {
-          const categoryProps = [
-            "allCharacteristics.category",
-            "allCharacteristics.categoryUri"];
           for (const categoryUri of categoryUris) {
             filter.push(categoryProps.map(prop => prop + " = " + quoteIfNecessary(categoryUri)));
           }
         }
-
-        let annotationByCategory = groupBy(this.searchSettings.annotations.map(a => a.split("|")), a => a[0]);
+      }
+      if (this.searchSettings.annotations) {
+        let annotationByCategory = this.searchSettings.annotations;
         for (const categoryUri in annotationByCategory) {
-          // category is already included as a whole
-          if (categoryUris.includes(categoryUri)) {
-            continue;
-          }
-          let termUris = annotationByCategory[categoryUri].map(a => a[1]);
+          // FIXME: the category should be in a conjunction with the value, but that is not supported
+          // add a clause for the category, this is not exactly correct
+          filter.push(categoryProps.map(prop => prop + " = " + quoteIfNecessary(categoryUri)));
+          let termUris = annotationByCategory[categoryUri];
           const props = [
             "allCharacteristics.value",
             "allCharacteristics.valueUri"];
