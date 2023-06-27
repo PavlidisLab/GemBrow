@@ -1,16 +1,13 @@
 <template>
     <v-app-bar app>
-        <v-app-bar-nav-icon to="/">
+        <a :href="baseUrl + '/home.html'" style="display: flex; align-content: center;">
             <img
-                    id="logo"
-                    :src="require('@/assets/logo-icon.png')"
-                    class="themeable light"
+                    id=" logo"
+                    :src="require('@/assets/logo-current.png')"
+                    height="50"
                     alt="The Gemma Browser logo"
             />
-        </v-app-bar-nav-icon>
-        <v-toolbar-title>
-            Gemma
-        </v-toolbar-title>
+        </a>
         <v-spacer/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
@@ -101,10 +98,12 @@
                 <v-list-item link :href="baseUrl + '/'">Logout</v-list-item>
             </v-list>
         </v-menu>
-        <a href="https://www.ubc.ca/" target="_blank" title="UBC home page">
+        <a href="https://www.ubc.ca/" target="_blank"
+           title="UBC home page"
+           style="display: flex; align-content: center;">
             <img
-                    src="https://dev.gemma.msl.ubc.ca/images/logo/ubcgrey_logo_40.png"
-                    height="30px"
+                    :src="require('@/assets/ubc-logo-current.png')"
+                    height="40"
                     alt="UBC Logo"
             />
         </a>
