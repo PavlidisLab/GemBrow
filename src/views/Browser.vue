@@ -10,7 +10,8 @@
                             :taxa="taxa"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
-                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
+                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                            :debug="debug"/>
         </v-navigation-drawer>
         <v-main>
             <v-alert v-for="(error, key) in errors" :key="key" type="error">
@@ -121,10 +122,9 @@ import { debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
-import { formatDecimal, formatNumber, formatPercent } from "../utils";
+import { formatDecimal, formatNumber, formatPercent } from "@/utils";
 
 const MAX_URIS_IN_CLAUSE = 100;
-const debug = process.env.NODE_ENV !== "production";
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
@@ -190,7 +190,7 @@ export default {
           value: "lastUpdated"
         }
       );
-      if (debug && this.searchSettings.query) {
+      if (this.debug && this.searchSettings.query) {
         h.push({
           text: "Score (dev only)",
           value: "searchResult.score",
@@ -267,6 +267,9 @@ export default {
           includeBlacklistedTerms: this.searchSettings.includeBlacklistedTerms
         };
       }
+    },
+    debug() {
+      return process.env.NODE_ENV !== "production";
     },
     ...mapState({
       errors: state => Object.values(state.api.error).filter(e => e !== null).map(e => e.response?.data?.error?.message || e.message),

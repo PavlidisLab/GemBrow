@@ -77,7 +77,8 @@ export default {
     platformDisabled: Boolean,
     taxonDisabled: Boolean,
     annotationDisabled: Boolean,
-    totalNumberOfExpressionExperiments: Number
+    totalNumberOfExpressionExperiments: Number,
+    debug: Boolean
   },
   emits: ["input"],
   data() {
