@@ -74,6 +74,7 @@ export function SearchSettings(query, resultTypes) {
   this.technologyTypes = [];
   this.annotations = {};
   this.categories = [];
+  this.includeBlacklistedTerms = false;
 }
 
 export const ExpressionExperimentType = "ubic.gemma.model.expression.experiment.ExpressionExperiment";

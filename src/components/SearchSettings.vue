@@ -37,13 +37,20 @@
                 :tick-labels="['trash', 'low', 'mid', 'high']"
                 label="Quality" title="Filter based on GEEQ scores or curation status"
                 v-show="false"/>
-        <p class="text--secondary">Annotations</p>
+        <p class="text--secondary">
+            Annotations
+        </p>
         <AnnotationSelector
                 v-model="searchSettings.annotations"
                 :annotations="annotations"
                 :disabled="annotationDisabled"
                 :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                :selectedCategories.sync="searchSettings.categories"/>
+                :selectedCategories.sync="searchSettings.categories" style="margin-bottom: 48px;"
+                :debug="debug"/>
+        <v-checkbox v-if="debug" v-model="searchSettings.includeBlacklistedTerms"
+                    label="Include Blacklisted Terms (dev only)"
+                    style="position: fixed; bottom: 0; background: white; width: 100%;"
+                    hide-details class="py-3"/>
     </v-form>
 </template>
 

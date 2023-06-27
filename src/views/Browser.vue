@@ -255,14 +255,16 @@ export default {
           filter: this.filter,
           sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
           offset: (this.options.page - 1) * this.options.itemsPerPage,
-          limit: this.options.itemsPerPage
+          limit: this.options.itemsPerPage,
+          includeBlacklistedTerms: this.searchSettings.includeBlacklistedTerms
         };
       } else {
         return {
           filter: this.filter,
           sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
           offset: (this.options.page - 1) * this.options.itemsPerPage,
-          limit: this.options.itemsPerPage
+          limit: this.options.itemsPerPage,
+          includeBlacklistedTerms: this.searchSettings.includeBlacklistedTerms
         };
       }
     },
@@ -328,8 +330,7 @@ export default {
           return [];
         }
         // first grouping by category
-        let filteredTerms = state.api.datasetsAnnotations.data
-          .filter(elem => !this.blacklistedTerms.has(elem.classUri) && !this.blacklistedTerms.has(elem.termUri));
+        let filteredTerms = state.api.datasetsAnnotations.data;
         let termsByCategory = groupBy(filteredTerms, elem => (elem.classUri || elem.className?.toLowerCase()));
         let annotations = [];
         for (let key in termsByCategory) {
@@ -379,7 +380,7 @@ export default {
         // since the query or filters have changed, reset the browsing offset to the beginning
         browsingOptions.offset = 0;
         this.options.page = 1;
-        let updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter);
+        let updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, browsingOptions.includeBlacklistedTerms);
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
         return Promise.all([updateDatasetsPromise, updateDatasetsAnnotationsPromise, updateDatasetsPlatformsPromise, updateDatasetsTaxaPromise]);
@@ -387,8 +388,17 @@ export default {
         return updateDatasetsPromise;
       }
     },
-    updateAvailableAnnotations(query, filter) {
-      let payload = query !== undefined ? { query: query, filter: filter, limit: 200 } : { filter: filter, limit: 200 };
+    updateAvailableAnnotations(query, filter, includeBlacklistedTerms) {
+      let payload = {
+        filter: filter,
+        // the cap limit is 5000, so anything below 4 is useless
+        minFrequency: filter.length > 0 ? 1 : includeBlacklistedTerms ? 4 : 2,
+        excludedTerms: includeBlacklistedTerms ? [] : this.blacklistedTerms,
+        exclude: ["parentTerms"]
+      };
+      if (query !== undefined) {
+        payload["query"] = query;
+      }
       return this.$store.dispatch("api/getDatasetsAnnotations", { params: payload });
     },
     updateOpenApiSpecification() {
@@ -424,19 +434,21 @@ export default {
       this.updateOpenApiSpecification(),
       this.updateAvailableTaxa(undefined, this.filter),
       this.updateAvailablePlatforms(undefined, this.filter),
-      this.updateAvailableAnnotations(undefined, this.filter),
+      this.updateAvailableAnnotations(undefined, this.filter, false),
       this.browse(this.browsingOptions)])
       .catch(err => console.error(err));
   },
   watch: {
     "browsingOptions": function(newVal, oldVal) {
       this.dispatchedBrowsingOptions = newVal;
-      if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter)) {
+      if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
         // query has changed, debounce
         if (oldVal.query !== newVal.query) {
           return this.search(newVal);
-        } else {
+        } else if (oldVal.filter !== newVal.filter) {
           return this.browse(newVal, true);
+        } else if (oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms) {
+          return this.updateAvailableAnnotations(newVal.query, newVal.filter, newVal.includeBlacklistedTerms);
         }
       } else {
         // filter and query are unchanged, we don't need to update everything
