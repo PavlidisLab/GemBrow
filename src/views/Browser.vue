@@ -5,6 +5,7 @@
                             class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
                             :annotation-disabled="loadingAnnotation"
+                            :annotation-loading="loadingAnnotation"
                             :platform-disabled="loadingPlatforms"
                             :technology-types="technologyTypes"
                             :taxa="taxa"

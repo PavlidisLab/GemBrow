@@ -40,6 +40,7 @@
         <p class="text--secondary">
             Annotations
         </p>
+        <v-progress-linear :active="annotationLoading" indeterminate/>
         <AnnotationSelector
                 v-model="searchSettings.annotations"
                 :annotations="annotations"
@@ -77,6 +78,7 @@ export default {
     platformDisabled: Boolean,
     taxonDisabled: Boolean,
     annotationDisabled: Boolean,
+    annotationLoading: Boolean,
     totalNumberOfExpressionExperiments: Number,
     debug: Boolean
   },
