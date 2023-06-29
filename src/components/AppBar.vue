@@ -11,17 +11,17 @@
         <v-spacer/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
-                <form method="get">
                     <v-btn plain v-bind="attrs" v-on="on">
                         Explore
                         <v-icon>mdi-chevron-down</v-icon>
                     </v-btn>
-                </form>
             </template>
             <v-list>
                 <v-list-item>
-                    <v-text-field label="Search"></v-text-field>
-                    <v-btn>Go</v-btn>
+                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
+                        <v-text-field label="Search" autofocus @click.stop name="query"></v-text-field>
+                        <v-btn class="ml-2">Go</v-btn>
+                    </form>
                 </v-list-item>
                 <v-divider/>
                 <v-list-item link :href="baseUrl + '/expressionExperiment/showAllExpressionExperiments.html'">
