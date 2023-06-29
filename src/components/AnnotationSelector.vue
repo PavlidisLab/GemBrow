@@ -22,8 +22,9 @@
 </template>
 
 <script>
-import { chain, isEqual, max, sum } from "lodash";
+import { chain, isEqual, max, sum, clone } from "lodash";
 import { formatDecimal, formatNumber } from "@/utils";
+import { annotationSelectorOrderArray } from '@/config/gemma';
 
 export default {
   name: "AnnotationSelector",
@@ -70,6 +71,7 @@ export default {
         }
         return this.entropy(b) - this.entropy(a);
       };
+      console.log(this.annotations);
       return this.annotations
         .map(a => {
           return {
@@ -79,13 +81,22 @@ export default {
               .sort(byEntropy)
           };
         })
-        .filter(c => c.children.length > 0)
         .sort((a, b) => {
-          if (a.className && b.className) {
-            return a.className.localeCompare(b.className);
-          } else if (a.className) {
+          if (a.classUri && b.classUri) {
+            let aI = annotationSelectorOrderArray.indexOf(a.classUri);
+            let bI = annotationSelectorOrderArray.indexOf(b.classUri);
+            if(aI !== -1 && bI !== -1) {
+              return aI - bI;
+            } else if (aI !== -1) {
+              return -1;
+            } else if (bI !== -1) {
+              return 1;
+            } else {
+               return 0;
+            }
+          } else if (a.classUri) {
             return -1;
-          } else if (b.className) {
+          } else if (b.classUri) {
             return 1;
           } else {
             return 0;

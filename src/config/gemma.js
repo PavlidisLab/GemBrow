@@ -69,3 +69,20 @@ export let blacklistedTerms = [
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
   "http://www.ebi.ac.uk/efo/EFO_0005066" // collection of material
 ];
+
+export let annotationSelectorOrderArray = [
+'http://www.ebi.ac.uk/efo/EFO_0000408', // disease
+'http://www.ebi.ac.uk/efo/EFO_0000513', // genotype
+'http://www.ebi.ac.uk/efo/EFO_0000727', // treatment
+'http://www.ebi.ac.uk/efo/EFO_0000635', // organism part
+'http://www.ebi.ac.uk/efo/EFO_0000324', // cell type
+'http://www.ebi.ac.uk/efo/EFO_0005135', // strain 4439
+'http://purl.obolibrary.org/obo/CLO_0000031', // cell line 2619
+'http://www.ebi.ac.uk/efo/EFO_0000399', // developmental stage 2456
+'http://purl.obolibrary.org/obo/PATO_0000047', // biological sex 2145
+'http://gemma.msl.ubc.ca/ont/TGEMO_00101', // disease model 322 this might get merged later
+'http://www.ebi.ac.uk/efo/EFO_0002755', // diet 185
+'http://www.ebi.ac.uk/efo/EFO_0000246', // age 68
+'http://purl.obolibrary.org/obo/OBI_0000181', // population 37
+'http://www.ebi.ac.uk/efo/EFO_0002571' // medical procedure 4
+]; 
