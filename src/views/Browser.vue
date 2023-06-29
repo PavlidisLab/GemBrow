@@ -119,7 +119,7 @@ import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
 import { mapState } from "vuex";
 import { baseUrl, blacklistedTerms, marked } from "@/config/gemma";
-import { debounce, groupBy, sumBy } from "lodash";
+import { chain, debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
@@ -214,31 +214,53 @@ export default {
       if (this.searchSettings.technologyTypes.length > 0) {
         filter.push(["bioAssays.arrayDesignUsed.technologyType in (" + this.searchSettings.technologyTypes.map(quoteIfNecessary).join(", ") + ")"]);
       }
-      const categoryProps = [
-        "allCharacteristics.category",
-        "allCharacteristics.categoryUri"];
       if (this.searchSettings.categories.length > 0) {
         // check if all categories are picked
-        let categoryUris = this.searchSettings.categories;
-        if (categoryUris.length > MAX_URIS_IN_CLAUSE) {
-          console.error("Too many category URIs (" + categoryUris.length + ") in clause.");
-        } else if (categoryUris.length > 0) {
-          for (const categoryUri of categoryUris) {
-            filter.push(categoryProps.map(prop => prop + " = " + quoteIfNecessary(categoryUri)));
+        let categories = this.searchSettings.categories;
+        if (categories.length > MAX_URIS_IN_CLAUSE) {
+          console.error("Too many categories (" + categories.length + ") in clause.");
+        } else if (categories.length > 0) {
+          for (const category of categories) {
+            if (category.classUri) {
+              filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(category.classUri)]);
+            } else if (category.className) {
+              filter.push(["allCharacteristics.category = " + quoteIfNecessary(category.className)]);
+            } else {
+              console.warn("Selection of the 'Uncategorized' category is not supported");
+            }
           }
         }
       }
-      if (this.searchSettings.annotations) {
-        let annotationByCategory = this.searchSettings.annotations;
-        for (const categoryUri in annotationByCategory) {
+      if (this.searchSettings.annotations.length > 0) {
+        let annotationByCategoryId = chain(this.searchSettings.annotations)
+          .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
+          .value();
+        for (const categoryId in annotationByCategoryId) {
+          let categoryUri = annotationByCategoryId[categoryId].find(t => t.classUri !== null)?.classUri || null;
+          let categoryName = annotationByCategoryId[categoryId].find(t => t.className === null)?.className || null;
           // FIXME: the category should be in a conjunction with the value, but that is not supported
           // add a clause for the category, this is not exactly correct
-          filter.push(categoryProps.map(prop => prop + " = " + quoteIfNecessary(categoryUri)));
-          let termUris = annotationByCategory[categoryUri];
-          const props = [
-            "allCharacteristics.value",
-            "allCharacteristics.valueUri"];
-          filter.push([props.map(prop => prop + " in (" + termUris.map(quoteIfNecessary).join(", ") + ")")]);
+          if (categoryUri !== null) {
+            filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(categoryId)]);
+          } else if (categoryName !== null) {
+            filter.push(["allCharacteristics.category = " + quoteIfNecessary(categoryId)]);
+          } else {
+            console.warn("Selection of the 'Uncategorized' category is not supported.");
+          }
+          let termUris = annotationByCategoryId[categoryId].filter(t => t.termUri !== null).map(t => t.termUri);
+          let termNames = annotationByCategoryId[categoryId].filter(t => t.termName === null).map(t => t.termName);
+          let f = [];
+          if (termUris.length > MAX_URIS_IN_CLAUSE) {
+            console.error("Too many annotations (" + termUris.length + ") selected under " + categoryId);
+          } else if (termUris.length > 0) {
+            f.push("allCharacteristics.valueUri in (" + termUris.map(quoteIfNecessary).join(", ") + ")");
+          }
+          if (termNames.length > MAX_URIS_IN_CLAUSE) {
+            console.error("Too many annotations (" + temrNames.length + ") selected under " + categoryId);
+          } else if (termNames.length > 0) {
+            f.push("allCharacteristics.value in (" + termNames.map(quoteIfNecessary).join(", ") + ")");
+          }
+          filter.push(f);
         }
       }
       let numberOfClauses = sumBy(filter, f => f.length);
@@ -338,18 +360,13 @@ export default {
         let termsByCategory = groupBy(filteredTerms, elem => (elem.classUri || elem.className?.toLowerCase()));
         let annotations = [];
         for (let key in termsByCategory) {
+          // find the first non-null URI and name for the category
+          let classUri = termsByCategory[key].find(el => el.classUri !== null)?.classUri;
+          let className = termsByCategory[key].find(el => el.className !== null)?.className;
           annotations.push({
-            id: key,
-            isCategory: true,
-            children: termsByCategory[key].map((elem) => {
-              return {
-                id: `${key}|${elem.termUri || elem.termName?.toLowerCase()}`,
-                isCategory: false,
-                ...elem
-              };
-            }),
-            classUri: termsByCategory[key].find(el => el.classUri !== null)?.classUri,
-            className: termsByCategory[key].find(el => el.className !== null)?.className
+            classUri: classUri,
+            className: className,
+            children: termsByCategory[key]
           });
         }
         return annotations;

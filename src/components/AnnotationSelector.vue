@@ -22,17 +22,25 @@
 </template>
 
 <script>
-import { chain, isEqual, max, sum, clone } from "lodash";
+import { chain, isEqual, max, sum } from "lodash";
 import { formatDecimal, formatNumber } from "@/utils";
-import { annotationSelectorOrderArray } from '@/config/gemma';
+import { annotationSelectorOrderArray } from "@/config/gemma";
+
+/**
+ * Separator used to constructing keys of nested elements in the tree view.
+ * @type {string}
+ */
+const SEPARATOR = "|";
 
 export default {
   name: "AnnotationSelector",
   props: {
     /**
-     * Pre-selected annotations, grouped by category.
+     * Pre-selected annotations.
+     *
+     * Only selected terms are listed in the array, selected categories are handled separately.
      */
-    value: Object,
+    value: Array,
     /**
      * Annotations to be displayed in this selector.
      */
@@ -51,17 +59,28 @@ export default {
   data() {
     return {
       /**
-       * An array of selected values formatted as "category|term".
+       * An array of selected values formatted as "categoryId|termId".
        * @type Array
        */
-      selectedValues: chain(this.value)
-        .map((terms, category) => terms.map(term => `${category}|${term}`))
-        .flatten()
-        .value()
+      selectedValues: this.value.map(term => this.getCategoryId(term) + SEPARATOR + this.getId(term))
     };
   },
   emits: ["input", "update:selectedCategories"],
   computed: {
+    /**
+     * Quick reference for obtaining a term given its ID.
+     */
+    annotationById() {
+      return chain(this.annotations)
+        .flatMap(a => a.children)
+        .groupBy(a => this.getId(a))
+        .mapValues(a => a[0])
+        .value();
+    },
+    /**
+     * Annotations with IDs and ranked children.
+     * @returns {(*&{isCategory: boolean, children: *, id: *})[]}
+     */
     rankedAnnotations() {
       let selectedValues = new Set(this.selectedValues);
       let byEntropy = (a, b) => {
@@ -71,14 +90,29 @@ export default {
         }
         return this.entropy(b) - this.entropy(a);
       };
-      console.log(this.annotations);
       return this.annotations
         .map(a => {
+          let that = this;
+
+          /**
+           * Recursively construct a tree of annotations for a given category.
+           */
+          function getChildren(a) {
+            return a.children.map(c => {
+              return {
+                ...c,
+                id: that.getId(c),
+                isCategory: false,
+                children: c.children && getChildren(c)
+              };
+            }).sort(byEntropy);
+          }
+
           return {
-            ...a, children: a.children
-              // never hide selected annotations
-              // .filter(a => selectedAnnotations.has(a) || this.entropy(a) > 0.001)
-              .sort(byEntropy)
+            ...a,
+            id: this.getCategoryId(a),
+            isCategory: true,
+            children: getChildren(a)
           };
         })
         .sort((a, b) => {
@@ -107,6 +141,15 @@ export default {
   methods: {
     formatNumber,
     formatDecimal,
+    /**
+     * @returns {*|string|null} an ID for the category or null if the term is uncategorized
+     */
+    getCategoryId(term) {
+      return term.classUri || term.className?.toLowerCase() || null;
+    },
+    getId(term) {
+      return this.getCategoryId(term) + SEPARATOR + (term.termUri || term.termName?.toLowerCase());
+    },
     entropy(item) {
       if (this.isUncategorized(item)) {
         return 0;
@@ -159,13 +202,11 @@ export default {
      * Selected annotations, grouped by category and excluding selected categories.
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
-      let sc = new Set(selectedCategories);
-      return chain(newVal)
-        .map(a => a.split("|"))
-        .filter(a => !sc.has(a[0]))
-        .groupBy(a => a[0])
-        .mapValues(a => a.map(b => b[1]))
-        .value();
+      let sc = new Set(selectedCategories.map(sc => this.getCategoryId(sc)));
+      return newVal
+        // exclude annotations from selected categories
+        .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
+        .map(a => this.annotationById[a]);
     },
     /**
      * Selected categories.
@@ -173,8 +214,8 @@ export default {
     computeSelectedCategories(newVal) {
       let s = new Set(newVal);
       return this.annotations
-        .filter(a => a.children.every(b => s.has(b.id)))
-        .map(a => a.id);
+        .filter(a => a.children.every(b => s.has(this.getId(b))))
+        .map(a => ({ classUri: a.classUri, className: a.className }));
     }
   },
   watch: {
@@ -184,11 +225,11 @@ export default {
       let scOld = this.computeSelectedCategories(oldVal);
       let saOld = this.computeSelectedAnnotations(oldVal, scOld);
       if (!isEqual(sa, saOld)) {
-        console.log("Selection changed", sa, saOld);
+        console.log("Selection changed (annotations)", sa, saOld);
         this.$emit("input", sa);
       }
       if (!isEqual(sc, scOld)) {
-        console.log("Selection changed", sc, scOld);
+        console.log("Selection changed (categories)", sc, scOld);
         this.$emit("update:selectedCategories", sc);
       }
     }

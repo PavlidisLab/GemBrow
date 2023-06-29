@@ -72,7 +72,7 @@ export function SearchSettings(query, resultTypes) {
   this.taxon = null;
   this.quality = [0, 3];
   this.technologyTypes = [];
-  this.annotations = {};
+  this.annotations = [];
   this.categories = [];
   this.includeBlacklistedTerms = false;
 }
