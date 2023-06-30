@@ -132,3 +132,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.v-list-item--link {
+    font-weight: normal;
+}
+</style>
