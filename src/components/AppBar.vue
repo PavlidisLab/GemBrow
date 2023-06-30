@@ -19,7 +19,7 @@
             <v-list>
                 <v-list-item>
                     <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
-                        <v-text-field label="Search" autofocus @click.stop name="query"></v-text-field>
+                        <v-text-field label="Search" autofocus @click.stop autocomplete="off" name="query"></v-text-field>
                         <v-btn class="ml-2">Go</v-btn>
                     </form>
                 </v-list-item>
