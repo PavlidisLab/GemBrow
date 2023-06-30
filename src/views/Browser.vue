@@ -55,7 +55,7 @@
                     <span v-text="item.numberOfBioAssays"/>
                 </template>
                 <template v-slot:item.searchResult.score="{item}">
-                    {{ formatDecimal(item.searchResult.score) }}
+                    {{ formatDecimal(item.searchResult?.score) }}
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
