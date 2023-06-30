@@ -413,7 +413,7 @@ export default {
       let payload = {
         filter: filter,
         // the cap limit is 5000, so anything below 4 is useless
-        minFrequency: filter.length > 0 ? 1 : includeBlacklistedTerms ? 4 : 2,
+        minFrequency: filter.length > 0 ? 1 : includeBlacklistedTerms ? 4 : 3,
         excludedTerms: includeBlacklistedTerms ? [] : this.blacklistedTerms,
         exclude: ["parentTerms"]
       };
