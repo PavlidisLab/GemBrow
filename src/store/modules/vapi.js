@@ -1,8 +1,8 @@
 import Vapi from "vuex-rest-api";
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { merge } from "lodash";
-import axios from "axios";
 import qs from "qs";
+import axios from "axios";
 
 const vapi = new Vapi({
   baseURL: baseUrl, // assigned in store.js
@@ -12,10 +12,6 @@ const vapi = new Vapi({
     cached: {},
     pending: {},
     error: {},
-    /**
-     * Logs of error.
-     */
-    error_log: {},
     // only for code insights, the field is initialized in vapi.endpoint() below
     openApiSpecification: undefined,
     datasets: undefined,
@@ -40,7 +36,6 @@ const vapi = new Vapi({
 vapi.endpoint = function(action, property, path, config = {}) {
   // Add Vapi state properties required for proper functionality
   this.resource.state[property] = {};
-  this.resource.state.error_log[property] = [];
 
   // add /rest/v2 prefix to path (or path function)
   if (typeof (path) === "function") {
@@ -57,21 +52,25 @@ vapi.endpoint = function(action, property, path, config = {}) {
     path: path,
     queryParams: false,
     headers() {
-      let h = {"X-Requested-With": "XMLHttpRequest"};
+      let h = { "X-Requested-With": "XMLHttpRequest" };
       if (window.clientId !== undefined) {
         h["X-Gemma-Client-ID"] = window.clientId;
       }
       return h;
     },
+    onSuccess(state, payload) {
+      if (payload.data.error) {
+        state.error[property] = payload.data.error;
+      } else {
+        state[property] = payload.data;
+      }
+    },
     /**
-     * Custom error functionality utilizing the cache and error log. Note that 400 and 500 http errors are actually
-     * handled in the onSuccess method, so this method only handles errors on higher layers.
+     * Don't treat cancellation as an error.
      */
     onError(state, error) {
       if (axios.isCancel(error)) {
         state.error[property] = null;
-      } else {
-        state.error_log[property].push({ error });
       }
     }
   }, config));
@@ -101,9 +100,15 @@ export default vapi
     }
   })
   .endpoint("getMyself", "myself", "/users/me", {
-    requestConfig: {
-      validateStatus(status) {
-        return (status >= 200 && status < 300) || status === 401;
+    onSuccess(state, payload) {
+      if (payload.data.error) {
+        if (payload.data.error.code === 401) {
+          state["myself"] = {};
+        } else {
+          state.error["myself"] = payload.data.error;
+        }
+      } else {
+        state["myself"] = payload.data;
       }
     }
   })
