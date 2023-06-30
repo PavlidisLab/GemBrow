@@ -14,6 +14,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { downloadAs, formatNumber } from "@/utils";
+import {browsingOptions} from "@/views/Browser.vue";
 
 export default {
   name: "DownloadButton",
@@ -62,23 +63,35 @@ export default {
             .sort(response => response.offset)
             .map(response => response.data.data)
             .reduce((a, b) => a.concat(b), []);
-          let csv = parse(data, {
+          const termsAndConditionsHeader = [
+            "# If you use this file for your research, please cite:",
+            "# Lim et al. (2021) Curation of over 10 000 transcriptomic studies to enable data reuse.",
+            "# Database, baab006 (doi:10.1093/database/baab006)."
+          ];
+          const browsingOptionsHeader = [
+            JSON.stringify(this.browsingOptions)
+          ];
+          let csvHeader = termsAndConditionsHeader.join("\n") + "\n# Filter options=" + browsingOptionsHeader.join("\n");
+          let csvContent = parse(data, {
             delimiter: "\t",
             quote: "",
             transforms: [(item) => {
               return {
-                id: item.id,
+                // id: item.id,
                 short_name: item.shortName,
                 taxon: item.taxon.commonName,
                 title: item.name,
                 number_of_samples: item.numberOfBioAssays,
-                last_updated: item.lastUpdated,
-                score: item.searchResult?.score,
-                highlights: item.searchResult?.highlights
+                last_updated: item.lastUpdated
+                // score: item.searchResult?.score,
+                // highlights: item.searchResult?.highlights
               };
             }]
           });
-          downloadAs(new Blob([csv], { type: "text/tab-separated-values" }), "datasets.tsv");
+          let csv = csvHeader + "\n" + csvContent;
+          const timestamp = new Date().toLocaleString('sv').replace(/ |-|:/g, (match) => match === ' ' ? 'T' : '');
+          const fileName = `datasets_${timestamp}.tsv`; // Update the file name
+          downloadAs(new Blob([csv], { type: "text/tab-separated-values" }), fileName);
           this.$emit("done");
         }).catch((e) => {
           console.warn(e);
