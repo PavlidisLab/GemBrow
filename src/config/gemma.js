@@ -67,7 +67,18 @@ export let blacklistedTerms = [
   "http://www.ebi.ac.uk/efo/EFO_0001426", // study design
   "http://www.ebi.ac.uk/efo/EFO_0001646", // anatomical modifier (contains a lot of modifier terms like left/right, lateral, etc.)
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
-  "http://www.ebi.ac.uk/efo/EFO_0005066" // collection of material
+  "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
+  // gemma does not have the NCBI taxon ontology loaded, so we have to do it one-by-one
+  "http://purl.obolibrary.org/obo/NCBITaxon_10090",
+  "http://purl.obolibrary.org/obo/NCBITaxon_10116",
+  "http://purl.obolibrary.org/obo/NCBITaxon_11082",
+  "http://purl.obolibrary.org/obo/NCBITaxon_11320",
+  "http://purl.obolibrary.org/obo/NCBITaxon_11623",
+  "http://purl.obolibrary.org/obo/NCBITaxon_1280",
+  "http://purl.obolibrary.org/obo/NCBITaxon_1639",
+  "http://purl.obolibrary.org/obo/NCBITaxon_562",
+  "http://purl.obolibrary.org/obo/NCBITaxon_5811",
+  "http://purl.obolibrary.org/obo/NCBITaxon_6239"
 ];
 
 export let annotationSelectorOrderArray = [
