@@ -460,6 +460,9 @@ export default {
       .catch(err => console.error(err));
   },
   watch: {
+    query: function(newVal) {
+      this.searchSettings.query = newVal;
+    },
     "browsingOptions": function(newVal, oldVal) {
       this.dispatchedBrowsingOptions = newVal;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
