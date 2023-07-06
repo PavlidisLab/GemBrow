@@ -72,6 +72,7 @@
                         <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
                     </v-progress-circular>
                     <DownloadButton :browsing-options="browsingOptions"
+                                    :search-settings="searchSettings"
                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                                     :max-datasets="100"
                                     :progress.sync="downloadProgress"

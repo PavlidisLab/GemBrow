@@ -14,7 +14,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { downloadAs, formatNumber } from "@/utils";
-import {browsingOptions} from "@/views/Browser.vue";
+import {chain} from "lodash";
 
 export default {
   name: "DownloadButton",
@@ -23,6 +23,7 @@ export default {
      * Browsing options to use for downloading datasets.
      */
     browsingOptions: Object,
+    searchSettings: Object,
     totalNumberOfExpressionExperiments: Number,
     maxDatasets: Number,
     progress: Number
@@ -34,6 +35,48 @@ export default {
     };
   },
   events: ["update:progress", "done", "cancel"],
+  computed: {
+    readableQuery() {
+      let browsingOptionsQuery = this.browsingOptions.query;
+          if (browsingOptionsQuery === "" || browsingOptionsQuery === undefined) {
+            browsingOptionsQuery = "All datasets. ";
+          } else {
+            browsingOptionsQuery = browsingOptionsQuery;
+          }
+          return browsingOptionsQuery; 
+    },
+    readableFilter() {
+      let annotationByCategoryId = chain(this.searchSettings.annotations)
+          .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
+          .values()
+          .map(annotations => annotations.map(a => a.termName).join(", "))
+          .join("; ")
+          .value();
+      let categories = this.searchSettings.categories.map(c => c.className).join("; ");
+      let taxon = this.searchSettings.taxon?.scientificName;
+      let platform = this.searchSettings.platform?.name;
+      let browsingOptionsFilter = this.browsingOptions.filter;
+      let browsingOptionsFilterReadable;
+      if (browsingOptionsFilter === "" || browsingOptionsFilter === undefined) {
+        browsingOptionsFilterReadable = "No filter applied. ";
+      } else {
+        browsingOptionsFilterReadable = [];
+        if (annotationByCategoryId !== "" && annotationByCategoryId !== undefined) {
+          browsingOptionsFilterReadable.push("Annotation: " + annotationByCategoryId + ".");
+        };
+        if (categories !== "" && categories !== undefined) {
+          browsingOptionsFilterReadable.push("Category: " + categories + ".");
+        };
+        if (taxon !== "" && taxon !== undefined) {
+          browsingOptionsFilterReadable.push("Taxon: " + taxon + ".");
+        }; 
+        if (platform !== "" && platform !== undefined) {
+          browsingOptionsFilterReadable.push("Platform: " + platform + ".");
+        };
+      }
+      return browsingOptionsFilterReadable.join(" ");
+    }
+  },
   methods: {
     formatNumber,
     download() {
@@ -68,10 +111,8 @@ export default {
             "# Lim et al. (2021) Curation of over 10 000 transcriptomic studies to enable data reuse.",
             "# Database, baab006 (doi:10.1093/database/baab006)."
           ];
-          const browsingOptionsHeader = [
-            JSON.stringify(this.browsingOptions)
-          ];
-          let csvHeader = termsAndConditionsHeader.join("\n") + "\n# Filter options=" + browsingOptionsHeader.join("\n");
+          let csvHeader= termsAndConditionsHeader.join("\n") + "\n# QUERY: " + this.readableQuery + "\n# FILTERS: " + this.readableFilter;
+          console.log(csvHeader) 
           let csvContent = parse(data, {
             delimiter: "\t",
             quote: "",
