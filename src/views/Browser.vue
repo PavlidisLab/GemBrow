@@ -508,7 +508,7 @@ export default {
   },
   watch: {
     query: function(newVal) {
-      this.searchSettings.query = newVal;
+      this.searchSettings.query = newVal !== undefined ? newVal : null;
     },
     "browsingOptions": function(newVal, oldVal) {
       this.dispatchedBrowsingOptions = newVal;
