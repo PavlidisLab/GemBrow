@@ -125,7 +125,7 @@ import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
 import { formatDecimal, formatNumber, formatPercent } from "@/utils";
 
-const MAX_URIS_IN_CLAUSE = 100;
+const MAX_URIS_IN_CLAUSE = 200;
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
@@ -218,8 +218,10 @@ export default {
         // check if all categories are picked
         let categories = this.searchSettings.categories;
         if (categories.length > MAX_URIS_IN_CLAUSE) {
-          console.error("Too many categories (" + categories.length + ") in clause.");
-        } else if (categories.length > 0) {
+          console.warn(`Too many categories (${categories.length}) in clause, will only retain the first ${MAX_URIS_IN_CLAUSE} categories.`);
+          categories = categories.slice(0, MAX_URIS_IN_CLAUSE);
+        }
+        if (categories.length > 0) {
           for (const category of categories) {
             if (category.classUri) {
               filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(category.classUri)]);
@@ -247,17 +249,27 @@ export default {
           } else {
             console.warn("Selection of the 'Uncategorized' category is not supported.");
           }
-          let termUris = annotationByCategoryId[categoryId].filter(t => t.termUri !== null).map(t => t.termUri);
-          let termNames = annotationByCategoryId[categoryId].filter(t => t.termName === null).map(t => t.termName);
+          let termUris = annotationByCategoryId[categoryId]
+            .filter(t => t.termUri !== null)
+            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
+            .map(t => t.termUri);
+          let termNames = annotationByCategoryId[categoryId]
+            .filter(t => t.termName === null)
+            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
+            .map(t => t.termName);
           let f = [];
           if (termUris.length > MAX_URIS_IN_CLAUSE) {
-            console.error("Too many annotations (" + termUris.length + ") selected under " + categoryId);
-          } else if (termUris.length > 0) {
+            console.warn(`Too many annotations (${termUris.length}) selected under ${categoryId}, will only retain the first ${MAX_URIS_IN_CLAUSE} terms.`);
+            termUris = termUris.slice(0, MAX_URIS_IN_CLAUSE);
+          }
+          if (termUris.length > 0) {
             f.push("allCharacteristics.valueUri in (" + termUris.map(quoteIfNecessary).join(", ") + ")");
           }
           if (termNames.length > MAX_URIS_IN_CLAUSE) {
-            console.error("Too many annotations (" + temrNames.length + ") selected under " + categoryId);
-          } else if (termNames.length > 0) {
+            console.warn(`Too many annotations (${termNames.length}) selected under ${categoryId}, will only retain the first${MAX_URIS_IN_CLAUSE} terms.`);
+            termNames = termNames.slice(0, MAX_URIS_IN_CLAUSE);
+          }
+          if (termNames.length > 0) {
             f.push("allCharacteristics.value in (" + termNames.map(quoteIfNecessary).join(", ") + ")");
           }
           filter.push(f);
@@ -378,6 +390,37 @@ export default {
     formatNumber,
     formatPercent,
     /**
+     * Compress a given filter with gzip and encode it with base64. If the compressed filter is bigger, then the
+     * original filter is returned.
+     * @return {Promise<String>} a promise that resolves with a compressed filter
+     */
+    compressFilter(f) {
+      // too short, not worth compressing
+      if (f.length < 150) {
+        return Promise.resolve(f);
+      }
+      let reader = new Blob([f]).stream()
+        .pipeThrough(new CompressionStream("gzip"))
+        .getReader();
+      let blob = "";
+      return reader.read().then(function processChunk({ value, done }) {
+        if (value) {
+          blob += String.fromCharCode.apply(null, value);
+        }
+        // complete or process the next chunk only if the base64-encoded blob is smaller than the original filter
+        if (Math.ceil(blob.length / 3) * 4 < f.length) {
+          if (done) {
+            return btoa(blob);
+          } else {
+            return reader.read().then(processChunk);
+          }
+        } else {
+          console.log("Compression not worth it")
+          return f;
+        }
+      });
+    },
+    /**
      * Basically a browse with a debounce when the user is actively typing a query.
      */
     search: debounce(function(browsingOptions) {
@@ -393,21 +436,23 @@ export default {
         });
     }, 1000),
     browse(browsingOptions, updateEverything) {
-      // update available annotations and number of datasets
-      let updateDatasetsPromise = this.$store.dispatch("api/getDatasets", {
-        params: browsingOptions
+      return this.compressFilter(browsingOptions.filter).then(compressedFilter => {
+        // update available annotations and number of datasets
+        let updateDatasetsPromise = this.$store.dispatch("api/getDatasets", {
+          params: { ...browsingOptions, filter: compressedFilter }
+        });
+        if (updateEverything) {
+          // since the query or filters have changed, reset the browsing offset to the beginning
+          browsingOptions.offset = 0;
+          this.options.page = 1;
+          let updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, compressedFilter, browsingOptions.includeBlacklistedTerms);
+          let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, compressedFilter);
+          let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, compressedFilter);
+          return Promise.all([updateDatasetsPromise, updateDatasetsAnnotationsPromise, updateDatasetsPlatformsPromise, updateDatasetsTaxaPromise]);
+        } else {
+          return updateDatasetsPromise;
+        }
       });
-      if (updateEverything) {
-        // since the query or filters have changed, reset the browsing offset to the beginning
-        browsingOptions.offset = 0;
-        this.options.page = 1;
-        let updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, browsingOptions.includeBlacklistedTerms);
-        let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
-        let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
-        return Promise.all([updateDatasetsPromise, updateDatasetsAnnotationsPromise, updateDatasetsPlatformsPromise, updateDatasetsTaxaPromise]);
-      } else {
-        return updateDatasetsPromise;
-      }
     },
     updateAvailableAnnotations(query, filter, includeBlacklistedTerms) {
       let payload = {
@@ -451,13 +496,15 @@ export default {
     }
   },
   created() {
-    Promise.all([
-      this.updateOpenApiSpecification(),
-      this.updateAvailableTaxa(undefined, this.filter),
-      this.updateAvailablePlatforms(undefined, this.filter),
-      this.updateAvailableAnnotations(undefined, this.filter, false),
-      this.browse(this.browsingOptions)])
-      .catch(err => console.error(err));
+    this.compressFilter(this.filter).then(() => {
+      return Promise.all([
+        this.updateOpenApiSpecification(),
+        this.updateAvailableTaxa(undefined, this.filter),
+        this.updateAvailablePlatforms(undefined, this.filter),
+        this.updateAvailableAnnotations(undefined, this.filter, false),
+        this.browse(this.browsingOptions)])
+        .catch(err => console.error(err));
+    });
   },
   watch: {
     query: function(newVal) {
