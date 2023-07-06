@@ -240,7 +240,7 @@ export default {
           .value();
         for (const categoryId in annotationByCategoryId) {
           let categoryUri = annotationByCategoryId[categoryId].find(t => t.classUri !== null)?.classUri || null;
-          let categoryName = annotationByCategoryId[categoryId].find(t => t.className === null)?.className || null;
+          let categoryName = annotationByCategoryId[categoryId].find(t => t.classUri === null)?.className || null;
           // FIXME: the category should be in a conjunction with the value, but that is not supported
           // add a clause for the category, this is not exactly correct
           if (categoryUri !== null) {
