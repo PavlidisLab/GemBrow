@@ -83,7 +83,7 @@
                 <v-list-item link :href="baseUrl + '/admin/systemStats.html'">System Monitoring</v-list-item>
                 <v-list-item link :href="baseUrl + '/admin/indexer.html'">Manage Search Indexes</v-list-item>
                 <v-list-item link :href="baseUrl + '/admin/maintenanceMode.html'">Manage Maintenance Mode</v-list-item>
-                <v-list-item link :href="baseUrl + '/whatsnew/generateCache.html'">Update "What's New"</v-list-item>
+                <v-list-item link @click="updateWhatsNew()">Update "What's New"</v-list-item>
                 <v-list-item link :href="baseUrl + '/admin/widgetTest.html'">Widget Test Page</v-list-item>
             </v-list>
         </v-menu>
@@ -96,7 +96,7 @@
             </template>
             <v-list>
                 <v-list-item link :href="baseUrl + '/userProfile.html'">Edit your profile</v-list-item>
-                <v-list-item link :href="baseUrl + '/'">Logout</v-list-item>
+                <v-list-item link @click="logout()">Logout</v-list-item>
             </v-list>
         </v-menu>
         <a href="https://www.ubc.ca/" target="_blank"
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { baseUrl } from "@/config/gemma";
+import { axiosInst, baseUrl } from "@/config/gemma";
 import { mapState } from "vuex";
 
 export default {
@@ -123,14 +123,38 @@ export default {
       initiallyDebug: process.env.NODE_ENV !== "production"
     };
   },
-  computed: mapState({
-    myself: state => state.api.myself.status === 401 ? null : state.api.myself.data
-  }),
+  methods: {
+    updateMyself() {
+      return this.$store.dispatch("api/getMyself");
+    },
+    updateWhatsNew() {
+      return axiosInst.get(baseUrl + "/whatsnew/generateCache.html")
+        .then(() => {
+          window.location.reload();
+        });
+    },
+    logout() {
+      return axiosInst.get(baseUrl + "/j_spring_security_logout")
+        .then(this.updateMyself);
+    }
+  },
+  computed: {
+    ...mapState({
+      debug: state => state.debug,
+      myself: state => state.api.myself.status === 401 ? null : state.api.myself.data
+    }),
+    debug: {
+      get() {
+        return this.$store.state.debug;
+      },
+      set(newVal) {
+        this.$store.commit("setDebug", !!newVal);
+      }
+    }
+  },
   created() {
-    this.$store.dispatch("api/getMyself");
-    window.addEventListener("focus", () => {
-      this.$store.dispatch("api/getMyself");
-    });
+    this.updateMyself();
+    window.addEventListener("focus", this.updateMyself);
   }
 };
 </script>
