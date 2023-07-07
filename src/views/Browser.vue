@@ -124,7 +124,7 @@ import { chain, debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
-import { formatDecimal, formatNumber, formatPercent } from "@/utils";
+import { compressFilter, formatDecimal, formatNumber, formatPercent } from "@/utils";
 
 const MAX_URIS_IN_CLAUSE = 200;
 
@@ -389,37 +389,6 @@ export default {
     formatNumber,
     formatPercent,
     /**
-     * Compress a given filter with gzip and encode it with base64. If the compressed filter is bigger, then the
-     * original filter is returned.
-     * @return {Promise<String>} a promise that resolves with a compressed filter
-     */
-    compressFilter(f) {
-      // too short, not worth compressing
-      if (f.length < 150) {
-        return Promise.resolve(f);
-      }
-      let reader = new Blob([f]).stream()
-        .pipeThrough(new CompressionStream("gzip"))
-        .getReader();
-      let blob = "";
-      return reader.read().then(function processChunk({ value, done }) {
-        if (value) {
-          blob += String.fromCharCode.apply(null, value);
-        }
-        // complete or process the next chunk only if the base64-encoded blob is smaller than the original filter
-        if (Math.ceil(blob.length / 3) * 4 < f.length) {
-          if (done) {
-            return btoa(blob);
-          } else {
-            return reader.read().then(processChunk);
-          }
-        } else {
-          console.log("Compression not worth it")
-          return f;
-        }
-      });
-    },
-    /**
      * Basically a browse with a debounce when the user is actively typing a query.
      */
     search: debounce(function(browsingOptions) {
@@ -435,7 +404,7 @@ export default {
         });
     }, 1000),
     browse(browsingOptions, updateEverything) {
-      return this.compressFilter(browsingOptions.filter).then(compressedFilter => {
+      return compressFilter(browsingOptions.filter).then(compressedFilter => {
         // update available annotations and number of datasets
         let updateDatasetsPromise = this.$store.dispatch("api/getDatasets", {
           params: { ...browsingOptions, filter: compressedFilter }
@@ -495,7 +464,7 @@ export default {
     }
   },
   created() {
-    this.compressFilter(this.filter).then(() => {
+    compressFilter(this.filter).then(() => {
       return Promise.all([
         this.updateOpenApiSpecification(),
         this.updateAvailableTaxa(undefined, this.filter),
