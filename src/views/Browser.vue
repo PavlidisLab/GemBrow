@@ -304,10 +304,8 @@ export default {
         };
       }
     },
-    debug() {
-      return process.env.NODE_ENV !== "production";
-    },
     ...mapState({
+      debug: state => state.debug,
       errors: state => Object.values(state.api.error).filter(e => e !== null).map(e => e.response?.data?.error?.message || e.message),
       datasets: state => state.api.datasets.data || [],
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,

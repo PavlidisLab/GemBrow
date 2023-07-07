@@ -9,6 +9,7 @@
             />
         </a>
         <v-spacer/>
+        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode"/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
                     <v-btn plain v-bind="attrs" v-on="on">
@@ -118,7 +119,8 @@ export default {
   name: "AppBar",
   data() {
     return {
-      baseUrl: baseUrl
+      baseUrl: baseUrl,
+      initiallyDebug: process.env.NODE_ENV !== "production"
     };
   },
   computed: mapState({

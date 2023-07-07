@@ -11,6 +11,14 @@ const debug = process.env.NODE_ENV !== "production";
 api.namespaced = true;
 
 export default new Vuex.Store({
+  state() {
+    return { debug: debug };
+  },
+  mutations: {
+    setDebug(state, newVal) {
+      state.debug = !!newVal;
+    }
+  },
   plugins: [
     CreatePersistedState({
       reducer: (persistedState) => {

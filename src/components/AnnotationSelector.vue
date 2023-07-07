@@ -5,7 +5,7 @@
         <template v-slot:label="{item}">
             <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
             <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"/>
-            <span v-if="isTermLinkable(item)">&nbsp;<a :href="getExternalUrl(item)" target="_blank"
+            <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
                                                        class="mdi mdi-open-in-new"></a></span>
             <div v-if="debug && getUri(item)">
                 <small>{{ getUri(item) }}</small>
