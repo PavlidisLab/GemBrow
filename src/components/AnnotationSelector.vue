@@ -25,6 +25,7 @@
 import { chain, isEqual, max, sum } from "lodash";
 import { formatDecimal, formatNumber } from "@/utils";
 import { annotationSelectorOrderArray, baseUrl } from "@/config/gemma";
+import { mapState } from "vuex";
 
 /**
  * Separator used to constructing keys of nested elements in the tree view.
@@ -53,8 +54,7 @@ export default {
      * In order to rank annotations, we need to know how many datasets total are
      * matched.
      */
-    totalNumberOfExpressionExperiments: Number,
-    debug: Boolean
+    totalNumberOfExpressionExperiments: Number
   },
   data() {
     return {
@@ -210,7 +210,10 @@ export default {
             return 0;
           }
         });
-    }
+    },
+    ...mapState({
+      debug: state => state.debug
+    })
   },
   methods: {
     formatNumber,

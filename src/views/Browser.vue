@@ -11,8 +11,7 @@
                             :taxa="taxa"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
-                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                            :debug="debug"/>
+                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
         </v-navigation-drawer>
         <v-main>
             <v-alert v-for="(error, key) in errors" :key="key" type="error">
