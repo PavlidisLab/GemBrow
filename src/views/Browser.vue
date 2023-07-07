@@ -20,7 +20,7 @@
             </v-alert>
             <v-data-table
                     loading-text="We're working hard on your query..."
-                    no-data-text="Put something in the search bar to get some results."
+                    no-data-text="No datasets matched the query and filters."
                     :loading="loadingDatasets"
                     :headers="headers"
                     :items="datasets"
