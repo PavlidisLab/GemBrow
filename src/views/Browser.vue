@@ -311,16 +311,10 @@ export default {
           return [];
         }
       },
-      /**
-       * Check if there is a pending search.
-       * TODO: handle search cancellation
-       */
-      loading: state => state.api.pending["datasets"] || state.api.pending["datasetsPlatforms"] || state.api.pending["datasetsAnnotations"],
       loadingDatasets: state => !!state.api.pending["datasets"],
       loadingPlatforms: state => !!state.api.pending["datasetsPlatforms"],
       loadingAnnotation: state => !!state.api.pending["datasetsAnnotations"],
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
-      loadingEndpoints: state => Object.entries(state.api.pending).filter(e => e[1]).map(e => e[0]),
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
       taxa: state => state.api.datasetsTaxa?.data || [],
@@ -482,7 +476,7 @@ export default {
         promise = this.browse(newVal, false);
       }
       promise.catch(err => {
-        console.error("Error while updating datasets after browsing options changed.", err);
+        console.error("Error while updating datasets after browsing options changed: " + err.message + ".", err);
       });
     },
     myself: function(newVal, oldVal) {

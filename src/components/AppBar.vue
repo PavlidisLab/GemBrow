@@ -131,7 +131,7 @@ export default {
   methods: {
     updateMyself() {
       return this.$store.dispatch("api/getMyself").catch(e => {
-        console.error("Failed to update user info.", e);
+        console.error("Failed to update user info: " + e.message + ".", e);
       });
     },
     updateWhatsNew() {
