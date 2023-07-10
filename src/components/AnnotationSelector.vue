@@ -13,7 +13,7 @@
         </template>
         <template v-slot:append="{item}">
             <span v-if="!item.isCategory"
-                  :title="'Entropy: ' + formatDecimal(entropy(item))"
+                  :title="debug ? 'Entropy: ' + formatDecimal(entropy(item)) : undefined"
             >
                 {{ formatNumber(item.numberOfExpressionExperiments) }}
             </span>
