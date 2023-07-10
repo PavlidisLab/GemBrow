@@ -29,9 +29,10 @@
                     {{ item.name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                    <span class="technology-type">{{ getTechnologyTypeLabel(item.technologyType) }}</span>
-                    platform with
-                    {{ item.numberOfExpressionExperiments }} experiments
+                    <div class="capitalize-first-letter">
+                        {{ getTechnologyTypeLabel(item.technologyType) }} platform with
+                        {{ item.numberOfExpressionExperiments }} experiments
+                    </div>
                 </v-list-item-subtitle>
             </v-list-item-content>
         </template>
@@ -94,7 +95,7 @@ export default {
       return sumBy(this.platforms.filter(p => p.technologyType === t), p => p.numberOfExpressionExperiments);
     },
     getTechnologyTypeLabel(t) {
-      return this.technologyTypes.find(t2 => t2.id == t).label;
+      return this.technologyTypes.find(t2 => t2.id === t).label;
     },
     getTechnologyTypeColor(t) {
       return {
@@ -114,12 +115,11 @@ export default {
 </script>
 
 <style scoped>
-.technology-type {
-    display: inline-block;
+.capitalize-first-letter {
     text-transform: lowercase;
 }
 
-.technology-type:first-letter {
+.capitalize-first-letter:first-letter {
     text-transform: uppercase;
 }
 </style>
