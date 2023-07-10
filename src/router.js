@@ -1,37 +1,27 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
-import NotFound from "./views/NotFound.vue";
-import Datasets from "./views/Datasets.vue";
-import Platforms from "./views/Platforms.vue";
+import NotFound from "@/views/NotFound.vue";
+import Browser from "@/views/Browser";
 
 Vue.use(Router);
 
 export default new Router({
   routes: [
     {
-      path: "/404",
+      path: "*",
       name: "not found",
       component: NotFound
     },
     {
-      path: "*",
-      redirect: "/404"
-    },
-    {
       path: "/",
-      name: "home",
-      component: Home
+      name: "browser",
+      component: Browser
     },
     {
-      path: "/datasets",
-      name: "datasets",
-      component: Datasets
-    },
-    {
-      path: "/platforms",
-      name: "platforms",
-      component: Platforms
+      path: "/q/:query",
+      name: "query",
+      component: Browser,
+      props: true
     }
   ]
 });

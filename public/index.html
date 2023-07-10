@@ -6,12 +6,25 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <!--suppress HtmlUnknownTarget -->
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>GemBrow - The Gemma Browser</title>
+    <title>Browse | Gemma</title>
   </head>
   <body>
     <noscript>
       <strong>We're sorry but GemBrow doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= VUE_APP_GA_TRACKER %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '<%= VUE_APP_GA_TRACKER %>');
+
+      gtag('get', '<%= VUE_APP_GA_TRACKER %>', 'client_id', function(clientId) {
+        window.clientId = clientId;
+      });
+    </script>
   </body>
 </html>
