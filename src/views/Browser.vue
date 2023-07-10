@@ -86,7 +86,7 @@ import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
 import { mapState } from "vuex";
 import { baseUrl, blacklistedTerms, marked } from "@/config/gemma";
-import { chain, debounce, groupBy, sumBy } from "lodash";
+import { chain, debounce, groupBy, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
@@ -343,7 +343,8 @@ export default {
           });
         }
         return annotations;
-      }
+      },
+      myself: state => state.api.myself?.data
     })
   },
   methods: {
@@ -483,6 +484,13 @@ export default {
       promise.catch(err => {
         console.error("Error while updating datasets after browsing options changed.", err);
       });
+    },
+    myself: function(newVal, oldVal) {
+      if (!isEqual(newVal, oldVal)) {
+        this.browse(this.browsingOptions, true).catch(err => {
+          console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
+        });
+      }
     }
   }
 };
