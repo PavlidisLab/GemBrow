@@ -352,18 +352,21 @@ export default {
     formatPercent,
     /**
      * Basically a browse with a debounce when the user is actively typing a query.
+     * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
      */
     search: debounce(function(browsingOptions) {
-      return this.browse(browsingOptions, true)
-        .then(() => {
-          let location = browsingOptions.query ? "/q/" + encodeURIComponent(browsingOptions.query) : "/";
-          // because this is debounced, it's possible that two consecutive searches are performed with the same query
-          // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
-          // in less than 1s
-          if (location !== this.$router.currentRoute.fullPath) {
-            return this.$router.push(location);
-          }
-        });
+      return this.browse(browsingOptions, true).then(() => {
+        let location = browsingOptions.query ? "/q/" + encodeURIComponent(browsingOptions.query) : "/";
+        // because this is debounced, it's possible that two consecutive searches are performed with the same query
+        // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
+        // in less than 1s
+        if (location !== this.$router.currentRoute.fullPath) {
+          return this.$router.push(location);
+        }
+      }).catch(err => {
+        // because the function is debounced, the caller might never get resulting promise and ability to handle the error
+        console.error("Error while searching: " + err.message + ".", err);
+      });
     }, 1000),
     browse(browsingOptions, updateEverything) {
       return compressArg(browsingOptions.filter).then(compressedFilter => {
@@ -460,7 +463,7 @@ export default {
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
         // query has changed, debounce
         if (oldVal.query !== newVal.query) {
-          promise = this.search(newVal);
+          promise = this.search(newVal) || Promise.resolve();
         } else if (oldVal.filter !== newVal.filter) {
           promise = this.browse(newVal, true);
         } else if (oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms) {
