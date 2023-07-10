@@ -297,11 +297,9 @@ export default {
       let scOld = this.computeSelectedCategories(oldVal);
       let saOld = this.computeSelectedAnnotations(oldVal, scOld);
       if (!isEqual(sa, saOld)) {
-        console.log("Selection changed (annotations)", sa, saOld);
         this.$emit("input", sa);
       }
       if (!isEqual(sc, scOld)) {
-        console.log("Selection changed (categories)", sc, scOld);
         this.$emit("update:selectedCategories", sc);
       }
     }
