@@ -41,7 +41,7 @@
                 </v-btn>
             </template>
             <v-list>
-                <v-list-item link :href="baseUrl + '/'">About Gemma</v-list-item>
+                <v-list-item link @click="showAboutDialog = true">About Gemma</v-list-item>
                 <v-list-item link href="https://pavlidislab.github.io/Gemma/">Help and Documentation</v-list-item>
             </v-list>
         </v-menu>
@@ -108,18 +108,22 @@
                     alt="UBC Logo"
             />
         </a>
+        <AboutDialog v-model="showAboutDialog"/>
     </v-app-bar>
 </template>
 
 <script>
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { mapState } from "vuex";
+import AboutDialog from "@/components/AboutDialog.vue";
 
 export default {
   name: "AppBar",
+  components: { AboutDialog },
   data() {
     return {
       baseUrl: baseUrl,
+      showAboutDialog: false,
       initiallyDebug: process.env.NODE_ENV !== "production"
     };
   },

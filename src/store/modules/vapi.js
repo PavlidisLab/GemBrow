@@ -77,6 +77,7 @@ vapi.endpoint = function(action, property, path, config = {}) {
 };
 
 export default vapi
+  .endpoint("getRoot", "root", "/")
   .endpoint("getOpenApiSpecification", "openApiSpecification", "/openapi.json")
   .endpoint("getDatasets", "datasets", "/datasets", { queryParams: true })
   .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
