@@ -15,6 +15,7 @@ import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
 import { compressArg, downloadAs, formatNumber } from "@/utils";
+import axios from "axios";
 
 const termsAndConditionsHeader = [
   "# If you use this file for your research, please cite:",
@@ -31,7 +32,6 @@ export default {
     browsingOptions: Object,
     searchSettings: Object,
     totalNumberOfExpressionExperiments: Number,
-    maxDatasets: Number,
     progress: Number
   },
   data() {
@@ -40,7 +40,7 @@ export default {
       controller: null
     };
   },
-  events: ["update:progress", "done", "cancel"],
+  events: ["update:progress"],
   computed: {
     readableQuery() {
       return this.browsingOptions.query || "All datasets. ";
@@ -79,36 +79,48 @@ export default {
   methods: {
     formatNumber,
     download() {
-      let payload = Object.assign({}, this.browsingOptions);
+      if (this.downloading) {
+        return;
+      }
+      this.downloading = true;
+      let filter = this.browsingOptions.filter;
+      let limit = 100;
+      let sort = this.browsingOptions.sort;
       let total = this.totalNumberOfExpressionExperiments;
-      return compressArg(payload.filter).then(compressedFilter => {
-        let controller = new AbortController();
-        let promises = [];
+      return compressArg(filter).then(compressedFilter => {
+        let controller = this.controller = new AbortController();
         let progress_ = 0;
-        for (let offset = 0; offset < total; offset += this.maxDatasets) {
-          payload.filter = compressedFilter;
-          payload.offset = offset;
-          payload.limit = this.maxDatasets;
+        this.$emit("update:progress", progress_);
+
+        // create one promise per slice
+        let promises = [];
+        for (let offset = 0; offset < total; offset += limit) {
+          let payload = {
+            filter: compressedFilter,
+            offset: offset,
+            limit: limit,
+            sort: sort
+          };
           promises.push(axiosInst.get(baseUrl + "/rest/v2/datasets", {
             signal: controller.signal,
             params: payload
           }).then((response) => {
-            progress_ += (this.maxDatasets / total);
+            progress_ += (limit / total);
             this.$emit("update:progress", progress_);
             return response;
-          })).catch(e => {
-            controller.abort();
-          });
+          }).catch(e => {
+            // make sure that all other pending promises are also aborted
+            if (!axios.isCancel(e)) {
+              console.info("Cancelled all other pending requests...");
+              controller.abort();
+            }
+            throw e;
+          }));
         }
-        this.controller = controller;
-        this.$emit("update:progress", 0);
-        this.downloading = true;
+
         return Promise.all(promises)
           .then((responses) => {
-            let data = responses
-              .sort(response => response.offset)
-              .map(response => response.data.data)
-              .reduce((a, b) => a.concat(b), []);
+            let data = responses.flatMap(response => response.data.data);
             let csvHeader = termsAndConditionsHeader + "\n# QUERY: " + this.readableQuery + "\n# FILTERS: " + this.readableFilter;
             let csvContent = parse(data, {
               delimiter: "\t",
@@ -130,18 +142,18 @@ export default {
             const timestamp = new Date().toISOString();
             const fileName = `datasets_${timestamp}.tsv`; // Update the file name
             downloadAs(new Blob([csv], { type: "text/tab-separated-values" }), fileName);
-            this.$emit("done");
-          }).catch((e) => {
-            console.warn(e);
-          }).finally(() => {
-            this.downloading = false;
-            this.$emit("update:progress", null);
           });
+      }).catch(err => {
+        if (!axios.isCancel(err)) {
+          console.error("Error while downloading datasets to TSV: " + err.message + ".", err);
+        }
+      }).finally(() => {
+        this.downloading = false;
+        this.$emit("update:progress", null);
       });
     },
     cancelDownload() {
       this.controller.abort();
-      this.$emit("cancel");
     }
   }
 };
