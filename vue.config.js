@@ -1,5 +1,6 @@
 /* eslint-disable */
 // noinspection JSUnresolvedVariable
+process.env.VUE_APP_VERSION = require("./package.json").version;
 module.exports = {
   publicPath: "",
   configureWebpack: {

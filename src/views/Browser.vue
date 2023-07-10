@@ -14,9 +14,7 @@
                             :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
         </v-navigation-drawer>
         <v-main>
-            <v-alert v-for="(error, key) in errors" :key="key" type="error">
-                <div v-html="error"></div>
-            </v-alert>
+            <Error v-for="(error, key) in errors" :key="key" :error="error"/>
             <v-data-table
                     loading-text="We're working hard on your query..."
                     no-data-text="No datasets matched the query and filters."
@@ -30,9 +28,9 @@
                     fixed-header
                     dense class="mb-3">
                 <template v-slot:item.shortName="{item}">
-                    <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + item.id">{{
-                            item.shortName
-                        }}</a>
+                    <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + encodeURIComponent(item.id)">
+                        {{ item.shortName }}
+                    </a>
                 </template>
                 <template v-slot:item.resultObject="{item}">
                     <span>{{ item }}</span>
@@ -70,7 +68,8 @@
                                          class="mr-3">
                         <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
                     </v-progress-circular>
-                    <DownloadButton :browsing-options="browsingOptions"
+                    <DownloadButton v-show="totalNumberOfExpressionExperiments > 0"
+                                    :browsing-options="browsingOptions"
                                     :search-settings="searchSettings"
                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                                     :max-datasets="100"
@@ -79,38 +78,6 @@
                 </template>
             </v-data-table>
         </v-main>
-        <v-navigation-drawer v-if="false">
-            <v-card class="mb-3 overflow-y-auto" style="max-height: 400px;">
-                <v-card-text>
-                    <div v-if="loading">
-                        Pending requests:
-                        <v-chip v-for="(e, index) in loadingEndpoints" :key="index">{{ e }}</v-chip>
-                        <br/>
-                        <div v-if="dispatchedBrowsingOptions">
-                            Dispatched query:
-                            <pre style="white-space: pre-wrap">{{
-                                    dispatchedBrowsingOptions.filter || "Everything"
-                                }}</pre>
-                            <span>Sort: {{ dispatchedBrowsingOptions.sort }}</span><br/>
-                            <span>Offset: {{ dispatchedBrowsingOptions.offset }}</span><br/>
-                            <span>Limit: {{ dispatchedBrowsingOptions.limit }}</span>
-                        </div>
-                    </div>
-                    <div v-if="appliedBrowsingOptions">
-                        Applied query:<br/>
-                        <span>
-                                    Filter:
-                                    <span style="font-family: monospace">{{
-                                            appliedBrowsingOptions.filter || "Everything"
-                                        }}</span>
-                                </span><br/>
-                        <span>Sort: {{ appliedBrowsingOptions.sort }}</span><br/>
-                        <span>Offset: {{ appliedBrowsingOptions.offset }}</span><br/>
-                        <span>Limit: {{ appliedBrowsingOptions.limit }}</span>
-                    </div>
-                </v-card-text>
-            </v-card>
-        </v-navigation-drawer>
     </v-layout>
 </template>
 
@@ -123,7 +90,8 @@ import { chain, debounce, groupBy, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
-import { compressFilter, formatDecimal, formatNumber, formatPercent } from "@/utils";
+import { compressArg, formatDecimal, formatNumber, formatPercent } from "@/utils";
+import Error from "@/components/Error.vue";
 
 const MAX_URIS_IN_CLAUSE = 200;
 
@@ -137,7 +105,7 @@ function quoteIfNecessary(s) {
 
 export default {
   name: "Browser",
-  components: { DownloadButton, SearchSettings, DatasetPreview },
+  components: { Error, DownloadButton, SearchSettings, DatasetPreview },
   props: {
     /**
      * Initial query
@@ -146,6 +114,7 @@ export default {
   },
   data() {
     return {
+      baseUrl,
       searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
       options: {
         page: 1,
@@ -153,9 +122,6 @@ export default {
         sortBy: [],
         sortDesc: []
       },
-      dispatchedBrowsingOptions: null,
-      baseUrl: baseUrl,
-      blacklistedTerms: blacklistedTerms,
       downloadProgress: null
     };
   },
@@ -291,7 +257,7 @@ export default {
           sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
           offset: (this.options.page - 1) * this.options.itemsPerPage,
           limit: this.options.itemsPerPage,
-          includeBlacklistedTerms: this.searchSettings.includeBlacklistedTerms
+          includeBlacklistedTerms: !!this.searchSettings.includeBlacklistedTerms
         };
       } else {
         return {
@@ -299,16 +265,24 @@ export default {
           sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
           offset: (this.options.page - 1) * this.options.itemsPerPage,
           limit: this.options.itemsPerPage,
-          includeBlacklistedTerms: this.searchSettings.includeBlacklistedTerms
+          includeBlacklistedTerms: !!this.searchSettings.includeBlacklistedTerms
         };
       }
     },
     ...mapState({
       debug: state => state.debug,
-      errors: state => Object.values(state.api.error).filter(e => e !== null).map(e => e.response?.data?.error?.message || e.message),
-      datasets: state => state.api.datasets.data || [],
+      errors(state) {
+        return Object.values(state.api.error)
+          .filter(e => e !== null)
+          .map(e => e.response?.data?.error || e)
+          .slice(0, 1);
+      },
+      datasets: state => state.api.datasets?.data || [],
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
+        if (state.api.datasets === undefined) {
+          return {};
+        }
         return {
           pagination: {
             page: Math.ceil(state.api.datasets.offset / state.api.datasets.limit),
@@ -325,20 +299,9 @@ export default {
           itemsPerPageOptions: [25, 50, 100]
         };
       },
-      /**
-       * Applied browsing options or undefined if nothing is being browsed.
-       */
-      appliedBrowsingOptions: state => {
-        return {
-          filter: state.api.datasets.filter,
-          sort: state.api.datasets.sort?.direction + state.api.datasets.sort?.orderBy,
-          offset: state.api.datasets.offset,
-          limit: state.api.datasets.limit
-        };
-      },
       technologyTypes(state) {
         // FIXME: I don't understand how state.api.openApiSpecification
-        if (state.api.openApiSpecification && state.api.openApiSpecification.components !== undefined) {
+        if (state.api.openApiSpecification !== undefined && state.api.openApiSpecification.components !== undefined) {
           const filterableProperties = state.api.openApiSpecification.components.schemas["FilterArgExpressionExperiment"]["x-gemma-filterable-properties"];
           const technologyTypes = filterableProperties.find(prop => prop.name === "bioAssays.arrayDesignUsed.technologyType");
           return technologyTypes["allowedValues"].map(elem => {
@@ -358,11 +321,11 @@ export default {
       loadingAnnotation: state => !!state.api.pending["datasetsAnnotations"],
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       loadingEndpoints: state => Object.entries(state.api.pending).filter(e => e[1]).map(e => e[0]),
-      datasetsPlatforms: state => state.api.datasetsPlatforms.data || [],
-      datasetsTaxa: state => state.api.datasetsTaxa.data || [],
-      taxa: state => state.api.datasetsTaxa.data || [],
+      datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
+      datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
+      taxa: state => state.api.datasetsTaxa?.data || [],
       datasetsAnnotations(state) {
-        if (state.api.datasetsAnnotations.data === undefined) {
+        if (state.api.datasetsAnnotations === undefined) {
           return [];
         }
         // first grouping by category
@@ -403,16 +366,20 @@ export default {
         });
     }, 1000),
     browse(browsingOptions, updateEverything) {
-      return compressFilter(browsingOptions.filter).then(compressedFilter => {
+      return compressArg(browsingOptions.filter).then(compressedFilter => {
         // update available annotations and number of datasets
-        let updateDatasetsPromise = this.$store.dispatch("api/getDatasets", {
-          params: { ...browsingOptions, filter: compressedFilter }
-        });
+        let updateDatasetsPromise = this.updateDatasets(browsingOptions.query, compressedFilter, browsingOptions.offset, browsingOptions.limit, browsingOptions.sort);
         if (updateEverything) {
           // since the query or filters have changed, reset the browsing offset to the beginning
           browsingOptions.offset = 0;
           this.options.page = 1;
-          let updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, compressedFilter, browsingOptions.includeBlacklistedTerms);
+          let updateDatasetsAnnotationsPromise;
+          if (browsingOptions.includeBlacklistedTerms) {
+            updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, compressedFilter);
+          } else {
+            updateDatasetsAnnotationsPromise = compressArg(blacklistedTerms.join(","))
+              .then(excludedTerms => this.updateAvailableAnnotations(browsingOptions.query, compressedFilter, excludedTerms));
+          }
           let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, compressedFilter);
           let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, compressedFilter);
           return Promise.all([updateDatasetsPromise, updateDatasetsAnnotationsPromise, updateDatasetsPlatformsPromise, updateDatasetsTaxaPromise]);
@@ -421,16 +388,27 @@ export default {
         }
       });
     },
-    updateAvailableAnnotations(query, filter, includeBlacklistedTerms) {
+    updateDatasets(query, filter, offset, limit, sort) {
+      let payload = { query: query, filter: filter, offset: offset, limit: limit, sort: sort };
+      if (query !== undefined) {
+        payload["query"] = query;
+      }
+      return this.$store.dispatch("api/getDatasets", {
+        params: payload
+      });
+    },
+    updateAvailableAnnotations(query, filter, excludedTerms) {
       let payload = {
         filter: filter,
         // the cap limit is 5000, so anything below 4 is useless
-        minFrequency: filter.length > 0 ? 1 : includeBlacklistedTerms ? 4 : 3,
-        excludedTerms: includeBlacklistedTerms ? [] : this.blacklistedTerms,
+        minFrequency: filter.length > 0 ? 1 : excludedTerms ? 4 : 3,
         exclude: ["parentTerms"]
       };
       if (query !== undefined) {
         payload["query"] = query;
+      }
+      if (excludedTerms !== undefined) {
+        payload["excludedTerms"] = excludedTerms;
       }
       return this.$store.dispatch("api/getDatasetsAnnotations", { params: payload });
     },
@@ -463,14 +441,14 @@ export default {
     }
   },
   created() {
-    compressFilter(this.filter).then(() => {
+    compressArg(blacklistedTerms.join(",")).then((excludedTerms) => {
       return Promise.all([
         this.updateOpenApiSpecification(),
         this.updateAvailableTaxa(undefined, this.filter),
         this.updateAvailablePlatforms(undefined, this.filter),
-        this.updateAvailableAnnotations(undefined, this.filter, false),
+        this.updateAvailableAnnotations(undefined, this.filter, excludedTerms),
         this.browse(this.browsingOptions)])
-        .catch(err => console.error(err));
+        .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
     });
   },
   watch: {
@@ -478,20 +456,30 @@ export default {
       this.searchSettings.query = newVal !== undefined ? newVal : null;
     },
     "browsingOptions": function(newVal, oldVal) {
-      this.dispatchedBrowsingOptions = newVal;
+      let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
         // query has changed, debounce
         if (oldVal.query !== newVal.query) {
-          return this.search(newVal);
+          promise = this.search(newVal);
         } else if (oldVal.filter !== newVal.filter) {
-          return this.browse(newVal, true);
+          promise = this.browse(newVal, true);
         } else if (oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms) {
-          return this.updateAvailableAnnotations(newVal.query, newVal.filter, newVal.includeBlacklistedTerms);
+          if (newVal.includeBlacklistedTerms) {
+            promise = this.updateAvailableAnnotations(newVal.query, newVal.filter);
+          } else {
+            promise = compressArg(blacklistedTerms.join(","))
+              .then(excludedTerms => this.updateAvailableAnnotations(newVal.query, newVal.filter, excludedTerms));
+          }
+        } else {
+          promise = Promise.resolve();
         }
       } else {
         // filter and query are unchanged, we don't need to update everything
-        return this.browse(newVal, false);
+        promise = this.browse(newVal, false);
       }
+      promise.catch(err => {
+        console.error("Error while updating datasets after browsing options changed.", err);
+      });
     }
   }
 };
@@ -503,10 +491,8 @@ export default {
     max-height: 100%;
 }
 
-thead.v-data-table-header > tr > th {
-    background: white;
-    position: sticky;
-    top: 0;
+.v-data-table-header th {
+    white-space: nowrap;
 }
 
 .v-data-footer {

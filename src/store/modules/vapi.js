@@ -2,24 +2,10 @@ import Vapi from "vuex-rest-api";
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { merge } from "lodash";
 import qs from "qs";
-import axios from "axios";
 
 const vapi = new Vapi({
   baseURL: baseUrl, // assigned in store.js
-  axios: axiosInst,
-  state: {
-    // all endpoint properties set in attachEndpoint
-    cached: {},
-    pending: {},
-    error: {},
-    // only for code insights, the field is initialized in vapi.endpoint() below
-    openApiSpecification: undefined,
-    datasets: undefined,
-    datasetsAnnotations: undefined,
-    datasetsPlatforms: undefined,
-    platforms: undefined,
-    taxa: undefined
-  }
+  axios: axiosInst
 });
 
 /**
@@ -59,18 +45,10 @@ vapi.endpoint = function(action, property, path, config = {}) {
       return h;
     },
     onSuccess(state, payload) {
-      if (payload.data.error) {
-        state.error[property] = payload.data.error;
+      if (payload.error) {
+        state.error[property] = payload.error;
       } else {
         state[property] = payload.data;
-      }
-    },
-    /**
-     * Don't treat cancellation as an error.
-     */
-    onError(state, error) {
-      if (axios.isCancel(error)) {
-        state.error[property] = null;
       }
     }
   }, config));
@@ -85,21 +63,6 @@ export default vapi
   .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })
   .endpoint("getDatasetsTaxa", "datasetsTaxa", "/datasets/taxa", { queryParam: true })
   .endpoint("getTaxa", "taxa", "/taxa")
-  .endpoint("search", "search", "/search", {
-    queryParams: true,
-    requestConfig: {
-      paramsSerializer: function(params) {
-        if (params.platform) {
-          params = Object.assign({}, params, { platform: params.platform.id });
-        }
-        if (params.taxon) {
-          params = Object.assign({}, params, { taxon: params.taxon.id });
-        }
-        console.log("Params: " + qs.stringify(params, { arrayFormat: "repeat" }));
-        return qs.stringify(params, { arrayFormat: "repeat" });
-      }
-    }
-  })
   .endpoint("getMyself", "myself", "/users/me", {
     onSuccess(state, payload) {
       if (payload.data.error) {

@@ -38,7 +38,7 @@ export function formatDecimal(d) {
  * original filter is returned.
  * @return {Promise<String>} a promise that resolves with a compressed filter
  */
-export function compressFilter(f) {
+export function compressArg(f) {
   // too short, not worth compressing
   if (f.length < 150) {
     return Promise.resolve(f);

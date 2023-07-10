@@ -46,9 +46,8 @@
                 :annotations="annotations"
                 :disabled="annotationDisabled"
                 :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                :selectedCategories.sync="searchSettings.categories" style="margin-bottom: 48px;"
-                :debug="debug"/>
-        <v-checkbox v-if="debug" v-model="searchSettings.includeBlacklistedTerms"
+                :selectedCategories.sync="searchSettings.categories" style="margin-bottom: 48px;"/>
+        <v-switch v-if="debug" v-model="searchSettings.includeBlacklistedTerms"
                     label="Include Blacklisted Terms (dev only)"
                     style="position: fixed; bottom: 0; background: white; width: 100%;"
                     hide-details class="py-3"/>
@@ -60,6 +59,7 @@ import TaxonSelector from "@/components/TaxonSelector";
 import PlatformSelector from "@/components/PlatformSelector.vue";
 import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/models";
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
+import { mapState } from "vuex";
 
 export default {
   components: { AnnotationSelector, TaxonSelector, PlatformSelector },
@@ -91,7 +91,10 @@ export default {
   computed: {
     supportedResultTypes() {
       return SUPPORTED_RESULT_TYPES.sort((a, b) => a.order - b.order);
-    }
+    },
+    ...mapState({
+      debug: state => state.debug
+    })
   },
   watch: {
     searchSettings: {

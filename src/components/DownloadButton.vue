@@ -14,7 +14,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
-import { compressFilter, downloadAs, formatNumber } from "@/utils";
+import { compressArg, downloadAs, formatNumber } from "@/utils";
 
 const termsAndConditionsHeader = [
   "# If you use this file for your research, please cite:",
@@ -81,7 +81,7 @@ export default {
     download() {
       let payload = Object.assign({}, this.browsingOptions);
       let total = this.totalNumberOfExpressionExperiments;
-      return compressFilter(payload.filter).then(compressedFilter => {
+      return compressArg(payload.filter).then(compressedFilter => {
         let controller = new AbortController();
         let promises = [];
         let progress_ = 0;
@@ -96,7 +96,9 @@ export default {
             progress_ += (this.maxDatasets / total);
             this.$emit("update:progress", progress_);
             return response;
-          }));
+          })).catch(e => {
+            controller.abort();
+          });
         }
         this.controller = controller;
         this.$emit("update:progress", 0);

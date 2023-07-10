@@ -9,18 +9,19 @@
             />
         </a>
         <v-spacer/>
-        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode"/>
+        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
-                    <v-btn plain v-bind="attrs" v-on="on">
-                        Explore
-                        <v-icon>mdi-chevron-down</v-icon>
-                    </v-btn>
+                <v-btn plain v-bind="attrs" v-on="on">
+                    Explore
+                    <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
             </template>
             <v-list>
                 <v-list-item>
                     <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
-                        <v-text-field label="Search" autofocus @click.stop autocomplete="off" name="query"></v-text-field>
+                        <v-text-field label="Search" autofocus @click.stop autocomplete="off"
+                                      name="query"></v-text-field>
                         <v-btn class="ml-2">Go</v-btn>
                     </form>
                 </v-list-item>
@@ -129,23 +130,34 @@ export default {
   },
   methods: {
     updateMyself() {
-      return this.$store.dispatch("api/getMyself");
+      return this.$store.dispatch("api/getMyself").catch(e => {
+        console.error("Failed to update user info.", e);
+      });
     },
     updateWhatsNew() {
       return axiosInst.get(baseUrl + "/whatsnew/generateCache.html")
         .then(() => {
           window.location.reload();
+        }).catch(e => {
+          console.error("Failed to update \"What's New\".", e);
         });
     },
     logout() {
       return axiosInst.get(baseUrl + "/j_spring_security_logout")
-        .then(this.updateMyself);
+        .then(this.updateMyself).catch(e => {
+          console.error("Failed to logout.", e);
+        });
     }
   },
   computed: {
     ...mapState({
       debug: state => state.debug,
-      myself: state => state.api.myself.status === 401 ? null : state.api.myself.data
+      myself(state) {
+        if (state.api.myself === undefined) {
+          return null;
+        }
+        return state.api.myself.code === 401 ? null : state.api.myself.data;
+      }
     }),
     debug: {
       get() {
