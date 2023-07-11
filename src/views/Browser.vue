@@ -454,6 +454,11 @@ export default {
       this.searchSettings.query = newVal !== undefined ? newVal : null;
     },
     "browsingOptions": function(newVal, oldVal) {
+      if (this.totalNumberOfExpressionExperiments > 0) {
+        this.$store.commit("setTitle", "Showing "+this.totalNumberOfExpressionExperiments + " results");
+      } else {
+        this.$store.commit("setTitle", null);
+      }
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
         // query has changed, debounce

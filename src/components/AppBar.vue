@@ -8,6 +8,9 @@
                     alt="The Gemma Browser logo"
             />
         </a>
+        <div v-show=true style="align-self: center;">
+            {{ title }}
+        </div>
         <v-spacer/>
         <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details/>
         <v-menu open-on-hover offset-y>
@@ -152,6 +155,7 @@ export default {
   computed: {
     ...mapState({
       debug: state => state.debug,
+      title: state => state.title,
       myself(state) {
         if (state.api.myself === undefined) {
           return null;

@@ -12,11 +12,14 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { debug: debug };
+    return { title: null, debug: debug };
   },
   mutations: {
     setDebug(state, newVal) {
       state.debug = !!newVal;
+    },
+    setTitle(state, newVal) {
+      state.title = newVal;
     }
   },
   plugins: [
