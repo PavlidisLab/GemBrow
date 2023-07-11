@@ -3,15 +3,15 @@
         <div v-if="debug">
             <pre style="white-space: pre-wrap;">{{ JSON.stringify(error) }}</pre>
         </div>
-        <div v-else class="d-flex align-baseline">
+        <div v-else class="d-flex align-">
             An error has occurred. The Gemma Browser is still under development and we will greatly appreciate
             you report it to us.
             <v-spacer/>
-            <v-btn :href="'mailto:' + mail.to + '?subject=' + encodeURIComponent(mail.subject) + '&body=' + encodeURIComponent(mail.body)">
+            <v-btn :href="'mailto:' + mail.to + '?subject=' + encodeURIComponent(mail.subject) + '&body=' + encodeURIComponent(mail.body)" class="align-self-center">
                 <v-icon>mdi-email</v-icon>
                 Report by email
             </v-btn>
-            <v-btn @click="revealErrorDetails = true" class="ml-1">
+            <v-btn @click="revealErrorDetails = true" class="ml-1 align-self-center">
                 <v-icon>mdi-github</v-icon>
                 Report on GitHub
             </v-btn>
