@@ -45,8 +45,8 @@ vapi.endpoint = function(action, property, path, config = {}) {
       return h;
     },
     onSuccess(state, payload) {
-      if (payload.error) {
-        state.error[property] = payload.error;
+      if (payload.data.error) {
+        state.error[property] = payload.data.error;
       } else {
         state[property] = payload.data;
       }
