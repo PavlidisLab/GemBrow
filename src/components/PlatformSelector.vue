@@ -21,7 +21,7 @@
                     </v-checkbox>
                 </v-list-item-action>
             </v-list-item>
-            <v-divider/>
+            <v-divider v-if="selectablePlatforms.length > 0"/>
         </template>
         <template v-slot:item="{item}">
             <v-list-item-content>
