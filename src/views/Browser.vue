@@ -61,10 +61,13 @@
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
-                    <div v-show="searchSettings.query">
-                        Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
-                    </div>
-                    <v-spacer/>
+                  <v-spacer/>
+                    <v-menu offset-y>
+                      <template v-slot:activator = "{ on }">
+                        <v-btn v-on="on">Download Code</v-btn>
+                      </template>
+                      <CodeSnippet :browsing-options="browsingOptions"/>
+                    </v-menu>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
                         <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
@@ -93,6 +96,7 @@ import DownloadButton from "@/components/DownloadButton.vue";
 import { compressArg, compressFilter, formatDecimal, formatNumber, formatPercent } from "@/utils";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
+import CodeSnippet from "@/components/CodeSnippet.vue"; 
 
 const MAX_URIS_IN_CLAUSE = 200;
 
@@ -106,7 +110,7 @@ function quoteIfNecessary(s) {
 
 export default {
   name: "Browser",
-  components: { Error, DownloadButton, SearchSettings, DatasetPreview },
+  components: { Error, DownloadButton, SearchSettings, DatasetPreview, CodeSnippet },
   props: {
     /**
      * Initial query
