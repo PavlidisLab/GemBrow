@@ -24,9 +24,11 @@
                     :options.sync="options"
                     :server-items-length="totalNumberOfExpressionExperiments"
                     :footer-props="footerProps"
+                    :disable-sort="query && query.length > 0"
                     show-expand
                     fixed-header
-                    dense class="mb-3">
+                    dense class="mb-3"
+                    >
                 <template v-slot:item.shortName="{item}">
                     <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + encodeURIComponent(item.id)">
                         {{ item.shortName }}
