@@ -4,7 +4,8 @@
                :title="'Download metadata for ' + formatNumber(totalNumberOfExpressionExperiments) + ' datasets'">
             <v-icon>mdi-download</v-icon>
         </v-btn>
-        <v-btn v-if="downloading" @click="cancelDownload()" icon>
+        <v-btn v-if="downloading" @click="cancelDownload()" icon
+        :title="'Cancel the metadata download of ' + formatNumber(total) + ' datasets'">
             <v-icon>mdi-cancel</v-icon>
         </v-btn>
     </div>
@@ -37,11 +38,13 @@ export default {
   data() {
     return {
       downloading: false,
-      controller: null
+      controller: null,
+      total: this.totalNumberOfExpressionExperiments
     };
   },
   events: ["update:progress"],
-  computed: {
+  methods: {
+    formatNumber,
     readableQuery() {
       return this.browsingOptions.query || "All datasets. ";
     },
@@ -74,10 +77,7 @@ export default {
       } else {
         return "No filter applied. ";
       }
-    }
-  },
-  methods: {
-    formatNumber,
+    },
     download() {
       if (this.downloading) {
         return;
@@ -86,7 +86,9 @@ export default {
       let filter = this.browsingOptions.filter;
       let limit = 100;
       let sort = this.browsingOptions.sort;
-      let total = this.totalNumberOfExpressionExperiments;
+      let total = this.total = this.totalNumberOfExpressionExperiments;
+      let readableFilter = this.readableFilter();
+      let readableQuery = this.readableQuery();
       return compressArg(filter).then(compressedFilter => {
         let controller = this.controller = new AbortController();
         let progress_ = 0;
@@ -121,7 +123,7 @@ export default {
         return Promise.all(promises)
           .then((responses) => {
             let data = responses.flatMap(response => response.data.data);
-            let csvHeader = termsAndConditionsHeader + "\n# QUERY: " + this.readableQuery + "\n# FILTERS: " + this.readableFilter;
+            let csvHeader = termsAndConditionsHeader + "\n# QUERY: " + readableQuery + "\n# FILTERS: " + readableFilter;
             let csvContent = parse(data, {
               delimiter: "\t",
               quote: "",
@@ -149,6 +151,7 @@ export default {
         }
       }).finally(() => {
         this.downloading = false;
+        this.controller = null;
         this.$emit("update:progress", null);
       });
     },
