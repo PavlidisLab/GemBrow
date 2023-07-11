@@ -282,11 +282,17 @@ export default {
     },
     /**
      * Selected categories.
+     *
+     * It's not possible to track selected categories directly because the selection mode of the tree view is leaf-only.
+     * Thus, we rely on having all the terms within a category selected to infer that the category is selected.
+     *
+     * When other filters are applied, it may happen that a category becomes unexpectedly selected, so to prevent this
+     * we require at least 10 terms in the category.
      */
     computeSelectedCategories(newVal) {
       let s = new Set(newVal);
       return this.annotations
-        .filter(a => a.children.every(b => s.has(this.getId(b))))
+        .filter(a => a.length > 10 && a.children.every(b => s.has(this.getId(b))))
         .map(a => ({ classUri: a.classUri, className: a.className }));
     }
   },
