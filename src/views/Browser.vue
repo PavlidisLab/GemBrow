@@ -119,8 +119,8 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 25,
-        sortBy: [],
-        sortDesc: []
+        sortBy: ["lastUpdated"],
+        sortDesc: [true]
       },
       downloadProgress: null
     };
