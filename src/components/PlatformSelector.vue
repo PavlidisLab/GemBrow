@@ -4,10 +4,14 @@
               :disabled="disabled"
               :menu-props="menuProps"
               multiple
+              @click:clear="selectedTechnologyType = null"
               ref="platformSelector"
               >
         <template v-slot:prepend-item>
-            <v-list-item v-for="technologyType in selectableTechnologyTypes" :key="technologyType.id" dense>
+            <v-list-item v-for="technologyType in selectableTechnologyTypes" 
+                         :key="technologyType.id" 
+                         @click="updateTechnologyType(technologyType.id)" 
+                         dense>
                 <v-list-item-content>
                     <v-list-item-title>
                         {{ technologyType.label }}
@@ -17,17 +21,6 @@
                         experiments
                     </v-list-item-subtitle>
                 </v-list-item-content>
-                <v-list-item-action>
-                    <v-btn text style="font-size: 10px" @click="selectedPlatformIds = selectablePlatforms.filter(p => p.technologyType === technologyType.id).map(p => p.id)">
-                        Select all
-                    </v-btn>
-                </v-list-item-action>
-                <v-list-item-action>
-                    <v-checkbox
-                            v-model="selectedTechnologyTypes"
-                            :value="technologyType.id">
-                    </v-checkbox>
-                </v-list-item-action>
             </v-list-item>
             <v-divider v-if="selectablePlatforms.length > 0"/>
         </template>
@@ -43,6 +36,16 @@
                     </div>
                 </v-list-item-subtitle>
             </v-list-item-content>
+        </template>
+        <template v-slot:selection="{ item, index }">
+          <span v-if="selectedTechnologyType">
+              <span v-if="index === 0">
+              {{  getTechnologyTypeLabel(item.technologyType) }}
+            </span>
+          </span>
+          <span v-else>
+            {{ item.name }}, 
+          </span>
         </template>
     </v-select>
 </template>
@@ -69,18 +72,20 @@ export default {
   },
   data() {
     return {
-      selectedPlatforms: this.value,
-      selectedTechnologyTypes: [],
+      selectedTechnologyType: null,
+      selectedPlatformIds: this.value && this.value.map(p => p.id),
       menuProps: {
         maxWidth: 430
       }
     };
   },
-  emits: ["input"],
+  emits: ["input", "update:selectedTechnologyType"],
   computed: {
+    technologyTypeSelected() {
+      return true;
+    },
     selectablePlatforms() {
-      let stt = this.selectedTechnologyTypes;
-      return this.platforms.filter(p => stt.length === 0 || stt.includes(p.technologyType));
+      return this.platforms;
     },
     selectableTechnologyTypes() {
       let mentioned = new Set(this.platforms.map(p => p.technologyType));
@@ -89,17 +94,8 @@ export default {
         return that.getTechnologyTypeNumberOfExpressionExperiments(b.id) - that.getTechnologyTypeNumberOfExpressionExperiments(a.id);
       });
     },
-    selectedPlatformIds: {
-      get: function() {
-        return this.selectedPlatforms.map(p => p.id);
-      },
-      set: function(newVal) {
-        if (newVal) {
-          this.selectedPlatforms = this.platforms.filter(p => newVal.includes(p.id));
-        } else {
-          this.selectedPlatforms = [];
-        }
-      }
+    selectedPlatforms() {
+      return this.platforms.filter(p => this.selectedPlatformIds.includes(p.id) || this.selectedTechnologyType === p.technologyType);
     },
     /**
      * Indicate if the selection menu is active.
@@ -109,6 +105,11 @@ export default {
     }
   },
   methods: {
+    updateTechnologyType(t) {
+      this.selectedTechnologyType = t;
+      this.selectedPlatformIds = this.platforms.filter(p => p.technologyType === t).map(p => p.id);
+      this.$emit("update:selectedTechnologyType", t);
+    },
     getTechnologyTypeNumberOfExpressionExperiments(t) {
       return sumBy(this.platforms.filter(p => p.technologyType === t), p => p.numberOfExpressionExperiments);
     },
@@ -130,6 +131,12 @@ export default {
       if (!newVal) {
         console.log(this.selectedPlatforms);
         this.$emit("input", this.selectedPlatforms);
+      }
+    });
+    // update selected platform if menu is not active (i.e. when clearing the selection)
+    this.$watch('selectedPlatforms', function(newVal) {
+      if (!this.isPlatformSelectorMenuActive) {
+        this.$emit("input", newVal);
       }
     });
   }
