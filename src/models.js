@@ -68,7 +68,7 @@ export function QualityRange(low, high) {
 export function SearchSettings(query, resultTypes) {
   this.query = query;
   this.resultTypes = resultTypes || [];
-  this.platform = null;
+  this.platforms = [];
   this.taxon = null;
   this.quality = [0, 3];
   this.technologyTypes = [];

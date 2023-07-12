@@ -29,6 +29,7 @@ export default new Vuex.Store({
         // Remove stuff we do not want to persist for any reason
         delete stateFilter.api["pending"]; // Pending is only valid at runtime
         delete stateFilter.api["error"];
+        delete stateFilter["title"];
         return stateFilter;
       }
     })

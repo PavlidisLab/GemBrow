@@ -26,7 +26,7 @@
                 :disabled="taxonDisabled"/>
         <PlatformSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
-                v-model="searchSettings.platform"
+                v-model="searchSettings.platforms"
                 :platforms="platforms"
                 :technology-types="technologyTypes"
                 :disabled="platformDisabled"/>

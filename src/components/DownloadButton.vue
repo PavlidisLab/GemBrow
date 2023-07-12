@@ -57,7 +57,7 @@ export default {
         .value();
       let categories = this.searchSettings.categories.map(c => c.className).join("; ");
       let taxon = this.searchSettings.taxon?.scientificName;
-      let platform = this.searchSettings.platform?.name;
+      let platforms = this.searchSettings.platforms.map(p => p.name);
       let browsingOptionsFilter = this.browsingOptions.filter;
       if (browsingOptionsFilter) {
         let browsingOptionsFilterReadable = [];
@@ -70,8 +70,8 @@ export default {
         if (taxon) {
           browsingOptionsFilterReadable.push("Taxon: " + taxon + ".");
         }
-        if (platform) {
-          browsingOptionsFilterReadable.push("Platform: " + platform + ".");
+        if (platforms.length > 0) {
+          browsingOptionsFilterReadable.push("Platforms: " + platforms.join(", ") + ".");
         }
         return browsingOptionsFilterReadable.join(" ");
       } else {

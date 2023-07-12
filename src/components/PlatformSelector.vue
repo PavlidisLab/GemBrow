@@ -1,8 +1,11 @@
 <template>
-    <v-select v-model="selectedPlatformId" :items="selectablePlatforms"
-              item-value="id" item-text="name" label="Platform" clearable
+    <v-select v-model="selectedPlatformIds" :items="selectablePlatforms"
+              item-value="id" item-text="name" label="Platforms" clearable
               :disabled="disabled"
-              :menu-props="menuProps">
+              :menu-props="menuProps"
+              multiple
+              ref="platformSelector"
+              >
         <template v-slot:prepend-item>
             <v-list-item v-for="technologyType in selectableTechnologyTypes" :key="technologyType.id" dense>
                 <v-list-item-content>
@@ -14,6 +17,11 @@
                         experiments
                     </v-list-item-subtitle>
                 </v-list-item-content>
+                <v-list-item-action>
+                    <v-btn text style="font-size: 10px" @click="selectedPlatformIds = selectablePlatforms.filter(p => p.technologyType === technologyType.id).map(p => p.id)">
+                        Select all
+                    </v-btn>
+                </v-list-item-action>
                 <v-list-item-action>
                     <v-checkbox
                             v-model="selectedTechnologyTypes"
@@ -40,15 +48,15 @@
 </template>
 
 <script>
-import { sumBy } from "lodash";
+import { sumBy, debounce } from "lodash";
 
 export default {
   name: "PlatformSelector",
   props: {
     /**
-     * Pre-selected platform.
+     * Pre-selected platforms.
      */
-    value: Object,
+    value: Array,
     /**
      * A list of available platforms.
      */
@@ -61,7 +69,7 @@ export default {
   },
   data() {
     return {
-      selectedPlatform: this.value,
+      selectedPlatforms: this.value,
       selectedTechnologyTypes: [],
       menuProps: {
         maxWidth: 430
@@ -81,13 +89,23 @@ export default {
         return that.getTechnologyTypeNumberOfExpressionExperiments(b.id) - that.getTechnologyTypeNumberOfExpressionExperiments(a.id);
       });
     },
-    selectedPlatformId: {
+    selectedPlatformIds: {
       get: function() {
-        return this.selectedPlatform && this.selectedPlatform.id;
+        return this.selectedPlatforms.map(p => p.id);
       },
       set: function(newVal) {
-        this.selectedPlatform = newVal && this.platforms.find(p => p.id === newVal);
+        if (newVal) {
+          this.selectedPlatforms = this.platforms.filter(p => newVal.includes(p.id));
+        } else {
+          this.selectedPlatforms = [];
+        }
       }
+    },
+    /**
+     * Indicate if the selection menu is active.
+     */
+    isPlatformSelectorMenuActive() {
+      return this.$refs.platformSelector?.isMenuActive || false;
     }
   },
   methods: {
@@ -106,10 +124,14 @@ export default {
       }[t];
     }
   },
-  watch: {
-    selectedPlatform(val) {
-      this.$emit("input", val);
-    }
+  mounted() {
+    // the refs do not exist until the component is mounted, so we cannot use
+    this.$watch('isPlatformSelectorMenuActive', function(newVal){
+      if (!newVal) {
+        console.log(this.selectedPlatforms);
+        this.$emit("input", this.selectedPlatforms);
+      }
+    });
   }
 };
 </script>

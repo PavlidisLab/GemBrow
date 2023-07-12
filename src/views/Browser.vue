@@ -171,10 +171,11 @@ export default {
     },
     filter() {
       let filter = [];
-      if (this.searchSettings.platform) {
+      if (this.searchSettings.platforms.length > 0) {
         filter.push([
-          "bioAssays.arrayDesignUsed.id = " + this.searchSettings.platform.id,
-          "bioAssays.originalPlatform.id = " + this.searchSettings.platform.id]);
+          "bioAssays.arrayDesignUsed.id in (" + this.searchSettings.platforms.map(p => p.id).join(",") + ")",
+            "bioAssays.originalPlatform.id in (" + this.searchSettings.platforms.map(p => p.id).join(",") + ")"
+        ]);
       }
       if (this.searchSettings.taxon) {
         filter.push(["taxon.id = " + this.searchSettings.taxon.id]);
