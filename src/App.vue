@@ -10,8 +10,22 @@ import "vuetify/dist/vuetify.css";
 import "material-icons";
 import AppBar from "@/components/AppBar.vue";
 
+function renderError(err) {
+  return {
+    message: err.message,
+    columnNumber: err.columnNumber,
+    lineNumber: err.lineNumber,
+    fileName: err.fileName,
+    stacktrace: err.stack,
+    cause: err.cause && renderError(err.cause)
+  };
+}
+
 export default {
-  components: { AppBar }
+  components: { AppBar },
+  errorCaptured(err, vm, info) {
+    this.$store.commit("setLastError", renderError(err));
+  }
 };
 </script>
 
