@@ -48,30 +48,48 @@ export default {
       ];
 
       // Modify the content based on the searchSettings prop
-      const taxon = this.searchSettings?.taxon?.commonName;
-      const technologyType = this.searchSettings?.technologyType?.label;
-      const platform = this.searchSettings?.platform?.name;
-      console.log(platform)
+      let query = this.browsingOptions.query;
+      let filter = this.browsingOptions.filter;
+      let sort = this.browsingOptions.sort;
 
-      let tabQuery = [];
-      if (taxon !== undefined){ tabQuery.push(`taxon = ` + taxon) } 
-      console.log(`taxon added ` + tabQuery)       
-      if (technologyType !== undefined){ tabQuery.push(technologyType) }
-      console.log(`tech Type added ` + tabQuery) 
-      if (platform !== undefined){ tabQuery.push(platform) }  
-      console.log(`platform added ` + tabQuery)       
-      if (tabQuery.length > 0) {
-        console.log(tabQuery)
-        tabQuery.unshift(`datasets <- get_datasets(`);
-        console.log(`add R syntax ` + tabQuery) 
-        tabQuery.push(`)`);
-        console.log(`finish R syntax` + tabQuery) 
+
+      // curl snippet
+      let queryCurl = [];
+      if (query !== undefined){ queryCurl.push(`query = '` + query + `', `) }; 
+      if (filter !== undefined && filter.length > 0){ queryCurl.push(`filter = '` + filter + `', `) };
+      if (queryCurl.length > 0) {
+        if (sort !== undefined){ queryCurl.push(`sort = '` + sort + `', `) };
+        queryCurl.unshift(`I DON'T KNOW HOW TO QUERY IN CURL! `);
       } else {
-         tabQuery = ["No filters selected"];
-         console.log(`empty else` + tabQuery) 
+        queryCurl = ["No filters selected."];
       }
+      tabs[0].content = queryCurl.join("").replace(/\,\s*\)/, ')');
 
-      tabs[2].content = tabQuery.join("");
+      // Gemmapy snippet
+      let queryGemmapy = [];
+      if (query !== undefined){ queryGemmapy.push(`query = '` + query + `', `) }; 
+      if (filter !== undefined && filter.length > 0){ queryGemmapy.push(`filter = '` + filter + `', `) };
+      if (queryGemmapy.length > 0) {
+        if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', `) };
+        queryGemmapy.unshift(`api_response = api_instance.get_datasets_by_ids(`);
+        queryGemmapy.push(`)`);
+      } else {
+         queryGemmapy = ["No filters selected."];
+      }
+      tabs[1].content = queryGemmapy.join("").replace(/\,\s*\)/, ')');
+
+      // Gemma.R snippet
+      let queryGemmaR = [];
+      if (query !== undefined){ queryGemmaR.push(`query = '` + query + `', `) }; 
+      if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter + `', `) };
+      if (queryGemmaR.length > 0) {
+        if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
+        queryGemmaR.unshift(`data <- get_datasets_by_ids(`);
+        queryGemmaR.push(`) %>% gemma.R:::get_all_pages()`);
+      } else {
+         queryGemmaR = ["No filters selected."];
+      }
+      tabs[2].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
       return tabs;
     },
     updateSnippet() {
@@ -95,7 +113,6 @@ export default {
         }
     }
 };
-
 </script>
 
 
