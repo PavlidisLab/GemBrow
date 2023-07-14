@@ -66,7 +66,7 @@
                       <template v-slot:activator = "{ on }">
                         <v-btn v-on="on">Download Code</v-btn>
                       </template>
-                      <CodeSnippet :browsing-options="browsingOptions"/>
+                      <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"/>
                     </v-menu>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
