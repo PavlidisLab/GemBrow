@@ -64,7 +64,7 @@
                   <v-spacer/>
                     <v-menu offset-y>
                       <template v-slot:activator = "{ on }">
-                        <v-btn v-on="on">Download Code</v-btn>
+                        <v-btn v-on="on">Dataset Download Code</v-btn>
                       </template>
                       <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"/>
                     </v-menu>
