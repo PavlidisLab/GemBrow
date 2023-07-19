@@ -64,7 +64,9 @@
                   <v-spacer/>
                     <v-menu offset-y>
                       <template v-slot:activator = "{ on }">
-                        <v-btn v-on="on">Dataset Download Code</v-btn>
+                        <v-btn plain v-on="on">Dataset Download Code
+                          <v-icon>mdi-chevron-up</v-icon>
+                        </v-btn>
                       </template>
                       <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"/>
                     </v-menu>

@@ -9,7 +9,7 @@
         </v-card-text>
         <v-card-actions v-if="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
             <v-btn type @click="copy(tab.content)">
-              <v-icon>mdi-content-copy</v-icon>
+              <v-icon>mdi-clipboard-outline</v-icon>
             </v-btn>
         </v-card-actions>
         </v-card>
@@ -56,13 +56,26 @@ export default {
 
 
       // curl snippet
-      let queryCurl = [];
-      if (query !== undefined){ queryCurl.push(`query = '` + query) }; 
-      if (filter !== undefined && filter.length > 0){ queryCurl.push(`filter = '` + filter + `', `) };
-      if (queryCurl.length > 0) {
-        if (sort !== undefined){ queryCurl.push(`sort = '` + sort + `', `) };
-        queryCurl = `curl -X 'GET' 'https://gemma.msl.ubc.ca/rest/v2/annotations/mouse/search/datasets?${query}&offset=0&limit=20&sort=-lastUpdated' \
-        -H 'accept: application/json'`
+      let encodedQuery = '';
+      if (query !== undefined) {
+        encodedQuery = 'query=' + encodeURIComponent(query);
+      }
+
+      let encodedFilter = '';
+      if (filter.length > 0){ 
+        encodedFilter = '&filter=' + encodeURIComponent(filter);
+      }
+      
+      let encodedSort = ''
+      if (sort !== '-lastUpdated'){
+        encodedSort = '&sort=' + encodeURIComponent(sort)
+      } else {
+        encodedSort = '&sort=' + encodeURIComponent('-lastUpdated')
+      };
+
+      let queryCurl = '';
+      if (query!== undefined || filter.length > 0) {
+        queryCurl = `curl -X 'GET' --compressed 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&limit=20${encodedSort}' -H 'accept: application/json'` // remove dev before deployment
       } else {
         queryCurl = "No filters selected.";
       }
@@ -117,8 +130,6 @@ export default {
     }
 };
 </script>
-
-
 
 <style scoped>
 
