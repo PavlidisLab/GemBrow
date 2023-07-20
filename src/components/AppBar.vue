@@ -8,7 +8,7 @@
                     alt="The Gemma Browser logo"
             />
         </a>
-        <div v-show=true style="align-self: center;">
+        <div v-show=true style="align-self: center; padding-left: 15px;">
             {{ title }}
         </div>
         <v-spacer/>

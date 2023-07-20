@@ -85,11 +85,13 @@ export default {
   data() {
     return {
       searchSettings: this.value,
-      platformResultType: ArrayDesignType
+      platformResultType: ArrayDesignType,
+      selectedTaxa: this.value ? [this.value] : []
     };
   },
   computed: {
     supportedResultTypes() {
+
       return SUPPORTED_RESULT_TYPES.sort((a, b) => a.order - b.order);
     },
     ...mapState({
