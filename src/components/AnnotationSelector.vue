@@ -292,7 +292,7 @@ export default {
     computeSelectedCategories(newVal) {
       let s = new Set(newVal);
       return this.annotations
-        .filter(a => a.length > 10 && a.children.every(b => s.has(this.getId(b))))
+        .filter(a => a.children.length > 10 && a.children.every(b => s.has(this.getId(b))))
         .map(a => ({ classUri: a.classUri, className: a.className }));
     }
   },
