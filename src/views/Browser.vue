@@ -343,7 +343,32 @@ export default {
         return annotations;
       },
       myself: state => state.api.myself?.data
-    })
+    }),
+    filterSummary() {
+      const filters = [];
+      if (this.searchSettings.query) {
+        filters.push('query');
+      }
+      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
+        console.log(this.searchSettings.taxon.length)
+        filters.push('taxon');
+      }
+      if (this.searchSettings.platforms.length > 0) {
+        filters.push('platform');
+      }
+      if (this.searchSettings.technologyTypes.length > 0) {
+        filters.push('technology');
+      }
+      if (this.searchSettings.annotations.length > 0) {
+        filters.push('annotation');
+      }
+      if (filters.length > 0){
+        return "Filters applied: " + filters.join(", ");
+      } else {
+        return "";
+      }
+      console.log(filters);
+    }
   },
   methods: {
     formatDecimal,
@@ -464,6 +489,9 @@ export default {
         this.$store.commit("setTitle", null);
       }
     },
+    filterSummary: function(newVal) {
+    this.$store.commit("setFilterSummary", newVal);
+  },
     "browsingOptions": function(newVal, oldVal) {
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {

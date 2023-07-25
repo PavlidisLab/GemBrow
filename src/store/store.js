@@ -12,7 +12,7 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { title: null, debug: debug, lastError: null };
+    return { title: null, filterSummary: null, debug: debug, lastError: null };
   },
   mutations: {
     setDebug(state, newVal) {
@@ -20,6 +20,9 @@ export default new Vuex.Store({
     },
     setTitle(state, newVal) {
       state.title = newVal;
+    },
+    setFilterSummary(state, newVal) {
+      state.filterSummary = newVal;
     },
     setLastError(state, newVal) {
       state.lastError = newVal;
@@ -33,6 +36,7 @@ export default new Vuex.Store({
         delete stateFilter.api["pending"]; // Pending is only valid at runtime
         delete stateFilter.api["error"];
         delete stateFilter["title"];
+        delete stateFilter["filterSummary"]
         delete stateFilter["lastError"];
         return stateFilter;
       }

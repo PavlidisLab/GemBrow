@@ -11,6 +11,9 @@
         <div v-show=true style="align-self: center; padding-left: 15px;">
             {{ title }}
         </div>
+        <div v-show=true style="align-self: center; padding-left: 15px;">
+            {{ filterSummary }}
+        </div>
         <v-spacer/>
         <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details/>
         <v-menu open-on-hover offset-y>
@@ -156,6 +159,7 @@ export default {
     ...mapState({
       debug: state => state.debug,
       title: state => state.title,
+      filterSummary: state => state.filterSummary,
       myself(state) {
         if (state.api.myself === undefined) {
           return null;
