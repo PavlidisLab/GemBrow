@@ -2,7 +2,7 @@
   <v-select
           :items="rankedTaxa"
           item-value="id"
-          item-text="scientificName"
+          item-text="labelWithCommonName"
           v-model="selectedTaxaIds"
           multiple
           clearable
@@ -20,12 +20,12 @@
           </div>
       </template>
       <!-- slot for the dropdown -->
-      <template v-slot:item="data">
-          <v-list-item-content>
-              <v-list-item-title>{{ data.item.scientificName }}&nbsp;<span
-                      v-if="data.item.commonName">({{ data.item.commonName }})</span></v-list-item-title>
-              <v-list-item-subtitle>{{ data.item.numberOfExpressionExperiments }} experiments</v-list-item-subtitle>
-          </v-list-item-content>
+      <template v-slot:item="{ item }">
+        <v-checkbox :value="item.id" v-model="selectedTaxaIds" multiple> 
+          <template v-slot:label>
+            <div v-html="labelWithCommonName(item)"></div>
+          </template>
+        </v-checkbox>
       </template>
   </v-select>
 </template>
@@ -38,7 +38,7 @@ props: {
   /**
    * A list of available taxa.
    */
-  taxa: Array,
+  taxon: Array,
   disabled: Boolean
 },
 emits: ["input"],
@@ -54,7 +54,7 @@ data() {
 },
 computed: {
   rankedTaxa() {
-    let sortedTaxa = [...this.taxa];
+    let sortedTaxa = [...this.taxon];
     sortedTaxa.sort(function(a, b) {
       return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
     });
@@ -62,17 +62,24 @@ computed: {
   },
   selectedTaxa() {
     if (!this.selectedTaxaIds) return []; // Handle null or undefined case
-    return this.taxa.filter(t => this.selectedTaxaIds.includes(t.id));
+    return this.taxon.filter(t => this.selectedTaxaIds.includes(t.id));
   },
   isTaxonSelectorMenuActive() {
     return this.$refs.taxonSelector?.isMenuActive || false;
-  }  
+  }
+},
+methods: {
+  labelWithCommonName(item) {
+        return `${item.scientificName} (${item.commonName})
+          <br>
+          <span style="font-size: 12px">${item.numberOfExpressionExperiments} Experiments</span>
+        `;
+    }
 },
 mounted() {
   this.$watch('isTaxonSelectorMenuActive', function(newVal){
     if(!newVal) {
-      console.log(this.selectedTaxa);
-      this.$emit("input", this.selectedTaxa)
+      this.$emit("input", this.selectedTaxa);
     }
   });
   this.$watch('selectedTaxa', function(newVal) {

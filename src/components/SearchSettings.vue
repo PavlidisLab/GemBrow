@@ -22,7 +22,7 @@
         ></v-text-field>
         <TaxonSelector
                 v-model="searchSettings.taxon"
-                :taxa="taxa"
+                :taxon="taxon"
                 :disabled="taxonDisabled"/>
         <PlatformSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
@@ -72,7 +72,7 @@ export default {
      * A list of available platforms for the PlatformSelector.
      */
     platforms: Array,
-    taxa: Array,
+    taxon: Array,
     annotations: Array,
     technologyTypes: Array,
     platformDisabled: Boolean,

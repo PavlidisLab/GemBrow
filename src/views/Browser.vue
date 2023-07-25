@@ -8,7 +8,7 @@
                             :annotation-loading="loadingAnnotation"
                             :platform-disabled="loadingPlatforms"
                             :technology-types="technologyTypes"
-                            :taxa="taxa"
+                            :taxon="taxon"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
                             :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
@@ -321,7 +321,7 @@ export default {
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
-      taxa: state => state.api.datasetsTaxa?.data || [],
+      taxon: state => state.api.datasetsTaxa?.data || [],
       datasetsAnnotations(state) {
         if (state.api.datasetsAnnotations === undefined) {
           return [];
