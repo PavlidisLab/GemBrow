@@ -3,10 +3,10 @@
     <v-tab v-for="tab in snippetTabs" :key="tab.label" :label="tab.label" @click.stop=""> {{ tab.label }}
     </v-tab>
     <v-tab-item v-for="(tab, index) in snippetTabs" :key="tab.label" @click.stop=""> 
-        <v-card flat v-if="selectedTab === index" max-width=650px>
-        <v-card-text>
-            <code>{{ tab.content }}</code>
-        </v-card-text>
+        <v-card flat v-if="selectedTab === index" max-width=650px class="scroll">
+          <v-card-text>
+            <code class="python-code">{{ tab.content }}</code>
+          </v-card-text>
         <v-card-actions v-if="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
             <v-btn type @click="copy(tab.content)">
               <v-icon>mdi-clipboard-outline</v-icon>
@@ -44,9 +44,9 @@ export default {
     generateSnippetTabs() {
       // generate the snippet tabs
       const tabs = [
-        {label: "curl", content: this.queryCurl}, 
         {label: "Gemmapy", content: this.queryGemmapy}, 
-        {label: "Gemma.R", content: this.queryGemmaR }
+        {label: "Gemma.R", content: this.queryGemmaR },
+        {label: "curl", content: this.queryCurl}
       ];
 
       // Modify the content based on the searchSettings prop
@@ -54,6 +54,40 @@ export default {
       let filter = this.browsingOptions.filter;
       let sort = this.browsingOptions.sort;
 
+      // Gemmapy snippet
+      let queryGemmapy = [];
+      if (query !== undefined){ queryGemmapy.push(`query = '` + query + `', `) }; 
+      if (filter !== undefined && filter.length > 0){ queryGemmapy.push(`filter = '` + filter + `', `) };
+      if (queryGemmapy.length > 0) {
+        if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', offset = offset, limit = '100'`) };
+        queryGemmapy.unshift(`offset = 0\n` + 
+                              `all_datasets = []\n` + 
+                              `while True:\n` +
+                              `\tapi_response = api_instance.get_datasets_by_ids([],`);
+        queryGemmapy.push(`)\n` +
+                              `\tif api_response.data:\n` +
+                                `\t\tall_datasets.extend(api_response.data)\n` +
+                                `\t\toffset += 100\n` +
+                              `\telse:\n` +
+                                `\t\tbreak`);
+      } else {
+         queryGemmapy = ["No filters selected."];
+      }
+      tabs[0].content = queryGemmapy.join("").replace(/\,\s*\)/, ')');
+
+      // Gemma.R snippet
+      let queryGemmaR = [];
+      if (query !== undefined){ queryGemmaR.push(`query = '` + query + `', `) }; 
+      if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter + `', `) };
+      if (queryGemmaR.length > 0) {
+        if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
+        queryGemmaR.unshift(`data <- get_datasets_by_ids(`);
+        queryGemmaR.push(`) %>% \n` +
+        `gemma.R:::get_all_pages()`);
+      } else {
+         queryGemmaR = ["No filters selected."];
+      }
+      tabs[1].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
 
       // curl snippet
       let encodedQuery = '';
@@ -75,37 +109,12 @@ export default {
 
       let queryCurl = '';
       if (query!== undefined || filter.length > 0) {
-        queryCurl = `curl -X 'GET' --compressed 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&limit=20${encodedSort}' -H 'accept: application/json'` // remove dev before deployment
+        queryCurl = `curl -X 'GET' --compressed 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&${encodedSort}' -H 'accept: application/json'` // remove dev before deployment
       } else {
         queryCurl = "No filters selected.";
       }
-      tabs[0].content = queryCurl;
+      tabs[2].content = queryCurl;
 
-      // Gemmapy snippet
-      let queryGemmapy = [];
-      if (query !== undefined){ queryGemmapy.push(`query = '` + query + `', `) }; 
-      if (filter !== undefined && filter.length > 0){ queryGemmapy.push(`filter = '` + filter + `', `) };
-      if (queryGemmapy.length > 0) {
-        if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', `) };
-        queryGemmapy.unshift(`api_response = api_instance.get_datasets_by_ids(`);
-        queryGemmapy.push(`)`);
-      } else {
-         queryGemmapy = ["No filters selected."];
-      }
-      tabs[1].content = queryGemmapy.join("").replace(/\,\s*\)/, ')');
-
-      // Gemma.R snippet
-      let queryGemmaR = [];
-      if (query !== undefined){ queryGemmaR.push(`query = '` + query + `', `) }; 
-      if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter + `', `) };
-      if (queryGemmaR.length > 0) {
-        if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
-        queryGemmaR.unshift(`data <- get_datasets_by_ids(`);
-        queryGemmaR.push(`) %>% gemma.R:::get_all_pages()`);
-      } else {
-         queryGemmaR = ["No filters selected."];
-      }
-      tabs[2].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
       return tabs;
     },
     updateSnippet() {
@@ -132,5 +141,11 @@ export default {
 </script>
 
 <style scoped>
-
+.scroll {
+  overflow-y: scroll;
+  max-height: calc(100vh - 100px);
+}
+.python-code {
+  white-space: pre-wrap;
+}
 </style>
