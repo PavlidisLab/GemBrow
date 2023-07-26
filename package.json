@@ -9,8 +9,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@highlightjs/vue-plugin": "^1.0.2",
     "@mdi/font": "^7.2.96",
     "axios": "^0.27.2",
+    "highlight.js": "^10.7.2",
     "json2csv": "^5.0.7",
     "lodash": "^4.17.21",
     "marked": "^5.1.0",

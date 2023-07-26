@@ -5,7 +5,7 @@
     <v-tab-item v-for="(tab, index) in snippetTabs" :key="tab.label" @click.stop=""> 
         <v-card flat v-if="selectedTab === index" max-width=650px class="scroll">
           <v-card-text>
-            <code class="python-code">{{ tab.content }}</code>
+            <highlightjs :language="tab.language" :code="tab.content"/>
           </v-card-text>
         <v-card-actions v-if="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
             <v-btn type @click="copy(tab.content)">
@@ -44,9 +44,9 @@ export default {
     generateSnippetTabs() {
       // generate the snippet tabs
       const tabs = [
-        {label: "Gemmapy", content: this.queryGemmapy}, 
-        {label: "Gemma.R", content: this.queryGemmaR },
-        {label: "curl", content: this.queryCurl}
+        {label: "Gemmapy", content: this.queryGemmapy, language: "python"}, 
+        {label: "Gemma.R", content: this.queryGemmaR, language: "r" },
+        {label: "curl", content: this.queryCurl, language: "bash"}
       ];
 
       // Modify the content based on the searchSettings prop
@@ -60,7 +60,9 @@ export default {
       if (filter !== undefined && filter.length > 0){ queryGemmapy.push(`filter = '` + filter + `', `) };
       if (queryGemmapy.length > 0) {
         if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', offset = offset, limit = '100'`) };
-        queryGemmapy.unshift(`offset = 0\n` + 
+        queryGemmapy.unshift(`import gemmapy\n` +
+                              `api_instance = gemmapy.GemmaPy()\n` + 
+                              `offset = 0\n` + 
                               `all_datasets = []\n` + 
                               `while True:\n` +
                               `\tapi_response = api_instance.get_datasets_by_ids([],`);
@@ -81,7 +83,9 @@ export default {
       if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter + `', `) };
       if (queryGemmaR.length > 0) {
         if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
-        queryGemmaR.unshift(`data <- get_datasets_by_ids(`);
+        queryGemmaR.unshift(`library(gemma.R)\n` +
+                            `library(dplyr)\n` + 
+                            `data <- get_datasets_by_ids(`);
         queryGemmaR.push(`) %>% \n` +
         `gemma.R:::get_all_pages()`);
       } else {
@@ -144,8 +148,5 @@ export default {
 .scroll {
   overflow-y: scroll;
   max-height: calc(100vh - 100px);
-}
-.python-code {
-  white-space: pre-wrap;
 }
 </style>
