@@ -62,9 +62,9 @@
                 </template>
                 <template v-slot:footer.prepend>
                   <v-spacer/>
-                    <v-menu ref="codeSnippetMenu" location="">
-                      <template v-slot:activator = "{ on }">
-                        <v-btn plain v-on="on">Dataset Download Code
+                    <v-menu ref="codeSnippetMenu">
+                      <template v-slot:activator = "{ on, attrs }">
+                        <v-btn plain v-on="on" v-bind="attrs">Dataset Download Code
                           <v-icon>mdi-chevron-up</v-icon>
                         </v-btn>
                       </template>

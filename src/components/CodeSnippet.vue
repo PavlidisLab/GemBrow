@@ -34,17 +34,6 @@ export default {
   },
   computed: {
     snippetTabs() {
-      return this.generateSnippetTabs();
-    }
-  },
-  watch: {
-    selectedTab() {
-      this.$emit("resize");
-    }
-  },
-  methods: {
-    generateSnippetTabs() {
-      // generate the snippet tabs
       const tabs = [
         {label: "gemmapy", language: "python", instructions: 'Install the gemmapy package from Github and run the following code in a Python console.'}, 
         {label: "gemma.R", language: "r", instructions: `Install the gemma.R package from BioConductor and run the following code in an R console.` },
@@ -134,7 +123,14 @@ export default {
       tabs[3].content = queryHttp;
     
       return tabs;
-    },
+    }
+  },
+  watch: {
+    selectedTab() {
+      this.$emit("resize");
+    }
+  },
+  methods: {
     copy(content) {
         // copy the snippet to the clipboard
         navigator.clipboard.writeText(content);
