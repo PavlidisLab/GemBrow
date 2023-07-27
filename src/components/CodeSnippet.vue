@@ -21,6 +21,8 @@
 
 <script>
 
+import { compressArg } from "@/utils";
+
 export default {
   name: "CodeSnippet",
   props: {
@@ -29,7 +31,8 @@ export default {
   },
   data() {
     return {
-      selectedTab: 0
+      selectedTab: 0,
+      compressedFilter: ''
     };
   },
   computed: {
@@ -92,10 +95,10 @@ export default {
       }
 
       let encodedFilter = '';
-      if (filter.length > 0){ 
-        encodedFilter = '&filter=' + encodeURIComponent(filter);
+      if (filter.length > 0){
+        encodedFilter = '&filter=' + encodeURIComponent(this.compressedFilter);
       }
-      
+
       let encodedSort = ''
       if (sort !== '-lastUpdated'){
         encodedSort = '&sort=' + encodeURIComponent(sort)
@@ -121,11 +124,16 @@ export default {
         queryHttp = "No filters selected.";
       }
       tabs[3].content = queryHttp;
-    
+
       return tabs;
     }
   },
   watch: {
+    'browsingOptions': function(newVal) {
+      compressArg(newVal.filter).then((result) => {
+        this.compressedFilter = result;
+      });
+    },
     selectedTab() {
       this.$emit("resize");
     }
