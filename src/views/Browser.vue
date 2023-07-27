@@ -582,7 +582,6 @@ export default {
         .join(" ");
     },
     repositionCodeSnippetMenu() {
-      console.log("repositioning...", this.$refs.codeSnippetMenu)
       setTimeout(() => this.$refs.codeSnippetMenu.onResize(), 100);
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])

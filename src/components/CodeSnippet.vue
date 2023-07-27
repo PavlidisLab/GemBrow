@@ -3,7 +3,7 @@
     <v-tab v-for="tab in snippetTabs" :key="tab.label" :label="tab.label" @click.stop=""> {{ tab.label }}
     </v-tab>
     <v-tab-item v-for="(tab) in snippetTabs" :key="tab.label" @click.stop=""> 
-        <v-card flat max-width=650px class="scroll">
+        <v-card flat max-width="650px" class="scroll">
           <v-card-title>{{ tab.label }}</v-card-title>
           <v-card-subtitle>{{ tab.instructions }}</v-card-subtitle>
           <v-card-text>
