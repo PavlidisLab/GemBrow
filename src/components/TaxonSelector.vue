@@ -21,7 +21,7 @@
       </template>
       <!-- slot for the dropdown -->
       <template v-slot:item="{ item }">
-        <v-checkbox :value="item.id" v-model="selectedTaxaIds" multiple> 
+        <v-checkbox :value="item.id" v-model="selectedTaxaIds" multiple dense>
           <template v-slot:label>
             <div v-html="labelWithCommonName(item)"></div>
           </template>
