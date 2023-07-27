@@ -103,4 +103,96 @@ export let annotationSelectorOrderArray = [
 'http://www.ebi.ac.uk/efo/EFO_0000246', // age 68
 'http://purl.obolibrary.org/obo/OBI_0000181', // population 37
 'http://www.ebi.ac.uk/efo/EFO_0002571' // medical procedure 4
-]; 
+];
+
+/**
+ * List of ontology sources.
+ *
+ * Use pattern to match a term URI and getExternalUrl() to produce a link to the external ontology browser.
+ */
+export let ontologySources = [
+  {
+    name: "Gemma Ontology",
+    pattern: /http:\/\/gemma\.msl\.ubc\.ca\//,
+    getExternalUrl(uri) {
+      return uri.replace("http://gemma.msl.ubc.ca", baseUrl);
+    }
+  },
+  {
+    name: "Experimental Factor Ontology",
+    pattern: /http:\/\/www\.ebi\.ac\.uk\/efo\/EFO_.+/,
+    getExternalUrl(uri) {
+      return "https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Ontology for Biomedical Investigations",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/OBI_.+/,
+    getExternalUrl(uri) {
+      return "https://ontobee.org/ontology/OBI?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Phenotype And Trait Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/PATO_.+/,
+    getExternalUrl(uri) {
+      return "https://ontobee.org/ontology/PATO?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Cell Line Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CLO_.+/,
+    getExternalUrl(uri) {
+      return "https://ontobee.org/ontology/CLO?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Mondo Disease Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/MONDO_.+/,
+    getExternalUrl(uri) {
+      return "https://www.ebi.ac.uk/ols/ontologies/mondo/terms?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "ChEBI",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CHEBI_.+/,
+    getExternalUrl(uri) {
+      return uri.replace("http://purl.obolibrary.org/obo/CHEBI_", "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:");
+    }
+  },
+  {
+    name: "Human Ancestry Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/HANCESTRO_.+/,
+    getExternalUrl(uri) {
+      return "https://ontobee.org/ontology/HANCESTRO?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "NCBI Gene",
+    pattern: /http:\/\/purl.org\/commons\/record\/ncbi_gene\/.+/,
+    getExternalUrl(uri) {
+      return uri.replace("http://purl.org/commons/record/ncbi_gene/", "https://www.ncbi.nlm.nih.gov/gene/");
+    }
+  },
+  {
+    name: "Uberon",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/UBERON_.+/,
+    getExternalUrl(uri) {
+      return "https://www.ebi.ac.uk/ols/ontologies/uberon/terms?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Cell Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CL_.+/,
+    getExternalUrl(uri) {
+      return "https://www.ebi.ac.uk/ols/ontologies/cl/terms?iri=" + encodeURIComponent(uri);
+    }
+  },
+  {
+    name: "Gene Ontology",
+    pattern: /http:\/\/purl\.obolibrary\.org\/obo\/GO_.+/,
+    getExternalUrl(uri) {
+      return uri.replace("http://purl.obolibrary.org/obo/GO_", "https://amigo.geneontology.org/amigo/term/GO:");
+    }
+  }
+];

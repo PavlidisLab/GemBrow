@@ -24,7 +24,7 @@
 <script>
 import { chain, isEqual, max, sum } from "lodash";
 import { formatDecimal, formatNumber } from "@/utils";
-import { annotationSelectorOrderArray, baseUrl } from "@/config/gemma";
+import { annotationSelectorOrderArray, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 
 /**
@@ -62,81 +62,7 @@ export default {
        * An array of selected values formatted as "categoryId|termId".
        * @type Array
        */
-      selectedValues: this.value.map(term => this.getId(term)),
-      ontologySources: [
-        {
-          pattern: /http:\/\/gemma\.msl\.ubc\.ca\//,
-          getExternalUrl(uri) {
-            return uri.replace("http://gemma.msl.ubc.ca", baseUrl);
-          }
-        },
-        {
-          pattern: /http:\/\/www\.ebi\.ac\.uk\/efo\/EFO_.+/,
-          getExternalUrl(uri) {
-            return "https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/OBI_.+/,
-          getExternalUrl(uri) {
-            return "https://ontobee.org/ontology/OBI?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/PATO_.+/,
-          getExternalUrl(uri) {
-            return "https://ontobee.org/ontology/PATO?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CLO_.+/,
-          getExternalUrl(uri) {
-            return "https://ontobee.org/ontology/CLO?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/MONDO_.+/,
-          getExternalUrl(uri) {
-            return "https://www.ebi.ac.uk/ols/ontologies/mondo/terms?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CHEBI_.+/,
-          getExternalUrl(uri) {
-            return uri.replace("http://purl.obolibrary.org/obo/CHEBI_", "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:");
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/HANCESTRO_.+/,
-          getExternalUrl(uri) {
-            return "https://ontobee.org/ontology/HANCESTRO?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl.org\/commons\/record\/ncbi_gene\/.+/,
-          getExternalUrl(uri) {
-            return uri.replace("http://purl.org/commons/record/ncbi_gene/", "https://www.ncbi.nlm.nih.gov/gene/");
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/UBERON_.+/,
-          getExternalUrl(uri) {
-            return "https://www.ebi.ac.uk/ols/ontologies/uberon/terms?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/CL_.+/,
-          getExternalUrl(uri) {
-            return "https://www.ebi.ac.uk/ols/ontologies/cl/terms?iri=" + encodeURIComponent(uri);
-          }
-        },
-        {
-          pattern: /http:\/\/purl\.obolibrary\.org\/obo\/GO_.+/,
-          getExternalUrl(uri) {
-            return uri.replace("http://purl.obolibrary.org/obo/GO_", "https://amigo.geneontology.org/amigo/term/GO:");
-          }
-        }
-      ]
+      selectedValues: this.value.map(term => this.getId(term))
     };
   },
   emits: ["input", "update:selectedCategories"],
@@ -257,14 +183,14 @@ export default {
      */
     isTermLinkable(item) {
       let uri = this.getUri(item);
-      return uri && this.ontologySources.some(source => source.pattern.test(uri));
+      return uri && ontologySources.some(source => source.pattern.test(uri));
     },
     /**
      * Produce an external link for a term.
      */
     getExternalUrl(item) {
       let uri = this.getUri(item);
-      for (let source of this.ontologySources) {
+      for (let source of ontologySources) {
         if (source.pattern.test(uri)) {
           return source.getExternalUrl(uri);
         }
