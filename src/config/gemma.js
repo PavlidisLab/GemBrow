@@ -58,6 +58,7 @@ export let blacklistedTerms = [
   "http://purl.obolibrary.org/obo/PATO_0002011", // tumorous
   "http://purl.obolibrary.org/obo/PATO_0002104", // inflammatory
   "http://purl.obolibrary.org/obo/PATO_0002353", // activation quality
+  "http://www.ebi.ac.uk/efo/EFO_0001461", // control
   "http://www.ebi.ac.uk/efo/EFO_0000352", // clinical history
   "http://www.ebi.ac.uk/efo/EFO_0000410", // disease staging
   "http://www.ebi.ac.uk/efo/EFO_0000428", // dose
