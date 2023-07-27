@@ -62,13 +62,14 @@
                 </template>
                 <template v-slot:footer.prepend>
                   <v-spacer/>
-                    <v-menu offset-y>
+                    <v-menu ref="codeSnippetMenu" location="">
                       <template v-slot:activator = "{ on }">
                         <v-btn plain v-on="on">Dataset Download Code
                           <v-icon>mdi-chevron-up</v-icon>
                         </v-btn>
                       </template>
-                      <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"/>
+                      <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"
+                        @resize="repositionCodeSnippetMenu()"/>
                     </v-menu>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
@@ -579,6 +580,10 @@ export default {
         .split(" ")
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
+    },
+    repositionCodeSnippetMenu() {
+      console.log("repositioning...", this.$refs.codeSnippetMenu)
+      setTimeout(() => this.$refs.codeSnippetMenu.onResize(), 100);
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
   },

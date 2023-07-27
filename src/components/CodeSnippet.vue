@@ -1,13 +1,15 @@
 <template>
-   <v-tabs v-model="selectedTab">
+   <v-tabs v-model="selectedTab" grow>
     <v-tab v-for="tab in snippetTabs" :key="tab.label" :label="tab.label" @click.stop=""> {{ tab.label }}
     </v-tab>
-    <v-tab-item v-for="(tab, index) in snippetTabs" :key="tab.label" @click.stop=""> 
-        <v-card flat v-if="selectedTab === index" max-width=650px class="scroll">
+    <v-tab-item v-for="(tab) in snippetTabs" :key="tab.label" @click.stop=""> 
+        <v-card flat max-width=650px class="scroll">
+          <v-card-title>{{ tab.label }}</v-card-title>
+          <v-card-subtitle>{{ tab.instructions }}</v-card-subtitle>
           <v-card-text>
             <highlightjs :language="tab.language" :code="tab.content"/>
           </v-card-text>
-        <v-card-actions v-if="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
+        <v-card-actions v-show="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
             <v-btn type @click="copy(tab.content)">
               <v-icon>mdi-clipboard-outline</v-icon>
             </v-btn>
@@ -37,16 +39,17 @@ export default {
   },
   watch: {
     selectedTab() {
-      this.updateSnippet();
+      this.$emit("resize");
     }
   },
   methods: {
     generateSnippetTabs() {
       // generate the snippet tabs
       const tabs = [
-        {label: "Gemmapy", content: this.queryGemmapy, language: "python"}, 
-        {label: "Gemma.R", content: this.queryGemmaR, language: "r" },
-        {label: "curl", content: this.queryCurl, language: "bash"}
+        {label: "gemmapy", language: "python", instructions: 'Install the gemmapy package from Github and run the following code in a Python console.'}, 
+        {label: "gemma.R", language: "r", instructions: `Install the gemma.R package from BioConductor and run the following code in an R console.` },
+        {label: "curl", language: "bash", instructions: `Run the following code in a terminal (limit 100 datasets).`},
+        {label: "HTTP/1.1", language: "http", instructions: `To use with your favourite HTTP client.`}
       ];
 
       // Modify the content based on the searchSettings prop
@@ -119,24 +122,20 @@ export default {
       }
       tabs[2].content = queryCurl;
 
+      // HTTP/1.1 snippet
+      let queryHttp = '';
+      if (query !== undefined || filter.length > 0) {
+        queryHttp = `GET /rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&${encodedSort} HTTP/1.1\n` +
+                    "Host: dev.gemma.msl.ubc.ca\n" +
+                    "Accept: application/json\n";
+      } else {
+        queryHttp = "No filters selected.";
+      }
+      tabs[3].content = queryHttp;
+    
       return tabs;
     },
-    updateSnippet() {
-        // update the snippet based on the language selected
-        let selectedTabLabel = this.snippetTabs[this.selectedTab]?.label;
-        switch (selectedTabLabel) {
-            case "curl":
-                this.snippet = this.queryCurl;
-                break;
-            case "Gemmapy":
-                this.snippet = this.queryGemmapy;
-                break;
-            case "Gemma.R":
-                this.snippet = this.queryGemmaR;
-                break;
-            }
-        },
-        copy(content) {
+    copy(content) {
         // copy the snippet to the clipboard
         navigator.clipboard.writeText(content);
         }
