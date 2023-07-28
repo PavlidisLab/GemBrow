@@ -4,7 +4,6 @@
     </v-tab>
     <v-tab-item v-for="(tab) in snippetTabs" :key="tab.label" @click.stop=""> 
         <v-card flat max-width="650px" class="scroll">
-          <v-card-title>{{ tab.label }}</v-card-title>
           <v-card-subtitle>{{ tab.instructions }}</v-card-subtitle>
           <v-card-text>
             <highlightjs :language="tab.language" :code="tab.content"/>
@@ -27,7 +26,8 @@ export default {
   name: "CodeSnippet",
   props: {
     browsingOptions: Object,
-    searchSettings: Object
+    searchSettings: Object,
+    totalNumberOfExpressionExperiments: Number
   },
   data() {
     return {
@@ -57,18 +57,14 @@ export default {
         if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', offset = offset, limit = '100'`) };
         queryGemmapy.unshift(`import gemmapy\n` +
                               `api_instance = gemmapy.GemmaPy()\n` + 
-                              `offset = 0\n` + 
                               `all_datasets = []\n` + 
-                              `while True:\n` +
+                              `for offset in range(0, ${this.totalNumberOfExpressionExperiments}, 100):\n` +
                               `\tapi_response = api_instance.get_datasets_by_ids([],`);
         queryGemmapy.push(`)\n` +
                               `\tif api_response.data:\n` +
                                 `\t\tall_datasets.extend(api_response.data)\n` +
-                                `\t\toffset += 100\n` +
                               `\telse:\n` +
                                 `\t\tbreak`);
-      } else {
-         queryGemmapy = ["No filters selected."];
       }
       tabs[0].content = queryGemmapy.join("").replace(/\,\s*\)/, ')');
 
@@ -83,48 +79,31 @@ export default {
                             `data <- get_datasets_by_ids(`);
         queryGemmaR.push(`) %>% \n` +
         `gemma.R:::get_all_pages()`);
-      } else {
-         queryGemmaR = ["No filters selected."];
-      }
+      } 
       tabs[1].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
 
       // curl snippet
-      let encodedQuery = '';
+      // USE URLSearchParams to encode here
+      const params = new URLSearchParams();
       if (query !== undefined) {
-        encodedQuery = 'query=' + encodeURIComponent(query);
+        params.append('query', query);
       }
-
-      let encodedFilter = '';
       if (filter.length > 0){
-        encodedFilter = '&filter=' + encodeURIComponent(this.compressedFilter);
+        params.append('filter', this.compressedFilter);
       }
-
-      let encodedSort = ''
-      if (sort !== '-lastUpdated'){
-        encodedSort = '&sort=' + encodeURIComponent(sort)
-      } else {
-        encodedSort = '&sort=' + encodeURIComponent('-lastUpdated')
-      };
-
-      let queryCurl = '';
-      if (query!== undefined || filter.length > 0) {
-        queryCurl = `curl -X 'GET' --compressed 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&${encodedSort}' -H 'accept: application/json'` // remove dev before deployment
-      } else {
-        queryCurl = "No filters selected.";
+      if (sort > 0){
+        params.append('sort', sort);
       }
+      const queryString = params.toString();
+      const baseURL = 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets'; // remove dev before deployment
+
+      const queryCurl = `curl -X 'GET' --compressed '${baseURL}?${queryString}&offset=0' -H 'accept: application/json'`; 
       tabs[2].content = queryCurl;
 
       // HTTP/1.1 snippet
-      let queryHttp = '';
-      if (query !== undefined || filter.length > 0) {
-        queryHttp = `GET /rest/v2/datasets?${encodedQuery}${encodedFilter}&offset=0&${encodedSort} HTTP/1.1\n` +
-                    "Host: dev.gemma.msl.ubc.ca\n" +
-                    "Accept: application/json\n";
-      } else {
-        queryHttp = "No filters selected.";
-      }
+      const queryHttp = `GET ${baseURL}?${queryString} HTTP/1.1\nHost: dev.gemma.msl.ubc.ca\nAccept: application/json`;
       tabs[3].content = queryHttp;
-
+      
       return tabs;
     }
   },

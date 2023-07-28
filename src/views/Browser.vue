@@ -62,14 +62,16 @@
                 </template>
                 <template v-slot:footer.prepend>
                   <v-spacer/>
-                    <v-menu ref="codeSnippetMenu">
+                    <v-menu v-if="browsingOptions.filter !== '' || searchSettings.query !== ''" ref="codeSnippetMenu">
                       <template v-slot:activator = "{ on, attrs }">
                         <v-btn plain v-on="on" v-bind="attrs">Dataset Download Code
                           <v-icon>mdi-chevron-up</v-icon>
                         </v-btn>
                       </template>
-                      <CodeSnippet :browsing-options="browsingOptions" :search-settings="searchSettings"
-                        @resize="repositionCodeSnippetMenu()"/>
+                      <CodeSnippet :browsing-options="browsingOptions" 
+                                   :search-settings="searchSettings" 
+                                   :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                                   @resize="repositionCodeSnippetMenu()"/>
                     </v-menu>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
