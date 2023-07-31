@@ -2,7 +2,7 @@
   <v-treeview
           :items="treeItems"
           item-key="id"
-          v-model="selectedTaxa"
+          v-model="selectedTaxaIds"
           multiple
           selectable
           dense
@@ -37,7 +37,7 @@ data() {
      * Holds the currently selected taxon.
      * This holds the initial taxon value, which must be one of the provided taxa.
      */
-     selectedTaxa: this.value || []
+     selectedTaxaIds: this.value && this.value.map(t => t.id) || []
   };
 },
 computed: {
@@ -71,10 +71,12 @@ computed: {
       };
 
       items[0].children.push(taxonItem);
-      console.log(taxonItem)
-      console.log(items.taxon)
     }
     return items;
+  },
+  selectedTaxa() {
+    if(!this.selectedTaxaIds) return [];
+    return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
   }
 },
 methods: {
