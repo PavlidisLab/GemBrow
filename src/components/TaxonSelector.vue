@@ -98,6 +98,10 @@ watch: {
 </script>
 
 <style>
+button.v-treeview-node__toggle + button.v-treeview-node__checkbox {
+display: none !important;
+}
+
 .v-treeview {
     max-width: 100%;
 }
