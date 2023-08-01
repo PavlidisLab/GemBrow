@@ -3,14 +3,19 @@
           :items="treeItems"
           item-key="id"
           v-model="selectedTaxaIds"
-          multiple
           selectable
           dense
           :disabled="disabled"
           class="hide-root-checkboxes"
   >
+
   <template v-slot:label="{ item }">
-    <span v-text="item.label" class="text-capitalize text-truncate"> </span>
+      <span v-text="item.label" class="text-capitalize text-truncate"> </span>
+      <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
+            <v-btn @click="clearSelections" color="primary" text :right="true" :absolute="true">
+          Clear Selection
+              </v-btn>
+        </span>
   </template>
   <template v-slot:append="{ item }">
     <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
@@ -87,6 +92,9 @@ methods: {
     },
   numberOfExperimentsLabel(item) {
         return item.numberOfExpressionExperiments;
+  },
+  clearSelections() {
+      this.selectedTaxaIds = [];
   }
 },
 watch: {
@@ -111,4 +119,5 @@ display: none !important;
     max-height: 300px;
     overflow-y: auto;
 }
+
 </style>
