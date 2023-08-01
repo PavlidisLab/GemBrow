@@ -8,14 +8,13 @@
           :disabled="disabled"
           class="hide-root-checkboxes"
   >
-
   <template v-slot:label="{ item }">
-      <span v-text="item.label" class="text-capitalize text-truncate"> </span>
+      <span v-text="item.label" class="text-truncate"> </span>
   </template>
   <template v-slot:append="{ item }">
     <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
     <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
-            <v-btn @click="clearSelections" color="primary" small>
+            <v-btn @click="clearSelections" small text color="primary">
           Clear Selection
               </v-btn>
       </span>
@@ -88,7 +87,7 @@ computed: {
 methods: {
   formatNumber,
   labelWithCommonName(item) {
-        return `${item.scientificName} (${item.commonName})`;
+        return `${item.scientificName} (${item.commonName.charAt(0).toUpperCase() + item.commonName.slice(1)})`;
     },
   numberOfExperimentsLabel(item) {
         return item.numberOfExpressionExperiments;
