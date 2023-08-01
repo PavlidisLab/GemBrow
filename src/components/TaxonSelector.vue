@@ -7,6 +7,7 @@
           selectable
           dense
           :disabled="disabled"
+          class="hide-root-checkboxes"
   >
   <template v-slot:label="{ item }">
     <span v-text="item.label" class="text-capitalize text-truncate"> </span>
@@ -97,16 +98,16 @@ watch: {
 
 </script>
 
-<style>
-button.v-treeview-node__toggle + button.v-treeview-node__checkbox {
+<style scoped>
+.hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
 display: none !important;
 }
 
-.v-treeview {
+.hide-root-checkboxes >>> .v-treeview {
     max-width: 100%;
 }
 
-.v-treeview-node__children {
+.hide-root-checkboxes >>> .v-treeview-node__children {
     max-height: 300px;
     overflow-y: auto;
 }
