@@ -11,9 +11,21 @@
         <div v-show=true style="align-self: center; padding-left: 15px;">
             {{ title }}
         </div>
-        <div v-show=true style="align-self: center; padding-left: 15px;">
-            {{ filterSummary }}
-        </div>
+        <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
+          <template v-slot:activator= "{ on, attrs }">
+            <v-btn plain v-bind="attrs" v-on="on"> {{ filterSummary }}
+              <v-icon>mdi-chevron-down</v-icon>
+            </v-btn>
+          </template>
+          <v-card flat max-width="650px" class="scroll"> 
+            <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
+              <v-card-text>
+                <div v-for="line, index in filterDescription.split('\n')" :key="index">
+                  {{ line }}
+                </div>
+              </v-card-text>
+          </v-card>
+        </v-menu>
         <v-spacer/>
         <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details/>
         <v-menu open-on-hover offset-y>
@@ -160,6 +172,7 @@ export default {
       debug: state => state.debug,
       title: state => state.title,
       filterSummary: state => state.filterSummary,
+      filterDescription: state => state.filterDescription,
       myself(state) {
         if (state.api.myself === undefined) {
           return null;

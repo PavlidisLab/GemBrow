@@ -349,24 +349,70 @@ export default {
         filters.push('query');
       }
       if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
-        console.log(this.searchSettings.taxon.length)
-        filters.push('taxon');
+        filters.push('taxa');
       }
       if (this.searchSettings.platforms.length > 0) {
-        filters.push('platform');
+        filters.push('platforms');
       }
       if (this.searchSettings.technologyTypes.length > 0) {
-        filters.push('technology');
+        filters.push('technologies');
       }
       if (this.searchSettings.annotations.length > 0) {
-        filters.push('annotation');
+        filters.push('annotations');
       }
       if (filters.length > 0){
         return "Filters applied: " + filters.join(", ");
       } else {
         return "";
       }
-      console.log(filters);
+    },
+    filterDescription() {
+      const filter = [];
+      if (this.searchSettings.query) {
+        filter.push({key: "Query", value: ` "${this.searchSettings.query}"` });
+      }
+      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
+        const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
+        filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
+      }
+      if (this.searchSettings.platforms.length > 0) {
+        const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
+        filter.push({ key: "Platforms", value: platformValues});
+      }
+      if (this.searchSettings.technologyTypes.length > 0) {
+        filter.push({ key: "Technologies", value: this.searchSettings.technologyTypes});
+      }
+      if (this.searchSettings.annotations.length > 0) {
+        const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
+          const { className, termName } = annotation;
+          if (!acc[className]) {
+            acc[className] = [termName];
+          } else {
+            acc[className].push(termName);
+          }
+          return acc;
+        }, {});
+        for (const className in annotationGroups) {
+          filter.push({ key: className, value: annotationGroups[className] });
+        }
+      }
+      if (filter.length > 0){
+        const description = filter.map(filter => {
+          const { key, value } = filter;
+          const capitalizedKey = this.capitalizeFirstLetter(key);
+   
+          if (Array.isArray(value)) {
+            const capitalizedValues = value.map(this.capitalizeFirstLetter);
+            return `${capitalizedKey}= ${capitalizedValues.join(" OR ")}`;
+          } else {
+            const capitalizedValue = this.capitalizeFirstLetter(value);
+            return `${capitalizedKey}= ${capitalizedValue}`;
+          }
+          }).join("\n AND \n");
+        return description
+      } else {
+        return "";
+      }
     }
   },
   methods: {
@@ -464,6 +510,12 @@ export default {
       } else {
         return item.name;
       }
+    },
+    capitalizeFirstLetter(str) {
+      return str
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
     }
   },
   created() {
@@ -489,8 +541,11 @@ export default {
       }
     },
     filterSummary: function(newVal) {
-    this.$store.commit("setFilterSummary", newVal);
-  },
+      this.$store.commit("setFilterSummary", newVal);
+    },
+    filterDescription: function(newVal) {
+      this.$store.commit("setFilterDescription", newVal);
+    },
     "browsingOptions": function(newVal, oldVal) {
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
