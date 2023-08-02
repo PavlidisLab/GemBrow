@@ -1,36 +1,30 @@
 <template>
-  <v-select
-          :items="rankedTaxa"
-          item-value="id"
-          item-text="labelWithCommonName"
+  <v-treeview
+          :items="treeItems"
+          item-key="id"
           v-model="selectedTaxaIds"
-          multiple
-          clearable
-          label="Taxa"
+          selectable
+          dense
           :disabled="disabled"
-          v-if="rankedTaxa.length > 0"
-          ref="taxonSelector"
+          class="hide-root-checkboxes"
   >
-      <!-- slot for the selected element -->
-      <template v-slot:selection="data">
-          <div class="input-group__selections__comma">
-              {{ data.item.scientificName }}&nbsp;<span v-if="data.item.commonName">({{
-                  data.item.commonName
-              }})</span>
-          </div>
-      </template>
-      <!-- slot for the dropdown -->
-      <template v-slot:item="{ item }">
-        <v-checkbox :value="item.id" v-model="selectedTaxaIds" multiple dense>
-          <template v-slot:label>
-            <div v-html="labelWithCommonName(item)"></div>
-          </template>
-        </v-checkbox>
-      </template>
-  </v-select>
+  <template v-slot:label="{ item }">
+      <span v-text="item.label" class="text-truncate"> </span>
+  </template>
+  <template v-slot:append="{ item }">
+    <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
+    <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
+            <v-btn @click="clearSelections" small text color="primary">
+          Clear Selection
+              </v-btn>
+      </span>
+  </template>
+  </v-treeview>
 </template>
 
 <script>
+import { formatNumber } from "@/utils";
+
 export default {
 name: "TaxonSelector",
 props: {
@@ -49,7 +43,6 @@ data() {
      * This holds the initial taxon value, which must be one of the provided taxa.
      */
      selectedTaxaIds: this.value && this.value.map(t => t.id) || []
-
   };
 },
 computed: {
@@ -60,36 +53,70 @@ computed: {
     });
     return sortedTaxa;
   },
-  selectedTaxa() {
-    if (!this.selectedTaxaIds) return []; // Handle null or undefined case
-    return this.taxon.filter(t => this.selectedTaxaIds.includes(t.id));
+  treeItems() {
+    const items = [
+      {
+        id: "taxon",
+        label: "Taxa",
+        type: "parent",
+        children: []
+      }
+    ];
+
+    for (const taxon of this.rankedTaxa) {
+      const isSelected = this.selectedTaxa.some((t) => t.id === taxon.id);
+
+      const taxonItem = {
+        ...taxon,
+        id: taxon.id,
+        label: this.labelWithCommonName(taxon),
+        type: "taxon",
+        number: this.numberOfExperimentsLabel(taxon),
+        selected: isSelected
+      };
+
+      items[0].children.push(taxonItem);
+    }
+    return items;
   },
-  isTaxonSelectorMenuActive() {
-    return this.$refs.taxonSelector?.isMenuActive || false;
+  selectedTaxa() {
+    if(!this.selectedTaxaIds) return [];
+    return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
   }
 },
 methods: {
+  formatNumber,
   labelWithCommonName(item) {
-        return `${item.scientificName} (${item.commonName})
-          <br>
-          <span style="font-size: 12px">${item.numberOfExpressionExperiments} Experiments</span>
-        `;
-    }
+        return `${item.scientificName} (${item.commonName.charAt(0).toUpperCase() + item.commonName.slice(1)})`;
+    },
+  numberOfExperimentsLabel(item) {
+        return item.numberOfExpressionExperiments;
+  },
+  clearSelections() {
+      this.selectedTaxaIds = [];
+  }
 },
-mounted() {
-  this.$watch('isTaxonSelectorMenuActive', function(newVal){
-    if(!newVal) {
-      this.$emit("input", this.selectedTaxa);
-    }
-  });
-  this.$watch('selectedTaxa', function(newVal) {
-    if(!this.isTaxonSelectorMenuActive) {
-      this.$emit("input", newVal);
-    }
-  });
-}
+watch: {
+    selectedTaxa(newVal) {
+        this.$emit("input", newVal);
+      }
+  }
 };
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
+display: none !important;
+}
+
+.hide-root-checkboxes >>> .v-treeview {
+    max-width: 100%;
+}
+
+.hide-root-checkboxes >>> .v-treeview-node__children {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+</style>

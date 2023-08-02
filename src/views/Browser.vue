@@ -178,7 +178,6 @@ export default {
         ]);
       }
       if (this.searchSettings.taxon?.length > 0) {
-        console.log(this.searchSettings.taxon);
         filter.push(["taxon.id in (" + this.searchSettings.taxon.map(t => t.id).join(",") + ")"]);
       }
       if (this.searchSettings.technologyTypes.length > 0) {
