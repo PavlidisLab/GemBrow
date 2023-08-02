@@ -200,4 +200,9 @@ export default {
 .v-list-item--link {
     font-weight: normal;
 }
+
+.scroll {
+  overflow-y: scroll;
+  max-height: calc(100vh - 100px);
+}
 </style>
