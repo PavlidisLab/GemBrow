@@ -408,7 +408,7 @@ export default {
             const capitalizedValue = this.capitalizeFirstLetter(value);
             return `${capitalizedKey}= ${capitalizedValue}`;
           }
-          }).join("<br> AND <br>");
+          }).join("\n AND \n");
         return description
       } else {
         return "";

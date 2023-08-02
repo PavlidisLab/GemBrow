@@ -11,16 +11,18 @@
         <div v-show=true style="align-self: center; padding-left: 15px;">
             {{ title }}
         </div>
-        <v-menu v-if="filterSummary" style="align-self: center; padding-left: 15px;" offset-y>
-          <template v-slot:activator = "{ on, attrs}">
+        <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
+          <template v-slot:activator= "{ on, attrs }">
             <v-btn plain v-bind="attrs" v-on="on"> {{ filterSummary }}
               <v-icon>mdi-chevron-down</v-icon>
             </v-btn>
           </template>
           <v-card flat max-width="650px" class="scroll"> 
             <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
-              <v-card-text> 
-                <div v-html="filterDescription"></div>
+              <v-card-text>
+                <div v-for="line, index in filterDescription.split('\n')" :key="index">
+                  {{ line }}
+                </div>
               </v-card-text>
           </v-card>
         </v-menu>
