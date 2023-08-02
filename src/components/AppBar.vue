@@ -19,7 +19,9 @@
           </template>
           <v-card flat max-width="650px" class="scroll"> 
             <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
-            <v-card-text> {{ filterDescription }}</v-card-text>
+              <v-card-text> 
+                <div v-html="filterDescription"></div>
+              </v-card-text>
           </v-card>
         </v-menu>
         <v-spacer/>

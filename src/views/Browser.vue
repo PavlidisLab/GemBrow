@@ -369,7 +369,7 @@ export default {
     filterDescription() {
       const filter = [];
       if (this.searchSettings.query) {
-        filter.push({key: "query", value: this.searchSettings.query });
+        filter.push({key: "query", value: ` "${this.searchSettings.query}"` });
       }
       if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
         const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
@@ -400,11 +400,11 @@ export default {
         const description = filter.map(filter => {
           const { key, value } = filter;
           if (Array.isArray(value)) {
-            return `${key}: ${value.join(" OR ")}`;
+            return `${key}: (${value.join(") OR (")})`;
           } else {
             return `${key}: ${value}`;
           }
-          }).join(" AND ");
+          }).join("<br> AND <br>");
         return description
       } else {
         return "";
