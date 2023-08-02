@@ -27,7 +27,7 @@
           </v-card>
         </v-menu>
         <v-spacer/>
-        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details/>
+        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details class="px-4"/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
                 <v-btn plain v-bind="attrs" v-on="on">
@@ -169,7 +169,6 @@ export default {
   },
   computed: {
     ...mapState({
-      debug: state => state.debug,
       title: state => state.title,
       filterSummary: state => state.filterSummary,
       filterDescription: state => state.filterDescription,

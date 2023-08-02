@@ -18,8 +18,8 @@ export function downloadAs(data, filename) {
 }
 
 const numberFormat = new Intl.NumberFormat();
-const percentFormatter = Intl.NumberFormat(undefined, { style: "percent" });
-const decimalFormatter = Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent" });
+const decimalFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
 export function formatNumber(n) {
   return numberFormat.format(n);
@@ -62,4 +62,13 @@ export function compressArg(f) {
       return f;
     }
   });
+}
+
+/**
+ *
+ * @param filter
+ * @returns {Promise<String>}
+ */
+export function compressFilter(filter) {
+  return compressArg(filter.map(a => a.join(" or ")).join(" and "));
 }

@@ -9,6 +9,7 @@
 import "vuetify/dist/vuetify.css";
 import "material-icons";
 import AppBar from "@/components/AppBar.vue";
+import { mapMutations } from "vuex";
 
 function renderError(err) {
   return {
@@ -23,8 +24,9 @@ function renderError(err) {
 
 export default {
   components: { AppBar },
-  errorCaptured(err, vm, info) {
-    this.$store.commit("setLastError", renderError(err));
+  methods: mapMutations(["setLastError"]),
+  errorCaptured(err) {
+    this.setLastError(renderError(err));
   }
 };
 </script>

@@ -11,6 +11,7 @@
 export function Taxon(commonName, scientificName) {
   this.commonName = commonName;
   this.scientificName = scientificName;
+  this.numberOfExpressionExperiments = 0;
 }
 
 /**
@@ -71,10 +72,10 @@ export function SearchSettings(query, resultTypes) {
   this.platforms = [];
   this.taxon = null;
   this.quality = [0, 3];
-  this.technologyTypes = [];
+  this.technologyType = null;
   this.annotations = [];
   this.categories = [];
-  this.includeBlacklistedTerms = false;
+  this.ignoreExcludedTerms = false;
 }
 
 export const ExpressionExperimentType = "ubic.gemma.model.expression.experiment.ExpressionExperiment";
