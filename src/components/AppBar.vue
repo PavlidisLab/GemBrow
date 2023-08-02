@@ -19,7 +19,7 @@
           </template>
           <v-card flat max-width="650px" class="scroll"> 
             <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
-            <v-card-text>TEXT TEXT QUERY QUERY FILTER TEXT</v-card-text>
+            <v-card-text> {{ filterDescription }}</v-card-text>
           </v-card>
         </v-menu>
         <v-spacer/>
@@ -168,6 +168,7 @@ export default {
       debug: state => state.debug,
       title: state => state.title,
       filterSummary: state => state.filterSummary,
+      filterDescription: state => state.filterDescription,
       myself(state) {
         if (state.api.myself === undefined) {
           return null;

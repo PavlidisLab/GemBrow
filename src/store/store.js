@@ -12,7 +12,7 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { title: null, filterSummary: null, debug: debug, lastError: null };
+    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null };
   },
   mutations: {
     setDebug(state, newVal) {
@@ -23,6 +23,9 @@ export default new Vuex.Store({
     },
     setFilterSummary(state, newVal) {
       state.filterSummary = newVal;
+    },
+    setFilterDescription(state, newVal) {
+      state.filterDescription = newVal;
     },
     setLastError(state, newVal) {
       state.lastError = newVal;
@@ -37,6 +40,7 @@ export default new Vuex.Store({
         delete stateFilter.api["error"];
         delete stateFilter["title"];
         delete stateFilter["filterSummary"]
+        delete stateFilter["filterDescription"]
         delete stateFilter["lastError"];
         return stateFilter;
       }

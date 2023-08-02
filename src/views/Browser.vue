@@ -349,8 +349,7 @@ export default {
         filters.push('query');
       }
       if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
-        console.log(this.searchSettings.taxon.length)
-        filters.push('taxon');
+        filters.push('taxa');
       }
       if (this.searchSettings.platforms.length > 0) {
         filters.push('platform');
@@ -366,7 +365,50 @@ export default {
       } else {
         return "";
       }
-      console.log(filters);
+    },
+    filterDescription() {
+      const filter = [];
+      if (this.searchSettings.query) {
+        filter.push({key: "query", value: this.searchSettings.query });
+      }
+      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
+        const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
+        filter.push({ key: "taxa", value: taxaValues });
+      }
+      if (this.searchSettings.platforms.length > 0) {
+        const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
+        filter.push({ key: "platforms", value: platformValues});
+      }
+      if (this.searchSettings.technologyTypes.length > 0) {
+        filter.push({ key: "technologies", value: this.searchSettings.technologyTypes});
+      }
+      if (this.searchSettings.annotations.length > 0) {
+        const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
+          const { className, termName } = annotation;
+          if (!acc[className]) {
+            acc[className] = [termName];
+          } else {
+            acc[className].push(termName);
+          }
+          return acc;
+        }, {});
+        for (const className in annotationGroups) {
+          filter.push({ key: className, value: annotationGroups[className] });
+        }
+      }
+      if (filter.length > 0){
+        const description = filter.map(filter => {
+          const { key, value } = filter;
+          if (Array.isArray(value)) {
+            return `${key}: ${value.join(" OR ")}`;
+          } else {
+            return `${key}: ${value}`;
+          }
+          }).join(" AND ");
+        return description
+      } else {
+        return "";
+      }
     }
   },
   methods: {
@@ -489,8 +531,11 @@ export default {
       }
     },
     filterSummary: function(newVal) {
-    this.$store.commit("setFilterSummary", newVal);
-  },
+      this.$store.commit("setFilterSummary", newVal);
+    },
+    filterDescription: function(newVal) {
+      this.$store.commit("setFilterDescription", newVal);
+    },
     "browsingOptions": function(newVal, oldVal) {
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || oldVal.filter !== newVal.filter || oldVal.includeBlacklistedTerms !== newVal.includeBlacklistedTerms)) {
