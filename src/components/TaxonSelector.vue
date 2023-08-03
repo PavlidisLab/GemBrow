@@ -14,7 +14,7 @@
         <template v-slot:append="{ item }">
             <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
             <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
-            <v-btn @click="clearSelections" small text color="primary">
+            <v-btn @click="clearSelections" small text color="primary" :disabled="disabled">
           Clear Selection
               </v-btn>
       </span>

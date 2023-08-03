@@ -5,7 +5,7 @@
                 Annotations
             </div>
             <v-spacer></v-spacer>
-            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary">
+            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary" :disabled="disabled">
                 Clear Selection
             </v-btn>
         </div>
