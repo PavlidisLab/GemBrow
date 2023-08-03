@@ -24,15 +24,11 @@
                 v-model="searchSettings.taxon"
                 :taxon="taxon"
                 :disabled="taxonDisabled"/>
-        <PlatformSelector
+        <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="searchSettings.platforms"
-                :selectedTechnologyType.sync="searchSettings.technologyType"
                 :platforms="platforms"
-                :technology-types="technologyTypes"
-                :disabled="platformDisabled"/>
-        <TechnologyTypeSelector
-                :platforms="platforms"
+                :selected-technology-types.sync="searchSettings.technologyTypes"
                 :disabled="platformDisabled"/>
         <v-range-slider
                 v-model="searchSettings.quality"
@@ -69,10 +65,9 @@ import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/model
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
 import { mapState } from "vuex";
 import TechnologyTypeSelector from "@/components/TechnologyTypeSelector.vue";
-import PlatformSelector from "@/components/PlatformSelector.vue";
 
 export default {
-  components: { PlatformSelector, TechnologyTypeSelector, AnnotationSelector, TaxonSelector },
+  components: { TechnologyTypeSelector, AnnotationSelector, TaxonSelector },
   props: {
     value: {
       type: SearchSettings,
