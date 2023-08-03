@@ -15,7 +15,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
-import { compressArg, downloadAs, formatNumber } from "@/utils";
+import { compressFilter, downloadAs, formatNumber } from "@/utils";
 import axios from "axios";
 
 const termsAndConditionsHeader = [
@@ -59,7 +59,7 @@ export default {
       let taxon = this.searchSettings.taxon?.scientificName;
       let platforms = this.searchSettings.platforms.map(p => p.name);
       let browsingOptionsFilter = this.browsingOptions.filter;
-      if (browsingOptionsFilter) {
+      if (browsingOptionsFilter.length > 0) {
         let browsingOptionsFilterReadable = [];
         if (annotationByCategoryId !== "" && annotationByCategoryId !== undefined) {
           browsingOptionsFilterReadable.push("Annotation: " + annotationByCategoryId + ".");
@@ -89,7 +89,7 @@ export default {
       let total = this.total = this.totalNumberOfExpressionExperiments;
       let readableFilter = this.readableFilter();
       let readableQuery = this.readableQuery();
-      return compressArg(filter).then(compressedFilter => {
+      return compressFilter(filter).then(compressedFilter => {
         let controller = this.controller = new AbortController();
         let progress_ = 0;
         this.$emit("update:progress", progress_);

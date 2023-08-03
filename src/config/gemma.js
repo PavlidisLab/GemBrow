@@ -33,12 +33,12 @@ marked.use({
 export { marked };
 
 /**
- * Blacklisted categories and terms.
+ * Excluded categories and terms.
  *
  * Inference is applied in the backend to include all the subclasses of the following terms. Thus, one must be careful
  * to not put a term that is too general.
  */
-export let blacklistedTerms = [
+export let excludedTerms = [
   "http://gemma.msl.ubc.ca/ont/TGEMO_00001", // homozygous negative
   "http://gemma.msl.ubc.ca/ont/TGEMO_00003", // heterozygous
   "http://gemma.msl.ubc.ca/ont/TGEMO_00004", // overexpression

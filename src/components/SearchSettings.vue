@@ -27,8 +27,12 @@
         <PlatformSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="searchSettings.platforms"
+                :selectedTechnologyType.sync="searchSettings.technologyType"
                 :platforms="platforms"
                 :technology-types="technologyTypes"
+                :disabled="platformDisabled"/>
+        <TechnologyTypeSelector
+                :platforms="platforms"
                 :disabled="platformDisabled"/>
         <v-range-slider
                 v-model="searchSettings.quality"
@@ -37,32 +41,38 @@
                 :tick-labels="['trash', 'low', 'mid', 'high']"
                 label="Quality" title="Filter based on GEEQ scores or curation status"
                 v-show="false"/>
-        <p class="text--secondary">
-            Annotations
-        </p>
-        <v-progress-linear :active="annotationLoading" indeterminate/>
         <AnnotationSelector
                 v-model="searchSettings.annotations"
                 :annotations="annotations"
+                :loading="annotationLoading"
                 :disabled="annotationDisabled"
                 :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                :selectedCategories.sync="searchSettings.categories" style="margin-bottom: 48px;"/>
-        <v-switch v-if="debug" v-model="searchSettings.includeBlacklistedTerms"
-                    label="Include Blacklisted Terms (dev only)"
-                    style="position: fixed; bottom: 0; background: white; width: 100%;"
-                    hide-details class="py-3"/>
+                :selectedCategories.sync="searchSettings.categories"/>
+        <p v-show="annotations.length === 0">
+            No annotations available
+        </p>
+        <div v-if="debug" style="margin-bottom: 59px;"></div>
+        <div v-if="debug" class="d-flex align-center"
+             style="position: fixed; left: 0; bottom: 0; background: white; height: 59px; width: 100%; border-top: thin solid rgba(0, 0, 0, 0.12); padding: 0 8px;"
+        >
+            <v-switch v-model="searchSettings.ignoreExcludedTerms"
+                      label="Ignore Excluded Terms (dev only)"
+                      hide-details
+                      class="mt-0"/>
+        </div>
     </v-form>
 </template>
 
 <script>
 import TaxonSelector from "@/components/TaxonSelector";
-import PlatformSelector from "@/components/PlatformSelector.vue";
 import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/models";
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
 import { mapState } from "vuex";
+import TechnologyTypeSelector from "@/components/TechnologyTypeSelector.vue";
+import PlatformSelector from "@/components/PlatformSelector.vue";
 
 export default {
-  components: { AnnotationSelector, TaxonSelector, PlatformSelector },
+  components: { PlatformSelector, TechnologyTypeSelector, AnnotationSelector, TaxonSelector },
   props: {
     value: {
       type: SearchSettings,

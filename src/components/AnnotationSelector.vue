@@ -1,26 +1,38 @@
 <template>
-    <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
-                selectable
-                dense
-                class="hide-root-checkboxes"
-                >
-        <template v-slot:label="{item}">
-            <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
-            <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"/>
-            <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
-                                                       class="mdi mdi-open-in-new"></a></span>
-            <div v-if="debug && getUri(item)">
-                <small>{{ getUri(item) }}</small>
+    <div>
+        <div class="d-flex align-baseline">
+            <div class="text--secondary">
+                Annotations
             </div>
-        </template>
-        <template v-slot:append="{item}">
+            <v-spacer></v-spacer>
+            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary">
+                Clear Selection
+            </v-btn>
+        </div>
+        <v-progress-linear :active="loading" indeterminate/>
+        <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
+                    selectable
+                    dense
+                    class="hide-root-checkboxes"
+        >
+            <template v-slot:label="{item}">
+                <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
+                <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"/>
+                <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
+                                                           class="mdi mdi-open-in-new"></a></span>
+                <div v-if="debug && getUri(item)">
+                    <small>{{ getUri(item) }}</small>
+                </div>
+            </template>
+            <template v-slot:append="{item}">
             <span v-if="!item.isCategory"
                   :title="debug ? 'Entropy: ' + formatDecimal(entropy(item)) : undefined"
             >
                 {{ formatNumber(item.numberOfExpressionExperiments) }}
             </span>
-        </template>
-    </v-treeview>
+            </template>
+        </v-treeview>
+    </div>
 </template>
 
 <script>
@@ -48,6 +60,7 @@ export default {
      * Annotations to be displayed in this selector.
      */
     annotations: Array,
+    loading: Boolean,
     /**
      * If true, the checkboxes in the tree view are disabled.
      */

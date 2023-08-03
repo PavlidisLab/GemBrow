@@ -1,105 +1,101 @@
 <template>
-  <v-treeview
-          :items="treeItems"
-          item-key="id"
-          v-model="selectedTaxaIds"
-          selectable
-          dense
-          :disabled="disabled"
-          class="hide-root-checkboxes"
-  >
-  <template v-slot:label="{ item }">
-      <span v-text="item.label" class="text-truncate"> </span>
-  </template>
-  <template v-slot:append="{ item }">
-    <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
-    <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
+    <v-treeview
+            :items="treeItems"
+            item-key="id"
+            v-model="selectedTaxaIds"
+            selectable
+            dense
+            :disabled="disabled"
+            class="hide-root-checkboxes"
+    >
+        <template v-slot:label="{ item }">
+            <span v-text="item.label" class="text-truncate"> </span>
+        </template>
+        <template v-slot:append="{ item }">
+            <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
+            <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
             <v-btn @click="clearSelections" small text color="primary">
           Clear Selection
               </v-btn>
       </span>
-  </template>
-  </v-treeview>
+        </template>
+    </v-treeview>
 </template>
 
 <script>
 import { formatNumber } from "@/utils";
 
 export default {
-name: "TaxonSelector",
-props: {
-  value: Array,
-  /**
-   * A list of available taxa.
-   */
-  taxon: Array,
-  disabled: Boolean
-},
-emits: ["input"],
-data() {
-  return {
+  name: "TaxonSelector",
+  props: {
     /**
-     * Holds the currently selected taxon.
-     * This holds the initial taxon value, which must be one of the provided taxa.
+     * A list of available taxa.
      */
-     selectedTaxaIds: this.value && this.value.map(t => t.id) || []
-  };
-},
-computed: {
-  rankedTaxa() {
-    let sortedTaxa = [...this.taxon];
-    sortedTaxa.sort(function(a, b) {
-      return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
-    });
-    return sortedTaxa;
+    value: Array,
+    taxon: Array,
+    disabled: Boolean
   },
-  treeItems() {
-    const items = [
-      {
-        id: "taxon",
-        label: "Taxa",
-        type: "parent",
-        children: []
-      }
-    ];
-
-    for (const taxon of this.rankedTaxa) {
-      const isSelected = this.selectedTaxa.some((t) => t.id === taxon.id);
-
-      const taxonItem = {
-        ...taxon,
-        id: taxon.id,
-        label: this.labelWithCommonName(taxon),
-        type: "taxon",
-        number: this.numberOfExperimentsLabel(taxon),
-        selected: isSelected
-      };
-
-      items[0].children.push(taxonItem);
-    }
-    return items;
+  emits: ["input"],
+  data() {
+    return {
+      selectedTaxaIds: this.value && this.value.map(t => t.id) || []
+    };
   },
-  selectedTaxa() {
-    if(!this.selectedTaxaIds) return [];
-    return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
-  }
-},
-methods: {
-  formatNumber,
-  labelWithCommonName(item) {
-        return `${item.scientificName} (${item.commonName.charAt(0).toUpperCase() + item.commonName.slice(1)})`;
+  computed: {
+    rankedTaxa() {
+      let sortedTaxa = [...this.taxon];
+      sortedTaxa.sort(function(a, b) {
+        return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+      });
+      return sortedTaxa;
     },
-  numberOfExperimentsLabel(item) {
-        return item.numberOfExpressionExperiments;
-  },
-  clearSelections() {
-      this.selectedTaxaIds = [];
-  }
-},
-watch: {
-    selectedTaxa(newVal) {
-        this.$emit("input", newVal);
+    treeItems() {
+      const items = [
+        {
+          id: "taxon",
+          label: "Taxa",
+          type: "parent",
+          children: []
+        }
+      ];
+
+      for (const taxon of this.rankedTaxa) {
+        const isSelected = this.selectedTaxa.some((t) => t.id === taxon.id);
+
+        const taxonItem = {
+          ...taxon,
+          id: taxon.id,
+          label: this.labelWithCommonName(taxon),
+          type: "taxon",
+          number: this.numberOfExperimentsLabel(taxon),
+          selected: isSelected
+        };
+
+        items[0].children.push(taxonItem);
       }
+      return items;
+    },
+    selectedTaxa() {
+      if (!this.selectedTaxaIds) return [];
+      return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
+    }
+  },
+  methods: {
+    formatNumber,
+    labelWithCommonName(item) {
+      return `${item.scientificName} (${item.commonName.charAt(0).toUpperCase() + item.commonName.slice(1)})`;
+    },
+    numberOfExperimentsLabel(item) {
+      return item.numberOfExpressionExperiments;
+    },
+    clearSelections() {
+      this.selectedTaxaIds = [];
+    }
+  },
+  watch: {
+    selectedTaxa(newVal) {
+      this.$emit("input", newVal);
+    }
   }
 };
 
