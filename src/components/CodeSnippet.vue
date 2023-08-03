@@ -20,7 +20,7 @@
 
 <script>
 
-import { compressArg } from "@/utils";
+import { compressFilter } from "@/utils";
 
 export default {
   name: "CodeSnippet",
@@ -47,7 +47,7 @@ export default {
       // Modify the content based on the searchSettings prop
       let query = this.browsingOptions.query;
       let filter = this.browsingOptions.filter;
-      let sort = this.browsingOptions.sort;
+      let sort = this.browsingOptions.sort
 
       // Gemmapy snippet
       let queryGemmapy = [];
@@ -71,7 +71,7 @@ export default {
       // Gemma.R snippet
       let queryGemmaR = [];
       if (query !== undefined){ queryGemmaR.push(`query = '` + query + `', `) }; 
-      if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter + `', `) };
+      if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter.map(subClauses => subClauses.join(" or ")).join(" and ") + `', `) };
       if (queryGemmaR.length > 0) {
         if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
         queryGemmaR.unshift(`library(gemma.R)\n` +
@@ -83,7 +83,6 @@ export default {
       tabs[1].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
 
       // curl snippet
-      // USE URLSearchParams to encode here
       const params = new URLSearchParams();
       if (query !== undefined) {
         params.append('query', query);
@@ -107,10 +106,15 @@ export default {
       return tabs;
     }
   },
+  created() {
+    compressFilter(this.browsingOptions.filter).then((result) => {
+      this.compressedFilter = result;
+      });
+  },
   watch: {
-    'browsingOptions': function(newVal) {
-      compressArg(newVal.filter).then((result) => {
-        this.compressedFilter = result;
+  'browsingOptions': function(newVal) {
+    compressFilter(newVal.filter).then((result) => {
+      this.compressedFilter = result;
       });
     },
     selectedTab() {

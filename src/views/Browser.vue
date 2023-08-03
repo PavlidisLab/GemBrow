@@ -62,9 +62,10 @@
                 </template>
                 <template v-slot:footer.prepend>
                   <v-spacer/>
-                    <v-menu v-if="browsingOptions.filter !== '' || searchSettings.query !== ''" ref="codeSnippetMenu">
+                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== ''" ref="codeSnippetMenu">
                       <template v-slot:activator = "{ on, attrs }">
-                        <v-btn plain v-on="on" v-bind="attrs">Dataset Download Code
+                        <v-btn plain v-on="on" v-bind="attrs">
+                          <span style="text-transform: none;">Dataset Download Code</span>
                           <v-icon>mdi-chevron-up</v-icon>
                         </v-btn>
                       </template>
