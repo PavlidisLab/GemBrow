@@ -28,6 +28,10 @@
         </v-menu>
         <v-spacer/>
         <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details class="px-4"/>
+        <v-btn fab small tile depressed @click="showDocumentationWindow = true">
+          <v-icon>mdi-help-circle-outline</v-icon>
+        </v-btn>
+        <DocumentationWindow v-model="showDocumentationWindow"/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
                 <v-btn plain v-bind="attrs" v-on="on">
@@ -135,14 +139,16 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
+import DocumentationWindow from "@/components/DocumentationWindow.vue"; 
 
 export default {
   name: "AppBar",
-  components: { AboutDialog },
+  components: { AboutDialog, DocumentationWindow},
   data() {
     return {
       baseUrl: baseUrl,
       showAboutDialog: false,
+      showDocumentationWindow: false,
       initiallyDebug: process.env.NODE_ENV !== "production"
     };
   },
