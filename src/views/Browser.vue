@@ -177,24 +177,30 @@ export default {
     },
     filter() {
       let filter = [];
-      if (this.searchSettings.taxon?.length > 0) {
+      if (this.searchSettings.taxon.length === 1) {
+        filter.push(["taxon.id = " + this.searchSettings.taxon[0].id]);
+      } else if (this.searchSettings.taxon.length > 0) {
         filter.push(["taxon.id in (" + this.searchSettings.taxon.map(t => t.id).join(",") + ")"]);
       }
       if (this.searchSettings.platforms.length > 0) {
-        let platformIds = this.searchSettings.platforms
-          .filter(p => this.searchSettings.technologyType && p.technologyType !== this.searchSettings.technologyType)
-          .map(p => p.id);
-        if (platformIds.length > 0) {
-          filter.push([
-            "bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")",
-            "bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")"
-          ]);
-        }
-      }
-      if (this.searchSettings.technologyType) {
+        let platformIds = this.searchSettings.platforms.map(p => p.id);
         filter.push([
-          "bioAssays.arrayDesignUsed.technologyType = " + quoteIfNecessary(this.searchSettings.technologyType),
-          "bioAssays.originalPlatform.technologyType = " + quoteIfNecessary(this.searchSettings.technologyType)
+          "bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")",
+          "bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")"
+        ]);
+      }
+      if (this.searchSettings.technologyTypes.length > 0) {
+        let technologyTypes = this.searchSettings.technologyTypes.filter(t => t !== "RNASEQ");
+        // special case if searching exclusively for RNA-Seq
+        if (this.searchSettings.technologyTypes.includes("RNASEQ")) {
+          // if searching exclusively for RNA-Seq data, we can add an extra filter for correctness
+          if (this.searchSettings.technologyTypes.length === 1) {
+            filter.push(["bioAssays.originalPlatform.technologyType = SEQUENCING"]);
+          }
+          technologyTypes.push("GENELIST");
+        }
+        filter.push([
+          "bioAssays.arrayDesignUsed.technologyType in (" + technologyTypes.join(",") + ")"
         ]);
       }
       if (this.searchSettings.categories.length > 0) {
@@ -385,8 +391,8 @@ export default {
       if (this.searchSettings.platforms.length > 0) {
         filters.push("platforms");
       }
-      if (this.searchSettings.technologyType) {
-        filters.push("technology type");
+      if (this.searchSettings.technologyTypes.length > 0) {
+        filters.push("technology types");
       }
       if (this.searchSettings.annotations.length > 0) {
         filters.push("annotations");
@@ -410,8 +416,8 @@ export default {
         const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
         filter.push({ key: "Platforms", value: platformValues });
       }
-      if (this.searchSettings.technologyType) {
-        filter.push({ key: "Technology Type", value: [this.searchSettings.technologyType] });
+      if (this.searchSettings.technologyTypes.length > 0) {
+        filter.push({ key: "Technology Types", value: this.searchSettings.technologyTypes });
       }
       if (this.searchSettings.annotations.length > 0) {
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
