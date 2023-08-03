@@ -142,7 +142,7 @@ export default {
           value: "shortName"
         }
       );
-      if (this.searchSettings.taxon === null) {
+      if (this.searchSettings.taxon.length !== 1) {
         h.push(
           {
             text: "Taxon",
@@ -385,7 +385,7 @@ export default {
       if (this.searchSettings.query) {
         filters.push("query");
       }
-      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
+      if (this.searchSettings.taxon.length > 0) {
         filters.push("taxa");
       }
       if (this.searchSettings.platforms.length > 0) {
@@ -408,7 +408,7 @@ export default {
       if (this.searchSettings.query) {
         filter.push({ key: "Query", value: ` "${this.searchSettings.query}"` });
       }
-      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
+      if (this.searchSettings.taxon.length > 0) {
         const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
         filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
       }

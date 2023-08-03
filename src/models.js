@@ -70,7 +70,7 @@ export function SearchSettings(query, resultTypes) {
   this.query = query;
   this.resultTypes = resultTypes || [];
   this.platforms = [];
-  this.taxon = null;
+  this.taxon = [];
   this.quality = [0, 3];
   this.technologyTypes = [];
   this.annotations = [];
