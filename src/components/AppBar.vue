@@ -13,7 +13,7 @@
         </div>
         <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
           <template v-slot:activator= "{ on, attrs }">
-            <v-btn plain v-bind="attrs" v-on="on"> {{ filterSummary }}
+            <v-btn plain v-bind="attrs" v-on="on" style="text-transform: none;"> {{ filterSummary }}
               <v-icon>mdi-chevron-down</v-icon>
             </v-btn>
           </template>
