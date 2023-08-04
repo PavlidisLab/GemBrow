@@ -85,7 +85,7 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
-import { baseUrl, excludedTerms, marked } from "@/config/gemma";
+import { baseUrl, excludedCategories, excludedTerms, marked } from "@/config/gemma";
 import { chain, debounce, groupBy, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
@@ -485,8 +485,8 @@ export default {
         if (browsingOptions.ignoreExcludedTerms) {
           updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter);
         } else {
-          updateDatasetsAnnotationsPromise = compressArg(excludedTerms.join(","))
-            .then(excludedTerms => this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, excludedTerms));
+          updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
         }
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
@@ -506,7 +506,7 @@ export default {
         });
       });
     },
-    updateAvailableAnnotations(query, filter, excludedTerms) {
+    updateAvailableAnnotations(query, filter, excludedCategories, excludedTerms) {
       // we want to keep category-wide sub-clauses, but not individual terms
       let disallowedPrefixes = [
         "allCharacteristics.value",
@@ -528,6 +528,9 @@ export default {
         };
         if (query !== undefined) {
           payload["query"] = query;
+        }
+        if (excludedCategories !== undefined) {
+          payload["excludedCategories"] = excludedCategories;
         }
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
@@ -583,15 +586,16 @@ export default {
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
   },
   created() {
-    compressArg(excludedTerms.join(",")).then((excludedTerms) => {
-      return Promise.all([
-        this.updateOpenApiSpecification(),
-        this.updateAvailableTaxa(undefined, this.filter),
-        this.updateAvailablePlatforms(undefined, this.filter),
-        this.updateAvailableAnnotations(undefined, this.filter, excludedTerms),
-        this.browse(this.browsingOptions)])
-        .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
-    });
+    return Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+      .then(([excludedCategories, excludedTerms]) => {
+        return Promise.all([
+          this.updateOpenApiSpecification(),
+          this.updateAvailableTaxa(undefined, this.filter),
+          this.updateAvailablePlatforms(undefined, this.filter),
+          this.updateAvailableAnnotations(undefined, this.filter, excludedCategories, excludedTerms),
+          this.browse(this.browsingOptions)])
+          .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
+      });
   },
   watch: {
     title(newVal) {
@@ -618,8 +622,8 @@ export default {
           if (newVal.ignoreExcludedTerms) {
             promise = this.updateAvailableAnnotations(newVal.query, newVal.filter);
           } else {
-            promise = compressArg(excludedTerms.join(","))
-              .then(excludedTerms => this.updateAvailableAnnotations(newVal.query, newVal.filter, excludedTerms));
+            promise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+              .then(([excludedCategories, excludedTerms]) => this.updateAvailableAnnotations(newVal.query, newVal.filter, excludedCategories, excludedTerms));
           }
         } else {
           promise = Promise.resolve();
