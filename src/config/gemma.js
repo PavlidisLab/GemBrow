@@ -57,6 +57,7 @@ export let excludedCategories = [
  * to not put a term that is too general.
  */
 export let excludedTerms = [
+  "http://purl.obolibrary.org/obo/SO_0000287", // fusion gene
   "http://gemma.msl.ubc.ca/ont/TGEMO_00001", // homozygous negative
   "http://gemma.msl.ubc.ca/ont/TGEMO_00003", // heterozygous
   "http://gemma.msl.ubc.ca/ont/TGEMO_00004", // overexpression
@@ -66,15 +67,17 @@ export let excludedTerms = [
   "http://purl.obolibrary.org/obo/OBI_0302893", // storage
   "http://purl.obolibrary.org/obo/PATO_0000048", // hardness
   "http://purl.obolibrary.org/obo/PATO_0000049", // intensity
+  "http://purl.obolibrary.org/obo/PATO_0000261", // maturity
   "http://purl.obolibrary.org/obo/PATO_0000937", // disorganized
   "http://purl.obolibrary.org/obo/PATO_0001178", // resistant to
   "http://purl.obolibrary.org/obo/PATO_0001397", // cellular potency
   "http://purl.obolibrary.org/obo/PATO_0002011", // tumorous
   "http://purl.obolibrary.org/obo/PATO_0002104", // inflammatory
   "http://purl.obolibrary.org/obo/PATO_0002353", // activation quality
-  "http://www.ebi.ac.uk/efo/EFO_0001461", // control
   "http://www.ebi.ac.uk/efo/EFO_0000562", // labelling
+  "http://www.ebi.ac.uk/efo/EFO_0001461", // control
   "http://www.ebi.ac.uk/efo/EFO_0001646", // anatomical modifier (contains a lot of modifier terms like left/right, lateral, etc.)
+  "http://www.ebi.ac.uk/efo/EFO_0004425", // initial time point
   "http://www.ebi.ac.uk/efo/EFO_0004972", // somatic genotype
   "http://www.ebi.ac.uk/efo/EFO_0004973", // germline genotype
   "http://www.ebi.ac.uk/efo/EFO_0005168", // wild type genotype
