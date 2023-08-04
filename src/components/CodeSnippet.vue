@@ -51,7 +51,8 @@ export default {
 
       // Gemmapy snippet
       let queryGemmapy = [];
-      if (query !== undefined){ queryGemmapy.push(`query = '` + query + `', `) }; 
+      if (query !== undefined){ 
+        queryGemmapy.push(`query = '` + this.sanitizePyQuery(query) + `', `) }; 
       if (filter !== undefined && filter.length > 0){ queryGemmapy.push(`filter = '` + filter + `', `) };
       if (queryGemmapy.length > 0) {
         if (sort !== undefined){ queryGemmapy.push(`sort = '` + sort + `', offset = offset, limit = '100'`) };
@@ -70,7 +71,7 @@ export default {
 
       // Gemma.R snippet
       let queryGemmaR = [];
-      if (query !== undefined){ queryGemmaR.push(`query = '` + query + `', `) }; 
+      if (query !== undefined){ queryGemmaR.push(`query = '` + this.sanitizeRQuery(query) + `', `) }; 
       if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter.map(subClauses => subClauses.join(" or ")).join(" and ") + `', `) };
       if (queryGemmaR.length > 0) {
         if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
@@ -96,7 +97,7 @@ export default {
       const queryString = params.toString();
       const baseURL = 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets'; // remove dev before deployment
 
-      const queryCurl = `curl -X 'GET' --compressed '${baseURL}?${queryString}&offset=0' -H 'accept: application/json'`; 
+      const queryCurl = `curl -X 'GET' --compressed '${baseURL}?${queryString}' -H 'accept: application/json'`; 
       tabs[2].content = queryCurl;
 
       // HTTP/1.1 snippet
@@ -125,8 +126,26 @@ export default {
     copy(content) {
         // copy the snippet to the clipboard
         navigator.clipboard.writeText(content);
-        }
+        },
+    sanitizeRQuery(query) {
+      const problematicRChars = ["'", "[", "{", "(", ")", ",", ";", "!", "$", "&", "@", "#"];
+      let sanitizedRQuery = query;
+      problematicRChars.forEach((char) => {
+        sanitizedRQuery = sanitizedRQuery.replace(new RegExp(`\\${char}`, 'g'), `\\\\${char}`);
+      });
+
+      return sanitizedRQuery;
+    },
+    sanitizePyQuery(query) {
+      const problematicPyChars = ["'", "\"", "\\", "(", ")", "[", "]", "{" ,"}" ];
+      let sanitizedPyQuery = query;
+      problematicPyChars.forEach((char) => {
+        sanitizedPyQuery = sanitizedPyQuery.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
+      });
+
+      return sanitizedPyQuery
     }
+  }
 };
 </script>
 
