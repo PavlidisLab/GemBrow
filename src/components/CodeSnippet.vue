@@ -128,22 +128,10 @@ export default {
         navigator.clipboard.writeText(content);
         },
     sanitizeRQuery(query) {
-      const problematicRChars = ["'", "[", "{", "(", ")", ",", ";", "!", "$", "&", "@", "#"];
-      let sanitizedRQuery = query;
-      problematicRChars.forEach((char) => {
-        sanitizedRQuery = sanitizedRQuery.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
-      });
-
-      return sanitizedRQuery;
+      return query.replace(/['"[{()},;!$&@#]/g, "\\$&");
     },
     sanitizePyQuery(query) {
-      const problematicPyChars = ["'", "\"", "(", ")", "[", "]", "{" ,"}" ];
-      let sanitizedPyQuery = query;
-      problematicPyChars.forEach((char) => {
-        sanitizedPyQuery = sanitizedPyQuery.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
-      });
-
-      return sanitizedPyQuery;
+      return query.replace(/['"[{()},;!$&@]/g, "\\$&");
     }
   }
 };
