@@ -30,30 +30,9 @@
     </v-dialog>
 </template>
 <script>
-import { mapState } from "vuex";
-import { baseUrl, marked } from "@/config/gemma";
-
 export default {
   props: {
     value: Boolean
-  },
-  data() {
-    return {
-      baseUrl
-    };
-  },
-  computed: mapState({
-    root: state => state.api.root?.data || { externalDatabases: [] }
-  }),
-  methods: {
-    m2h(m) {
-      return marked.parseInline(m);
-    }
-  },
-  created() {
-    this.$store.dispatch("api/getRoot").catch(e => {
-      console.error("Failed to retrieve the root endpoint: " + e.message + ".", e);
-    });
   }
 };
 </script>
