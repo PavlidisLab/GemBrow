@@ -131,19 +131,19 @@ export default {
       const problematicRChars = ["'", "[", "{", "(", ")", ",", ";", "!", "$", "&", "@", "#"];
       let sanitizedRQuery = query;
       problematicRChars.forEach((char) => {
-        sanitizedRQuery = sanitizedRQuery.replace(new RegExp(`\\${char}`, 'g'), `\\\\${char}`);
+        sanitizedRQuery = sanitizedRQuery.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
       });
 
       return sanitizedRQuery;
     },
     sanitizePyQuery(query) {
-      const problematicPyChars = ["'", "\"", "\\", "(", ")", "[", "]", "{" ,"}" ];
+      const problematicPyChars = ["'", "\"", "(", ")", "[", "]", "{" ,"}" ];
       let sanitizedPyQuery = query;
       problematicPyChars.forEach((char) => {
         sanitizedPyQuery = sanitizedPyQuery.replace(new RegExp(`\\${char}`, 'g'), `\\${char}`);
       });
 
-      return sanitizedPyQuery
+      return sanitizedPyQuery;
     }
   }
 };
