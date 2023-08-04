@@ -33,8 +33,8 @@ marked.use({
 export { marked };
 
 export let excludedCategories = [
-
-  "http://purl.obolibrary.org/obo/GO_0007610",// behavior
+  "http://purl.obolibrary.org/obo/CHEBI_23367", // molecular entity
+  "http://purl.obolibrary.org/obo/GO_0007610", // behavior
   "http://purl.obolibrary.org/obo/GO_0008150", // biological process
   "http://www.ebi.ac.uk/efo/EFO_0000352", // clinical history
   "http://www.ebi.ac.uk/efo/EFO_0000410", // disease staging
@@ -61,7 +61,6 @@ export let excludedTerms = [
   "http://gemma.msl.ubc.ca/ont/TGEMO_00003", // heterozygous
   "http://gemma.msl.ubc.ca/ont/TGEMO_00004", // overexpression
   "http://gemma.msl.ubc.ca/ont/TGEMO_00007", // knockdown
-  "http://purl.obolibrary.org/obo/CHEBI_23367", // molecular entity
   "http://purl.obolibrary.org/obo/OBI_0000025", // reference substance role
   "http://purl.obolibrary.org/obo/OBI_0000220", // reference subject role
   "http://purl.obolibrary.org/obo/OBI_0302893", // storage
