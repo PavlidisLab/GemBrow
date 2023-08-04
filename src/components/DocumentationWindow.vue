@@ -11,7 +11,7 @@
             <v-card-text>
                 <h3> Filters </h3>
                 <h4 style="font-weight: bolder">How do GemBrow's filter options work?</h4>
-                    <p> There are three main categories you can use to filter data: Taxa, Technology Type, and Annotations, which is further divided into multiple groupings. </p>
+                    <p> There are three main categories you can use to filter data: Taxa, Technology Type, and Annotations. Annotations is further divided into groupings which behave similarly to categories. </p>
                     <p><strong>AND Filters:</strong> When multiple filters <em>between</em> the major categories and Annotation groupings are selected they act as AND filters. For example, if you select both "Human" in the Taxa category and "Alzheimer's Disease" in the Annotations category's "Disease" grouping, the results will include experiments that involve human subjects AND are annotated with "Alzheimer's Disease". Different groupings within Annotations are also represented by AND clauses (e.g., experiments must contain tags from both "Breast Cancer" from Disease grouping AND "BRCA1" from Genotype grouping). Selecting these features will reduce the number of datasets you see in the table. </p>
                     <p><strong>OR Filters:</strong> Selection of multiple filters <em>within</em> the categories Taxa, Technology Type, and all Annotation groupings represent OR relationships. For example, a selection of both "Human" and "Mouse" within Taxa category will result in a list of experiments that involve either human OR mouse. Adding multiple OR clauses will increase the number of experiments you see in the table. </p>
                 <h4> What do the numbers show? </h4>
