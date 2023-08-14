@@ -1,6 +1,6 @@
 <template>
     <v-layout>
-        <v-navigation-drawer app permanent width="400">
+        <v-navigation-drawer v-model="drawer" app width="400">
             <SearchSettings v-model="searchSettings"
                             class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
@@ -14,7 +14,13 @@
                             :taxon="taxon"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
-                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
+                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments">
+                <template v-slot:deactivator>
+                    <v-btn icon @click="drawer = false">
+                        <v-icon>mdi-chevron-left</v-icon>
+                    </v-btn>
+                </template>
+            </SearchSettings>
         </v-navigation-drawer>
         <v-main>
             <Error v-for="(error, key) in errors" :key="key" :error="error"/>
@@ -64,6 +70,9 @@
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
+                    <v-btn v-show="!drawer" icon @click="drawer = true">
+                        <v-icon>mdi-chevron-right</v-icon>
+                    </v-btn>
                     <div v-show="searchSettings.query">
                         Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
                     </div>
@@ -89,15 +98,25 @@
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
 import { baseUrl, excludedCategories, excludedTerms, marked } from "@/config/gemma";
-import { chain, debounce, groupBy, isEqual, sumBy } from "lodash";
+import { chain, debounce, escapeRegExp, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
 import DownloadButton from "@/components/DownloadButton.vue";
-import { compressArg, compressFilter, formatDecimal, formatNumber, formatPercent } from "@/utils";
+import {
+  compressArg,
+  compressFilter,
+  formatDecimal,
+  formatNumber,
+  formatPercent,
+  getCategoryId,
+  getTermId
+} from "@/utils";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 
 const MAX_URIS_IN_CLAUSE = 200;
+const MAX_TERMS_PER_CATEGORY = 200;
+const MAX_PLATFORMS = 200;
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
@@ -119,6 +138,7 @@ export default {
   data() {
     return {
       baseUrl,
+      drawer: true,
       searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
       options: {
         page: 1,
@@ -227,7 +247,7 @@ export default {
       }
       if (this.searchSettings.annotations.length > 0) {
         let annotationByCategoryId = chain(this.searchSettings.annotations)
-          .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
+          .groupBy(getCategoryId)
           .value();
         for (const categoryId in annotationByCategoryId) {
           let categoryUri = annotationByCategoryId[categoryId].find(t => t.classUri !== null)?.classUri || null;
@@ -243,11 +263,9 @@ export default {
           }
           let termUris = annotationByCategoryId[categoryId]
             .filter(t => t.termUri !== null)
-            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
             .map(t => t.termUri);
           let termNames = annotationByCategoryId[categoryId]
             .filter(t => t.termName === null)
-            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
             .map(t => t.termName);
           let f = [];
           if (termUris.length > MAX_URIS_IN_CLAUSE) {
@@ -333,7 +351,7 @@ export default {
             pageStart: state.api.datasets.offset,
             pageStop: state.api.datasets.offset + state.api.datasets.limit,
             pageCount: Math.ceil(state.api.datasets.totalElements / state.api.datasets.limit),
-            itemsLength: state.api.datasets.totalElements
+            itemsLength: formatNumber(state.api.datasets.totalElements)
           },
           disablePagination: state.api.pending.datasets,
           disableItemsPerPage: state.api.pending.datasets,
@@ -356,32 +374,31 @@ export default {
       },
       loadingDatasets: state => !!state.api.pending["datasets"],
       loadingPlatforms: state => !!state.api.pending["datasetsPlatforms"],
-      loadingAnnotation: state => !!state.api.pending["datasetsAnnotations"],
+      loadingAnnotation: state => !!state.api.pending["datasetsCategories"],
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
       taxon: state => state.api.datasetsTaxa?.data || [],
       datasetsAnnotations(state) {
-        if (state.api.datasetsAnnotations === undefined) {
-          return [];
-        }
-        // first grouping by category
-        let filteredTerms = state.api.datasetsAnnotations.data;
-        let termsByCategory = groupBy(filteredTerms, elem => (elem.classUri || elem.className?.toLowerCase()));
-        let annotations = [];
-        for (let key in termsByCategory) {
-          // find the first non-null URI and name for the category
-          let classUri = termsByCategory[key].find(el => el.classUri !== null)?.classUri;
-          let className = termsByCategory[key].find(el => el.className !== null)?.className;
-          annotations.push({
-            classUri: classUri,
-            className: className,
-            children: termsByCategory[key]
-          });
-        }
-        return annotations;
+        return (state.api.datasetsCategories?.data || [])
+          .map(category => {
+            return {
+              classUri: category.classUri,
+              className: category.className,
+              children: state.api.datasetsAnnotationsByCategory[getCategoryId(category)]?.data || [],
+              numberOfExpressionExperiments: category.numberOfExpressionExperiments
+            };
+          })
+          // exclude categories with no selectable terms
+          // categories are not retrieved with all the filters
+          .filter(c => c.children.length > 0);
       },
-      myself: state => state.api.myself?.data
+      myself(state) {
+        if (state.api.myself === undefined) {
+          return null;
+        }
+        return state.api.myself.code === 401 ? null : state.api.myself.data;
+      }
     }),
     filterSummary() {
       const filters = [];
@@ -397,7 +414,7 @@ export default {
       if (this.searchSettings.technologyTypes.length > 0) {
         filters.push("technology types");
       }
-      if (this.searchSettings.annotations.length > 0) {
+      if (this.searchSettings.categories.length > 0 || this.searchSettings.annotations.length > 0) {
         filters.push("annotations");
       }
       if (filters.length > 0) {
@@ -422,9 +439,27 @@ export default {
       if (this.searchSettings.technologyTypes.length > 0) {
         filter.push({ key: "Technology Types", value: this.searchSettings.technologyTypes });
       }
+      if (this.searchSettings.categories.length > 0) {
+        for (let cat of this.searchSettings.categories) {
+          if (cat.className) {
+            filter.push({ key: cat.className + "s", value: "ANY" });
+          } else if (cat.classUri) {
+            filter.push({ key: cat.classUri, value: "ANY" });
+          } else {
+            filter.push({ key: "Uncategorized", value: "ANY" });
+          }
+        }
+      }
       if (this.searchSettings.annotations.length > 0) {
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
-          const { className, termName } = annotation;
+          let { classUri, className, termName } = annotation;
+          if (className) {
+            className = className + "s";
+          } else if (classUri) {
+            className = classUri;
+          } else {
+            className = "Uncategorized";
+          }
           if (!acc[className]) {
             acc[className] = [termName];
           } else {
@@ -486,10 +521,10 @@ export default {
         this.options.page = 1;
         let updateDatasetsAnnotationsPromise;
         if (browsingOptions.ignoreExcludedTerms) {
-          updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter);
+          updateDatasetsAnnotationsPromise = this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter);
         } else {
           updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-            .then(([excludedCategories, excludedTerms]) => this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
         }
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
@@ -504,30 +539,33 @@ export default {
         if (query !== undefined) {
           payload["query"] = query;
         }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasets", {
           params: payload
         });
       });
     },
-    updateAvailableAnnotations(query, filter, excludedCategories, excludedTerms) {
-      // we want to keep category-wide sub-clauses, but not individual terms
+    /**
+     * Update available categories.
+     */
+    updateAvailableCategories(query, filter, excludedCategories, excludedTerms) {
       let disallowedPrefixes = [
-        "allCharacteristics.value",
-        "characteristics.value",
-        "bioAssays.sampleUsed.characteristics.value",
-        "experimentalDesign.experimentalFactors.factorValues.characteristics.value"
+        "allCharacteristics.",
+        "characteristics.",
+        "bioAssays.sampleUsed.characteristics.",
+        "experimentalDesign.experimentalFactors.factorValues.characteristics."
       ];
-      if (filter) {
-        filter = filter.map(clause => clause
+      let mFilter = filter;
+      if (mFilter) {
+        mFilter = mFilter.map(clause => clause
           .filter(subClause => !disallowedPrefixes.some(p => subClause.startsWith(p))))
           .filter(clause => clause.length > 0);
       }
-      return compressFilter(filter).then(compressedFilter => {
+      return compressFilter(mFilter).then(compressedFilter => {
         let payload = {
-          filter: compressedFilter,
-          // the cap limit is 5000, so anything below 4 is useless
-          minFrequency: filter.length > 0 ? 1 : excludedTerms ? 4 : 3,
-          exclude: ["parentTerms"]
+          filter: compressedFilter
         };
         if (query !== undefined) {
           payload["query"] = query;
@@ -538,8 +576,67 @@ export default {
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
         }
-        return this.$store.dispatch("api/getDatasetsAnnotations", { params: payload });
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
+        // proactively query categories we already know about, otherwise we have to wait until the
+        // getDatasetsCategories() endpoint finishes
+        let categories = this.datasetsAnnotations.map(getCategoryId);
+        for (let categoryId of categories) {
+          this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
+        }
+        return this.$store.dispatch("api/getDatasetsCategories", { params: payload })
+          .then(data => {
+            return Promise.all([...categories, ...data.data.data.map(category => {
+              let categoryId = getCategoryId(category);
+              if (!categories.includes(categoryId)) {
+                return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
+              }
+            })]);
+          });
       });
+    },
+    /**
+     * Update available annotations for a specific category.
+     *
+     * To get accurate counts, we have to exclude all the clauses involving terms from the category. This is a bit
+     * tricky because at this point the filter is already generated, so we remove clauses matching a regex constructed
+     * by concatenating all the terms in the category.
+     */
+    updateAvailableAnnotationsByCategory(category, query, filter, excludedTerms) {
+      // generate a regex to match clauses we want to exclude
+      let annotationsToExclude = this.datasetsAnnotations
+        .filter(t => getCategoryId(t) === category)
+        .flatMap(c => c.children)
+        .map(getTermId);
+      if (annotationsToExclude.length > 0) {
+        let annotationsToExcludeR = new RegExp(annotationsToExclude.map(escapeRegExp).join("|"));
+        filter = filter
+          .map(clause => clause.filter(subClause => !annotationsToExcludeR.test(subClause)))
+          .filter(clause => clause.length > 0);
+      }
+      // exclude filters for the category
+      return compressFilter(filter)
+        .then(compressedFilter => {
+          let payload = {
+            category: category,
+            filter: compressedFilter,
+            limit: MAX_TERMS_PER_CATEGORY,
+            exclude: ["parentTerms"],
+            // ensures that the terms appearing in filter are always returned
+            retainMentionedTerms: true
+          };
+          if (query !== undefined) {
+            payload["query"] = query;
+          }
+          if (excludedTerms !== undefined) {
+            payload["excludedTerms"] = excludedTerms;
+          }
+          if (this.myself) {
+            payload["gid"] = this.myself.group;
+          }
+          return this.$store.dispatch("api/getDatasetsAnnotationsByCategory", { params: payload });
+        });
     },
     updateOpenApiSpecification() {
       return this.$store.dispatch("api/getOpenApiSpecification");
@@ -550,7 +647,13 @@ export default {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("taxon."))).filter(clause => clause.length > 0);
       }
       return compressFilter(filter).then(compressedFilter => {
-        let payload = query !== undefined ? { query: query, filter: compressedFilter } : { filter: compressedFilter };
+        let payload = { filter: compressedFilter };
+        if (query) {
+          payload["query"] = query;
+        }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasetsTaxa", { params: payload });
       });
     },
@@ -560,7 +663,16 @@ export default {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("bioAssays.arrayDesignUsed.") && !subClause.startsWith("bioAssays.originalPlatform."))).filter(clause => clause.length > 0);
       }
       return compressFilter(filter).then(compressedFilter => {
-        let payload = query !== undefined ? { query: query, filter: compressedFilter } : { filter: compressedFilter };
+        let payload = {
+          filter: compressedFilter,
+          limit: MAX_PLATFORMS
+        };
+        if (query) {
+          payload["query"] = query;
+        }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasetsPlatforms", { params: payload });
       });
     },
@@ -595,7 +707,7 @@ export default {
           this.updateOpenApiSpecification(),
           this.updateAvailableTaxa(undefined, this.filter),
           this.updateAvailablePlatforms(undefined, this.filter),
-          this.updateAvailableAnnotations(undefined, this.filter, excludedCategories, excludedTerms),
+          this.updateAvailableCategories(undefined, this.filter, excludedCategories, excludedTerms),
           this.browse(this.browsingOptions)])
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
       });
@@ -623,10 +735,10 @@ export default {
           promise = this.browse(newVal, true);
         } else if (oldVal.ignoreExcludedTerms !== newVal.ignoreExcludedTerms) {
           if (newVal.ignoreExcludedTerms) {
-            promise = this.updateAvailableAnnotations(newVal.query, newVal.filter);
+            promise = this.updateAvailableCategories(newVal.query, newVal.filter);
           } else {
             promise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-              .then(([excludedCategories, excludedTerms]) => this.updateAvailableAnnotations(newVal.query, newVal.filter, excludedCategories, excludedTerms));
+              .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(newVal.query, newVal.filter, excludedCategories, excludedTerms));
           }
         } else {
           promise = Promise.resolve();

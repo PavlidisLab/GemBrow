@@ -45,6 +45,7 @@ export let excludedCategories = [
   "http://www.ebi.ac.uk/efo/EFO_0000651", // phenotype
   "http://www.ebi.ac.uk/efo/EFO_0000724", // timepoint
   "http://www.ebi.ac.uk/efo/EFO_0001426", // study design
+  "http://purl.obolibrary.org/obo/OBI_0302893", // storage
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
   "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
   "http://www.ebi.ac.uk/efo/EFO_0005067" // block
@@ -64,7 +65,6 @@ export let excludedTerms = [
   "http://gemma.msl.ubc.ca/ont/TGEMO_00007", // knockdown
   "http://purl.obolibrary.org/obo/OBI_0000025", // reference substance role
   "http://purl.obolibrary.org/obo/OBI_0000220", // reference subject role
-  "http://purl.obolibrary.org/obo/OBI_0302893", // storage
   "http://purl.obolibrary.org/obo/PATO_0000048", // hardness
   "http://purl.obolibrary.org/obo/PATO_0000049", // intensity
   "http://purl.obolibrary.org/obo/PATO_0000261", // maturity
@@ -74,10 +74,12 @@ export let excludedTerms = [
   "http://purl.obolibrary.org/obo/PATO_0002011", // tumorous
   "http://purl.obolibrary.org/obo/PATO_0002104", // inflammatory
   "http://purl.obolibrary.org/obo/PATO_0002353", // activation quality
+  "http://purl.obolibrary.org/obo/PATO_0002122", // mixed
   "http://www.ebi.ac.uk/efo/EFO_0000562", // labelling
   "http://www.ebi.ac.uk/efo/EFO_0001461", // control
   "http://www.ebi.ac.uk/efo/EFO_0001646", // anatomical modifier (contains a lot of modifier terms like left/right, lateral, etc.)
   "http://www.ebi.ac.uk/efo/EFO_0004425", // initial time point
+  "http://www.ebi.ac.uk/efo/EFO_0004952", // disease recurrence
   "http://www.ebi.ac.uk/efo/EFO_0004972", // somatic genotype
   "http://www.ebi.ac.uk/efo/EFO_0004973", // germline genotype
   "http://www.ebi.ac.uk/efo/EFO_0005168", // wild type genotype

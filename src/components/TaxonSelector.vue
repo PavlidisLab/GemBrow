@@ -107,7 +107,7 @@ export default {
 
 <style scoped>
 .hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
-display: none !important;
+    display: none !important;
 }
 
 .hide-root-checkboxes >>> .v-treeview {

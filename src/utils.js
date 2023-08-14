@@ -65,10 +65,26 @@ export function compressArg(f) {
 }
 
 /**
- *
- * @param filter
- * @returns {Promise<String>}
+ * Compress a filter represented as an array of arrays of strings.
+ * @param {Array<Array<String>>} filter
+ * @returns {Promise<String>} a promise that resolves with the compressed filter
  */
 export function compressFilter(filter) {
   return compressArg(filter.map(a => a.join(" or ")).join(" and "));
+}
+
+/**
+ * Obtain the category ID for a given term.
+ * @returns {string|null} an ID for the category or null if the term is uncategorized
+ */
+export function getCategoryId(term) {
+  return term.classUri || term.className?.toLowerCase() || null;
+}
+
+/**
+ * Obtain the term ID for a given term.
+ * @returns {string} an ID for the term
+ */
+export function getTermId(term) {
+  return term.termUri || term.termName?.toLowerCase();
 }
