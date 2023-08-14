@@ -119,5 +119,8 @@ export default {
 </script>
 
 <style scoped>
-
+.search-settings >>> .v-treeview-node__children {
+    max-height: 200px;
+    overflow-y: auto;
+}
 </style>

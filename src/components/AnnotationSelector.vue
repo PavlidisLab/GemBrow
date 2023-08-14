@@ -259,15 +259,6 @@ export default {
 
 <style scoped>
 .hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
-display: none !important;
-}
-
-.hide-root-checkboxes >>> .v-treeview {
-    max-width: 100%;
-}
-
-.hide-root-checkboxes >>> .v-treeview-node__children {
-    max-height: 300px;
-    overflow-y: auto;
+    display: none !important;
 }
 </style>
