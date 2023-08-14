@@ -1,7 +1,7 @@
 import Vapi from "vuex-rest-api";
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { merge } from "lodash";
-import qs from "qs";
+import Vue from "vue";
 
 const vapi = new Vapi({
   baseURL: baseUrl, // assigned in store.js
@@ -59,7 +59,17 @@ export default vapi
   .endpoint("getOpenApiSpecification", "openApiSpecification", "/openapi.json")
   .endpoint("getDatasets", "datasets", "/datasets", { queryParams: true })
   .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
-  .endpoint("getDatasetsAnnotations", "datasetsAnnotations", "/datasets/annotations", { queryParams: true })
+  .endpoint("getDatasetsCategories", "datasetsCategories", "/datasets/categories", { queryParams: true })
+  .endpoint("getDatasetsAnnotationsByCategory", "datasetsAnnotationsByCategory", "/datasets/annotations", {
+    queryParams: true,
+    onSuccess(state, payload, axios, { params }) {
+      if (payload.data.error) {
+        state.error["datasetsAnnotationsByCategory"] = payload.data.error;
+      } else {
+        Vue.set(state["datasetsAnnotationsByCategory"], params.category, payload.data);
+      }
+    }
+  })
   .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })
   .endpoint("getDatasetsTaxa", "datasetsTaxa", "/datasets/taxa", { queryParam: true })
   .endpoint("getTaxa", "taxa", "/taxa")
