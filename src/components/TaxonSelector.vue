@@ -1,4 +1,6 @@
 <template>
+  <div>
+    <v-progress-linear :active="loading" indeterminate/>
     <v-treeview
             :items="treeItems"
             item-key="id"
@@ -20,6 +22,7 @@
       </span>
         </template>
     </v-treeview>
+  </div>
 </template>
 
 <script>
@@ -33,7 +36,8 @@ export default {
      */
     value: Array,
     taxon: Array,
-    disabled: Boolean
+    disabled: Boolean,
+    loading: Boolean
   },
   emits: ["input"],
   data() {

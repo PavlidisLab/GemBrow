@@ -1,5 +1,6 @@
 <template>
     <div>
+      <v-progress-linear :active="loading" indeterminate/>
         <div class="d-flex align-baseline">
             <div class="text--secondary">Technology Types</div>
             <v-spacer></v-spacer>
@@ -39,7 +40,8 @@ export default {
      */
     value: Array,
     platforms: Array,
-    disabled: Boolean
+    disabled: Boolean,
+    loading: Boolean
   },
   events: ["input"],
   data() {
