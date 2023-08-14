@@ -348,7 +348,7 @@ export default {
             pageStart: state.api.datasets.offset,
             pageStop: state.api.datasets.offset + state.api.datasets.limit,
             pageCount: Math.ceil(state.api.datasets.totalElements / state.api.datasets.limit),
-            itemsLength: state.api.datasets.totalElements
+            itemsLength: formatNumber(state.api.datasets.totalElements)
           },
           disablePagination: state.api.pending.datasets,
           disableItemsPerPage: state.api.pending.datasets,
