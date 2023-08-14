@@ -32,6 +32,9 @@
             </span>
             </template>
         </v-treeview>
+        <p v-show="annotations.length === 0">
+            No annotations available
+        </p>
     </div>
 </template>
 
