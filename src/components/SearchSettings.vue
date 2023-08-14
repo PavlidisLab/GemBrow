@@ -44,17 +44,21 @@
                 :disabled="annotationDisabled"
                 :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                 :selectedCategories.sync="searchSettings.categories"/>
-        <p v-show="annotations.length === 0">
-            No annotations available
-        </p>
-        <div v-if="debug" style="margin-bottom: 59px;"></div>
-        <div v-if="debug" class="d-flex align-center"
-             style="position: fixed; left: 0; bottom: 0; background: white; height: 59px; width: 100%; border-top: thin solid rgba(0, 0, 0, 0.12); padding: 0 8px;"
-        >
-            <v-switch v-model="searchSettings.ignoreExcludedTerms"
-                      label="Ignore Excluded Terms (dev only)"
-                      hide-details
-                      class="mt-0"/>
+        <div :class="debug ? '' : 'd-lg-none'">
+            <div style="margin-bottom: 59px;"></div>
+            <div class="d-flex align-center"
+                 style="position: fixed; left: 0; bottom: 0; background: white; height: 59px; width: 100%; border-top: thin solid rgba(0, 0, 0, 0.12); padding: 0 8px;"
+            >
+                <v-switch v-if="debug"
+                          v-model="searchSettings.ignoreExcludedTerms"
+                          label="Ignore Excluded Terms (dev only)"
+                          hide-details
+                          class="mt-0"/>
+                <v-spacer/>
+                <div class="d-lg-none">
+                    <slot name="deactivator"/>
+                </div>
+            </div>
         </div>
     </v-form>
 </template>

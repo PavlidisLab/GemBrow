@@ -1,6 +1,6 @@
 <template>
     <v-layout>
-        <v-navigation-drawer app permanent width="400">
+        <v-navigation-drawer v-model="drawer" app width="400">
             <SearchSettings v-model="searchSettings"
                             class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
@@ -11,7 +11,13 @@
                             :taxon="taxon"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
-                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
+                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments">
+                <template v-slot:deactivator>
+                    <v-btn icon @click="drawer = false">
+                        <v-icon>mdi-chevron-left</v-icon>
+                    </v-btn>
+                </template>
+            </SearchSettings>
         </v-navigation-drawer>
         <v-main>
             <Error v-for="(error, key) in errors" :key="key" :error="error"/>
@@ -61,6 +67,9 @@
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
+                    <v-btn v-show="!drawer" icon @click="drawer = true">
+                        <v-icon>mdi-chevron-right</v-icon>
+                    </v-btn>
                     <div v-show="searchSettings.query">
                         Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
                     </div>
@@ -116,6 +125,7 @@ export default {
   data() {
     return {
       baseUrl,
+      drawer: true,
       searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
       options: {
         page: 1,
