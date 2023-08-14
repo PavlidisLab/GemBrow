@@ -23,13 +23,15 @@
         <TaxonSelector
                 v-model="searchSettings.taxon"
                 :taxon="taxon"
-                :disabled="taxonDisabled"/>
+                :disabled="taxonDisabled"
+                :loading="taxaLoading"/>
         <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="searchSettings.platforms"
                 :platforms="platforms"
                 :selected-technology-types.sync="searchSettings.technologyTypes"
-                :disabled="platformDisabled"/>
+                :disabled="platformDisabled"
+                :loading="platformLoading"/>
         <v-range-slider
                 v-model="searchSettings.quality"
                 min="0" max="3"
@@ -84,6 +86,8 @@ export default {
     taxonDisabled: Boolean,
     annotationDisabled: Boolean,
     annotationLoading: Boolean,
+    platformLoading: Boolean,
+    taxaLoading: Boolean,
     totalNumberOfExpressionExperiments: Number
   },
   emits: ["input"],
