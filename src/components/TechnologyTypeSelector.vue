@@ -13,9 +13,10 @@
                     :disabled="disabled"
                     item-key="id"
                     item-text="name"
-                    selectable dense>
+                    selectable dense
+                    class="hide-root-checkboxes">
             <template v-slot:label="{item}">
-                {{ item.name }}
+              {{ item.name }}
             </template>
             <template v-slot:append="{item}">
                 {{ item.numberOfExpressionExperiments }}
@@ -104,3 +105,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
+    display: none !important;
+}
+</style>
