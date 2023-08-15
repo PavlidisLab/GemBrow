@@ -205,27 +205,31 @@ export default {
       } else if (this.searchSettings.taxon.length > 0) {
         filter.push(["taxon.id in (" + this.searchSettings.taxon.map(t => t.id).join(",") + ")"]);
       }
-      if (this.searchSettings.platforms.length > 0) {
+      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
         let platformIds = this.searchSettings.platforms.map(p => p.id);
-        filter.push([
-          "bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")",
-          "bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")"
-        ]);
-      }
-      if (this.searchSettings.technologyTypes.length > 0) {
-        let technologyTypes = this.searchSettings.technologyTypes.filter(t => t !== "RNASEQ");
-        // special case if searching exclusively for RNA-Seq
-        if (this.searchSettings.technologyTypes.includes("RNASEQ")) {
-          // if searching exclusively for RNA-Seq data, we can add an extra filter for correctness
-          if (this.searchSettings.technologyTypes.length === 1) {
-            filter.push(["bioAssays.originalPlatform.technologyType = SEQUENCING"]);
-          }
-          technologyTypes.push("GENELIST");
+        let clause = [];
+        if (this.searchSettings.platforms.length > 0) {
+          clause.push("bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")");
+          clause.push("bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")");
         }
-        filter.push([
+        if (this.searchSettings.technologyTypes.length > 0) {
+          let technologyTypes = this.searchSettings.technologyTypes.filter(t => t !== "RNASEQ");
+          // special case if searching exclusively for RNA-Seq
+          if (this.searchSettings.technologyTypes.includes("RNASEQ")) {
+            // if searching exclusively for RNA-Seq data, we can add an extra filter for correctness
+            // only microarray platforms can be selected individually
+            if (this.searchSettings.technologyTypes.length === 1 && this.searchSettings.platforms.length === 0) {
+              filter.push(["bioAssays.originalPlatform.technologyType = SEQUENCING"]);
+            }
+            technologyTypes.push("GENELIST");
+          }
+        clause.push(
           "bioAssays.arrayDesignUsed.technologyType in (" + technologyTypes.join(",") + ")"
-        ]);
+        );
       }
+      filter.push(clause);
+      }
+      
       if (this.searchSettings.categories.length > 0) {
         // check if all categories are picked
         let categories = this.searchSettings.categories;
