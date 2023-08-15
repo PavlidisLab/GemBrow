@@ -412,11 +412,8 @@ export default {
       if (this.searchSettings.taxon.length > 0) {
         filters.push("taxa");
       }
-      if (this.searchSettings.platforms.length > 0) {
+      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
         filters.push("platforms");
-      }
-      if (this.searchSettings.technologyTypes.length > 0) {
-        filters.push("technology types");
       }
       if (this.searchSettings.categories.length > 0 || this.searchSettings.annotations.length > 0) {
         filters.push("annotations");
@@ -436,12 +433,12 @@ export default {
         const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
         filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
       }
-      if (this.searchSettings.platforms.length > 0) {
+      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
         const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
+        if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.includes('RNASEQ')) {
+          platformValues.unshift('All RNA-Seq platforms')
+        }
         filter.push({ key: "Platforms", value: platformValues });
-      }
-      if (this.searchSettings.technologyTypes.length > 0) {
-        filter.push({ key: "Technology Types", value: this.searchSettings.technologyTypes });
       }
       if (this.searchSettings.categories.length > 0) {
         for (let cat of this.searchSettings.categories) {

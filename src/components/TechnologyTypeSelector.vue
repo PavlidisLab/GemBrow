@@ -2,7 +2,7 @@
     <div>
       <v-progress-linear :active="loading" indeterminate/>
         <div class="d-flex align-baseline">
-            <div class="text--secondary">Technology Types</div>
+            <div class="text--secondary">Platforms</div>
             <v-spacer></v-spacer>
             <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary" :disabled="disabled">
                 Clear Selection
