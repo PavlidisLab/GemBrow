@@ -24,8 +24,8 @@
                 </div>
             </template>
         </v-treeview>
-        <p v-show="technologyTypes.length === 0">
-            No technology types available
+        <p v-show="technologyTypes.length === 0 && !loading">
+            No platforms available
         </p>
     </div>
 </template>

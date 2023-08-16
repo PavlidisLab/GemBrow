@@ -4,13 +4,13 @@
             <div class="text--secondary">
                 Taxa
             </div>
-            <v-progress-linear :active="loading" indeterminate/>
-            <v-spacer/>
+            <v-spacer></v-spacer>
             <v-btn v-if="selectedTaxaIds.length > 0" @click="clearSelections" small text color="primary"
                    :disabled="disabled">
                 Clear Selection
             </v-btn>
         </div>
+        <v-progress-linear :active="loading" indeterminate/>
         <v-treeview
                 :items="treeItems"
                 item-key="id"
@@ -27,7 +27,7 @@
                 <div class="text-right">{{ formatNumber(item.number) }}</div>
             </template>
         </v-treeview>
-        <p v-show="treeItems.length === 0">
+        <p v-show="treeItems.length === 0 && !loading">
             No taxa available
         </p>
     </div>
