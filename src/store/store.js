@@ -12,7 +12,7 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null };
+    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null, datasetsAnnotationsLoading: {} };
   },
   mutations: {
     setDebug(state, newVal) {
@@ -29,6 +29,9 @@ export default new Vuex.Store({
     },
     setLastError(state, newVal) {
       state.lastError = newVal;
+    },
+    SET_ANNOTATIONS_LOADING(state, { category, loading }) {
+      Vue.set(state.datasetsAnnotationsLoading, category, loading);  
     }
   },
   plugins: [

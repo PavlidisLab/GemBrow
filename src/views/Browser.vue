@@ -323,10 +323,20 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.values(state.api.error)
+          const filteredErrors = Object.values(state.api.error)
             .filter(e => e !== null)
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
+
+            // Check if datasetsAnnotationsByCategory has all values as null
+            const allNull = Object.values(state.api.error.datasetsAnnotationsByCategory).every(e => e === null);
+
+            // If not all values are null, include datasetsAnnotationsByCategory in the filteredErrors
+            if (!allNull) {
+              filteredErrors.push(state.api.error.datasetsAnnotationsByCategory)
+            }
+
+            return filteredErrors;
         }
       },
       datasets: state => state.api.datasets?.data || [],
@@ -378,7 +388,7 @@ export default {
       },
       loadingDatasets: state => !!state.api.pending["datasets"],
       loadingPlatforms: state => !!state.api.pending["datasetsPlatforms"],
-      loadingAnnotation: state => !!state.api.pending["datasetsCategories"],
+      loadingAnnotation: state => !!state.api.pending["datasetsCategories"] || !!Object.values(state.api.pending["datasetsAnnotationsByCategory"]).some(x => x),
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
