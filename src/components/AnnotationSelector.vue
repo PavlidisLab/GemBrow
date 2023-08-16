@@ -5,7 +5,8 @@
                 Annotations
             </div>
             <v-spacer></v-spacer>
-            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary" :disabled="disabled">
+            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary"
+                   :disabled="disabled">
                 Clear Selection
             </v-btn>
         </div>
@@ -13,23 +14,22 @@
         <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
                     selectable
                     dense
-                    class="hide-root-checkboxes"
+                    :class="debug ? '' : 'hide-root-checkboxes'"
         >
             <template v-slot:label="{item}">
                 <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
-                <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"/>
+                <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"
+                      :title="getTitle(item).length > 30 && getTitle(item)"/>
                 <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
                                                            class="mdi mdi-open-in-new"></a></span>
                 <div v-if="debug && getUri(item)">
-                    <small>{{ getUri(item) }}</small>
+                    <small :style="isExcluded(item) ? 'text-decoration: line-through;' : ''">{{ getUri(item) }}</small>
                 </div>
             </template>
             <template v-slot:append="{item}">
-            <span v-if="!item.isCategory"
-                  :title="debug ? 'Entropy: ' + formatDecimal(entropy(item)) : undefined"
-            >
-                {{ formatNumber(item.numberOfExpressionExperiments) }}
-            </span>
+                <div v-if="!item.isCategory || debug" class="text-right">
+                    {{ formatNumber(item.numberOfExpressionExperiments) }}<br>
+                </div>
             </template>
         </v-treeview>
         <p v-show="annotations.length === 0">
@@ -39,9 +39,9 @@
 </template>
 
 <script>
-import { chain, isEqual, max, sum } from "lodash";
-import { formatDecimal, formatNumber } from "@/utils";
-import { annotationSelectorOrderArray, ontologySources } from "@/config/gemma";
+import { chain, isEqual, max, sumBy } from "lodash";
+import { formatDecimal, formatNumber, getCategoryId, getTermId } from "@/utils";
+import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 
 /**
@@ -67,12 +67,7 @@ export default {
     /**
      * If true, the checkboxes in the tree view are disabled.
      */
-    disabled: Boolean,
-    /**
-     * In order to rank annotations, we need to know how many datasets total are
-     * matched.
-     */
-    totalNumberOfExpressionExperiments: Number
+    disabled: Boolean
   },
   data() {
     return {
@@ -101,12 +96,8 @@ export default {
      */
     rankedAnnotations() {
       let selectedValues = new Set(this.selectedValues);
-      let byEntropy = (a, b) => {
-        // prioritize selected annotations
-        if (selectedValues.has(a.id) !== selectedValues.has(b.id)) {
-          return selectedValues.has(a.id) ? -1 : 1;
-        }
-        return this.entropy(b) - this.entropy(a);
+      let byNumberOfExpressionExperiments = (a, b) => {
+        return this.getNumberOfExpressionExperiments(b) - this.getNumberOfExpressionExperiments(a);
       };
       return this.annotations
         .map(a => {
@@ -123,12 +114,12 @@ export default {
                 isCategory: false,
                 children: c.children && getChildren(c)
               };
-            }).sort(byEntropy);
+            }).sort(byNumberOfExpressionExperiments);
           }
 
           return {
             ...a,
-            id: this.getCategoryId(a),
+            id: getCategoryId(a),
             isCategory: true,
             children: getChildren(a)
           };
@@ -137,14 +128,14 @@ export default {
           if (a.classUri && b.classUri) {
             let aI = annotationSelectorOrderArray.indexOf(a.classUri);
             let bI = annotationSelectorOrderArray.indexOf(b.classUri);
-            if(aI !== -1 && bI !== -1) {
+            if (aI !== -1 && bI !== -1) {
               return aI - bI;
             } else if (aI !== -1) {
               return -1;
             } else if (bI !== -1) {
               return 1;
             } else {
-               return 0;
+              return 0;
             }
           } else if (a.classUri) {
             return -1;
@@ -160,31 +151,22 @@ export default {
     })
   },
   methods: {
+    sumBy,
     formatNumber,
     formatDecimal,
-    /**
-     * @returns {*|string|null} an ID for the category or null if the term is uncategorized
-     */
-    getCategoryId(term) {
-      return term.classUri || term.className?.toLowerCase() || null;
-    },
     getId(term) {
-      return this.getCategoryId(term) + SEPARATOR + (term.termUri || term.termName?.toLowerCase());
+      return getCategoryId(term) + SEPARATOR + getTermId(term);
     },
-    entropy(item) {
-      if (this.isUncategorized(item)) {
-        return 0;
-      }
+    getNumberOfExpressionExperiments(item) {
       if (item.isCategory) {
-        // FIXME: because terms are not independent, we cannot sum their entropy
-        return max(item.children.map(c => this.entropy(c)));
+        // FIXME: because terms are not independent, we cannot sum their number of expression experiments
+        return max(item.children.map(c => this.getNumberOfExpressionExperiments(c))) || 0;
+      } else {
+        return item.numberOfExpressionExperiments;
       }
-      const p = item.numberOfExpressionExperiments / this.totalNumberOfExpressionExperiments;
-      if (p === 0 || p === 1) {
-        return 0;
-      }
-      let distribution = [p, 1 - p];
-      return -sum(distribution.map(p => p * Math.log(p)));
+    },
+    isExcluded(item) {
+      return excludedTerms.includes(item.classUri) || excludedTerms.includes(item.termUri);
     },
     isUncategorized(item) {
       return !item.className && !item.classUri;
@@ -218,7 +200,7 @@ export default {
      * Selected annotations, grouped by category and excluding selected categories.
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
-      let sc = new Set(selectedCategories.map(sc => this.getCategoryId(sc)));
+      let sc = new Set(selectedCategories.map(sc => getCategoryId(sc)));
       return newVal
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))

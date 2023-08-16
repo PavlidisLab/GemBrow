@@ -15,7 +15,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
-import { compressFilter, downloadAs, formatNumber } from "@/utils";
+import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/utils";
 import axios from "axios";
 
 const termsAndConditionsHeader = [
@@ -50,7 +50,7 @@ export default {
     },
     readableFilter() {
       let annotationByCategoryId = chain(this.searchSettings.annotations)
-        .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
+        .groupBy(getCategoryId)
         .values()
         .map(annotations => annotations.map(a => a.termName).join(", "))
         .join("; ")

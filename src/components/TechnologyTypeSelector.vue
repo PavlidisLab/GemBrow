@@ -1,32 +1,40 @@
 <template>
     <div>
-      <v-progress-linear :active="loading" indeterminate/>
         <div class="d-flex align-baseline">
             <div class="text--secondary">Platforms</div>
             <v-spacer></v-spacer>
-            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary" :disabled="disabled">
+            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary"
+                   :disabled="disabled">
                 Clear Selection
             </v-btn>
         </div>
+        <v-progress-linear :active="loading" indeterminate/>
         <v-treeview v-model="selectedValues"
                     :items="technologyTypes"
                     :disabled="disabled"
                     item-key="id"
                     item-text="name"
-                    selectable dense>
+                    selectable dense class="hide-root-checkboxes">
             <template v-slot:label="{item}">
-                {{ item.name }}
+                <span :title="item.name.length > 30 && item.name">{{ item.name }}</span>
             </template>
             <template v-slot:append="{item}">
-                {{ item.numberOfExpressionExperiments }}
+                <div v-if="item.numberOfExpressionExperiments" class="text-right">
+                    {{ formatNumber(item.numberOfExpressionExperiments) }}
+                </div>
             </template>
         </v-treeview>
+        <p v-show="technologyTypes.length === 0">
+            No technology types available
+        </p>
     </div>
 </template>
 
 <script>
 
-import { isEqual, sumBy } from "lodash";
+import { chain, isEqual } from "lodash";
+import { formatNumber } from "@/utils";
+import { mapState } from "vuex";
 
 const MICROARRAY_TECHNOLOGY_TYPES = ["ONECOLOR", "TWOCOLOR", "DUALMODE"];
 const OTHER_TECHNOLOGY_TYPES = ["SEQUENCING", "GENELIST", "OTHER"];
@@ -57,18 +65,25 @@ export default {
         {
           id: "RNASEQ",
           name: "RNA-Seq",
-          numberOfExpressionExperiments: sumBy(rnaseqPlatforms, "numberOfExpressionExperiments")
+          numberOfExpressionExperiments: rnaseqPlatforms[0]?.numberOfExpressionExperimentsForTechnologyType || 0
         },
         {
           id: "MICROARRAY",
           name: "Microarray",
           children: microarrayPlatforms,
-          numberOfExpressionExperiments: sumBy(microarrayPlatforms, "numberOfExpressionExperiments")
+          numberOfExpressionExperiments: chain(microarrayPlatforms)
+            .groupBy("technologyType")
+            .mapValues(v => v[0].numberOfExpressionExperimentsForTechnologyType)
+            .values()
+            .sum()
+            .value()
         }
-      ];
-    }
+      ].filter(tt => tt.numberOfExpressionExperiments > 0);
+    },
+    ...mapState(["debug"])
   },
   methods: {
+    formatNumber,
     computeSelectedPlatforms(ids, st) {
       return this.platforms
         .filter(p => ids.has(p.id))
