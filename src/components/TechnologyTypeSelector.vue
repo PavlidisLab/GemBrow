@@ -14,7 +14,7 @@
                     :disabled="disabled"
                     item-key="id"
                     item-text="name"
-                    selectable dense class="hide-root-checkboxes">
+                    selectable dense>
             <template v-slot:label="{item}">
                 <span :title="item.name.length > 30 && item.name">{{ item.name }}</span>
             </template>
@@ -120,8 +120,3 @@ export default {
 };
 </script>
 
-<style scoped>
-.hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
-    display: none !important;
-}
-</style>
