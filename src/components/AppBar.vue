@@ -20,8 +20,10 @@
           <v-card flat max-width="650px" class="scroll"> 
             <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
               <v-card-text>
-                <div v-for="line, index in filterDescription.split('\n')" :key="index">
-                  {{ line }}
+                <div v-for="line, lineIndex in filterDescription.split('\n')" :key="lineIndex">
+                  <span v-for="word, wordIndex in line.split(' ')" :key="lineIndex + '-' + wordIndex" :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
+                    {{ word }}&nbsp;
+                  </span>                 
                 </div>
               </v-card-text>
           </v-card>
@@ -209,5 +211,11 @@ export default {
 .scroll {
   overflow-y: scroll;
   max-height: calc(100vh - 100px);
+}
+
+.andOrStyle {
+  font-weight: bold;
+  font-style: italic;
+  color: rgb(42, 42, 223);
 }
 </style>
