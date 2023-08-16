@@ -19,32 +19,35 @@
                 outlined
                 clearable
                 hide-details
+                class="mb-3"
         ></v-text-field>
         <TaxonSelector
                 v-model="searchSettings.taxon"
                 :taxon="taxon"
                 :disabled="taxonDisabled"
-                :loading="taxaLoading"/>
+                :loading="taxaLoading"
+                class="mb-1"/>
         <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="searchSettings.platforms"
                 :platforms="platforms"
                 :selected-technology-types.sync="searchSettings.technologyTypes"
                 :disabled="platformDisabled"
-                :loading="platformLoading"/>
+                :loading="platformLoading"
+                class="mb-1"/>
         <v-range-slider
                 v-model="searchSettings.quality"
                 min="0" max="3"
                 ticks="always"
                 :tick-labels="['trash', 'low', 'mid', 'high']"
                 label="Quality" title="Filter based on GEEQ scores or curation status"
-                v-show="false"/>
+                v-show="false"
+                class="mb-1"/>
         <AnnotationSelector
                 v-model="searchSettings.annotations"
                 :annotations="annotations"
                 :loading="annotationLoading"
                 :disabled="annotationDisabled"
-                :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                 :selectedCategories.sync="searchSettings.categories"/>
         <div :class="debug ? '' : 'd-lg-none'">
             <div style="margin-bottom: 59px;"></div>

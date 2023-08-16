@@ -1,28 +1,36 @@
 <template>
-  <div>
-    <v-progress-linear :active="loading" indeterminate/>
-    <v-treeview
-            :items="treeItems"
-            item-key="id"
-            v-model="selectedTaxaIds"
-            selectable
-            dense
-            :disabled="disabled"
-            class="hide-root-checkboxes"
-    >
-        <template v-slot:label="{ item }">
-            <span v-text="item.label" class="text-truncate"> </span>
-        </template>
-        <template v-slot:append="{ item }">
-            <span v-if="item.type !== 'parent'"> {{ formatNumber(item.number) }} </span>
-            <span v-if="item.type === 'parent' && selectedTaxaIds.length > 0">
-            <v-btn @click="clearSelections" small text color="primary" :disabled="disabled">
-          Clear Selection
-              </v-btn>
-      </span>
-        </template>
-    </v-treeview>
-  </div>
+    <div>
+        <div class="d-flex align-baseline">
+            <div class="text--secondary">
+                Taxa
+            </div>
+            <v-progress-linear :active="loading" indeterminate/>
+            <v-spacer/>
+            <v-btn v-if="selectedTaxaIds.length > 0" @click="clearSelections" small text color="primary"
+                   :disabled="disabled">
+                Clear Selection
+            </v-btn>
+        </div>
+        <v-treeview
+                :items="treeItems"
+                item-key="id"
+                v-model="selectedTaxaIds"
+                selectable
+                dense
+                :disabled="disabled"
+                class="hide-root-checkboxes"
+        >
+            <template v-slot:label="{ item }">
+                <span v-text="item.label" class="text-truncate"> </span>
+            </template>
+            <template v-slot:append="{ item }">
+                <div class="text-right">{{ formatNumber(item.number) }}</div>
+            </template>
+        </v-treeview>
+        <p v-show="treeItems.length === 0">
+            No taxa available
+        </p>
+    </div>
 </template>
 
 <script>
@@ -77,7 +85,7 @@ export default {
 
         items[0].children.push(taxonItem);
       }
-      return items;
+      return items[0].children;
     },
     selectedTaxa() {
       if (!this.selectedTaxaIds) return [];
