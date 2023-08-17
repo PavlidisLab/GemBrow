@@ -323,22 +323,13 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          const filteredErrors = Object.values(state.api.error)
+          return Object.values(state.api.error)
             .filter(e => e !== null)
+            .filter(e => e !== state.api.error.datasetsAnnotationsByCategory || !Object.values(e).every(value => value === null))
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
-
-            // Check if datasetsAnnotationsByCategory has all values as null
-            const allNull = Object.values(state.api.error.datasetsAnnotationsByCategory).every(e => e === null);
-
-            // If not all values are null, include datasetsAnnotationsByCategory in the filteredErrors
-            if (!allNull) {
-              filteredErrors.push(state.api.error.datasetsAnnotationsByCategory)
-            }
-
-            return filteredErrors;
-        }
-      },
+          }
+        },
       datasets: state => state.api.datasets?.data || [],
       appliedBrowsingOptions(state) {
         if (state.api.datasets) {
