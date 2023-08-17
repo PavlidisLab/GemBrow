@@ -90,7 +90,7 @@ export default {
           .then((responses) => {
             let data = responses.flatMap(response => response.data.data);
             let formattedFilterDescription = this.filterDescription.replace(/\n/g, ""); 
-            let csvHeader = termsAndConditionsHeader + "\n" + formattedFilterDescription;
+            let csvHeader = termsAndConditionsHeader + "\n# " + formattedFilterDescription;
             let csvContent = parse(data, {
               delimiter: "\t",
               quote: "",
