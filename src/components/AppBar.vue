@@ -152,7 +152,7 @@ export default {
       baseUrl: baseUrl,
       showAboutDialog: false,
       showDocumentationWindow: false,
-      initiallyDebug: process.env.NODE_ENV !== "production"
+      devMode: process.env.NODE_ENV !== "production"
     };
   },
   methods: {
