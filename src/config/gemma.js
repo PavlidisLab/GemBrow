@@ -103,15 +103,15 @@ export let annotationSelectorOrderArray = [
   "http://www.ebi.ac.uk/efo/EFO_0000727", // treatment
   "http://www.ebi.ac.uk/efo/EFO_0000635", // organism part
   "http://www.ebi.ac.uk/efo/EFO_0000324", // cell type
-  "http://www.ebi.ac.uk/efo/EFO_0005135", // strain 4439
-  "http://purl.obolibrary.org/obo/CLO_0000031", // cell line 2619
-  "http://www.ebi.ac.uk/efo/EFO_0000399", // developmental stage 2456
-  "http://purl.obolibrary.org/obo/PATO_0000047", // biological sex 2145
-  "http://gemma.msl.ubc.ca/ont/TGEMO_00101", // disease model 322 this might get merged later
-  "http://www.ebi.ac.uk/efo/EFO_0002755", // diet 185
-  "http://www.ebi.ac.uk/efo/EFO_0000246", // age 68
-  "http://purl.obolibrary.org/obo/OBI_0000181", // population 37
-  "http://www.ebi.ac.uk/efo/EFO_0002571" // medical procedure 4
+  "http://www.ebi.ac.uk/efo/EFO_0005135", // strain 
+  "http://purl.obolibrary.org/obo/CLO_0000031", // cell line
+  "http://www.ebi.ac.uk/efo/EFO_0000399", // developmental stage
+  "http://purl.obolibrary.org/obo/PATO_0000047", // biological sex
+  "http://gemma.msl.ubc.ca/ont/TGEMO_00101", // disease model this might get merged later
+  "http://www.ebi.ac.uk/efo/EFO_0002755", // diet 
+  "http://www.ebi.ac.uk/efo/EFO_0000246", // age 
+  "http://purl.obolibrary.org/obo/OBI_0000181", // population 
+  "http://www.ebi.ac.uk/efo/EFO_0002571" // medical procedure 
 ];
 
 /**
@@ -205,3 +205,44 @@ export let ontologySources = [
     }
   }
 ];
+/**
+ * Make highlight labels human readable from dictionary and also generate key/values for publication highlights from publication fields and publication prefixes.
+ *
+ * Use pattern to match a term URI and getExternalUrl() to produce a link to the external ontology browser.
+ */
+let PUBLICATION_FIELDS = {
+  "name": "name",  
+  "abstractText": "abstract text",
+  "authorList": "author lists",
+  "chemicals.name": "chemicals name",
+  "chemicals.registryNumber": "chemicals registry number",
+  "fullTextUri": "full text URI",
+  "keywords.term": "keywords",
+  "meshTerms.term": "mesh terms",
+  "pubAccession.accession": "accession",
+  "title": "title"
+};
+
+export let HIGHLIGHT_LABELS = {
+  "shortName": "short name", 
+  "bioAssays.name": "sample name", 
+  "bioAssays.description": "sample description", 
+  "bioAssays.accession.accession": "sample accession",
+  "bioAssays.sampleUsed.name": "sample name", 
+  "bioAssays.sampleUsed.characteristics.value": "sample annotation",
+  "bioAssays.sampleUsed.characteristics.valueUri": "sample annotation URI", 
+  "characteristics.value": "annotation", 
+  "characteristics.valueUri": "annotation URI",
+  "experimentalDesign.name": "experimental design name", 
+  "experimentalDesign.description": "experimental design description", 
+  "experimentalDesign.experimentalFactors.name": "experimental factors name",
+  "experimentalDesign.experimentalFactors.description": "experimental factors description",
+  "experimentalDesign.experimentalFactors.category.categoryUri": "experimental factors category URI",
+  "experimentalDesign.experimentalFactors.category.category": "experimental factors category",
+  "experimentalDesign.experimentalFactors.factorValues.characteristics.value": "experimental factors annotation",
+  "experimentalDesign.experimentalFactors.factorValues.characteristics.valueUri": "experimental factors annotation URI",
+  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["primaryPublication." + k, "primary publication "+v])),
+  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["otherRelevantPublications." + k,"other publication "+ v]))
+}
+
+

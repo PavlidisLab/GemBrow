@@ -97,7 +97,7 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
-import { baseUrl, excludedCategories, excludedTerms, marked } from "@/config/gemma";
+import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
 import { chain, debounce, escapeRegExp, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
@@ -117,41 +117,6 @@ import { mapMutations, mapState } from "vuex";
 const MAX_URIS_IN_CLAUSE = 200;
 const MAX_TERMS_PER_CATEGORY = 200;
 const MAX_PLATFORMS = 200;
-
-const PUBLICATION_FIELDS = {
-  "name": "name",  
-  "abstractText": "abstract text",
-  "authorList": "author lists",
-  "chemicals.name": "chemicals name",
-  "chemicals.registryNumber": "chemicals registry number",
-  "fullTextUri": "full text URI",
-  "keywords.term": "keywords",
-  "meshTerms.term": "mesh terms",
-  "pubAccession.accession": "accession",
-  "title": "title"
-};
-
-const HIGHLIGHT_LABELS = {
-  "shortName": "short name", 
-  "bioAssays.name": "sample name", 
-  "bioAssays.description": "sample description", 
-  "bioAssays.accession.accession": "sample accession",
-  "bioAssays.sampleUsed.name": "sample name", 
-  "bioAssays.sampleUsed.characteristics.value": "sample annotation",
-  "bioAssays.sampleUsed.characteristics.valueUri": "sample annotation URI", 
-  "characteristics.value": "annotation", 
-  "characteristics.valueUri": "annotation URI",
-  "experimentalDesign.name": "experimental design name", 
-  "experimentalDesign.description": "experimental design description", 
-  "experimentalDesign.experimentalFactors.name": "experimental factors name",
-  "experimentalDesign.experimentalFactors.description": "experimental factors description",
-  "experimentalDesign.experimentalFactors.category.categoryUri": "experimental factors category URI",
-  "experimentalDesign.experimentalFactors.category.category": "experimental factors category",
-  "experimentalDesign.experimentalFactors.factorValues.characteristics.value": "experimental factors annotation",
-  "experimentalDesign.experimentalFactors.factorValues.characteristics.valueUri": "experimental factors annotation URI",
-  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["primaryPublication." + k, "primary publication "+v])),
-  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["otherRelevantPublications." + k,"other publication "+ v]))
-}
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
