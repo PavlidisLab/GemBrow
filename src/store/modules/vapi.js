@@ -5,7 +5,16 @@ import Vue from "vue";
 
 const vapi = new Vapi({
   baseURL: baseUrl, // assigned in store.js
-  axios: axiosInst
+  axios: axiosInst,
+  state: {
+    datasetsAnnotationsByCategory: {},
+    pending: {
+      datasetsAnnotationsByCategory: {}
+    },
+    error: {
+      datasetsAnnotationsByCategory: {}
+    }
+  }
 });
 
 /**
@@ -60,14 +69,23 @@ export default vapi
   .endpoint("getDatasets", "datasets", "/datasets", { queryParams: true })
   .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
   .endpoint("getDatasetsCategories", "datasetsCategories", "/datasets/categories", { queryParams: true })
-  .endpoint("getDatasetsAnnotationsByCategory", "datasetsAnnotationsByCategory", "/datasets/annotations", {
+  .endpoint("getDatasetsAnnotationsByCategory", null, "/datasets/annotations", {
     queryParams: true,
+    beforeRequest(state, { params }) {
+      Vue.set(state.pending["datasetsAnnotationsByCategory"], params.category, true);
+    },
     onSuccess(state, payload, axios, { params }) {
       if (payload.data.error) {
         state.error["datasetsAnnotationsByCategory"] = payload.data.error;
       } else {
         Vue.set(state["datasetsAnnotationsByCategory"], params.category, payload.data);
+        Vue.set(state.error["datasetsAnnotationsByCategory"], params.category, null);
       }
+      Vue.set(state.pending["datasetsAnnotationsByCategory"], params.category, false);
+    },
+    onError(state, error, axios, {params}) {
+      Vue.set(state.error["datasetsAnnotationsByCategory"], params.category, error);
+      Vue.set(state.pending["datasetsAnnotationsByCategory"], params.category, false);
     }
   })
   .endpoint("getDatasetsPlatforms", "datasetsPlatforms", "/datasets/platforms", { queryParams: true })

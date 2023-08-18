@@ -324,12 +324,12 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.values(state.api.error)
+          return Object.entries(state.api.error).flatMap(([key, error]) => key === 'datasetsAnnotationsByCategory' ? Object.values(error) : [error])
             .filter(e => e !== null)
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
-        }
-      },
+          }
+        },
       datasets: state => state.api.datasets?.data || [],
       appliedBrowsingOptions(state) {
         if (state.api.datasets) {
@@ -379,7 +379,7 @@ export default {
       },
       loadingDatasets: state => !!state.api.pending["datasets"],
       loadingPlatforms: state => !!state.api.pending["datasetsPlatforms"],
-      loadingAnnotation: state => !!state.api.pending["datasetsCategories"],
+      loadingAnnotation: state => !!state.api.pending["datasetsCategories"] || !!Object.values(state.api.pending["datasetsAnnotationsByCategory"]).some(x => x),
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
