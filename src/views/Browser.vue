@@ -323,9 +323,8 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.values(state.api.error)
+          return Object.entries(state.api.error).flatMap(([key, error]) => key === 'datasetsAnnotationsByCategory' ? Object.values(error) : [error])
             .filter(e => e !== null)
-            .filter(e => e !== state.api.error.datasetsAnnotationsByCategory || !Object.values(e).every(value => value === null))
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
           }
