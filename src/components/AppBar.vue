@@ -8,7 +8,7 @@
                     alt="The Gemma Browser logo"
             />
         </a>
-        <div v-show=true style="align-self: center; padding-left: 15px;">
+        <div class="d-none d-md-flex px-3">
             {{ title }}
         </div>
         <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
@@ -29,9 +29,10 @@
           </v-card>
         </v-menu>
         <v-spacer/>
-        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details class="px-4"/>
-        <v-btn fab small tile depressed @click="showDocumentationWindow = true">
-          <v-icon>mdi-help-circle-outline</v-icon>
+        <v-switch v-if="devMode" v-model="debug" label="Debug Mode" hide-details class="d-none d-sm-flex px-4"/>
+        <v-btn fab small tile depressed @click="showDocumentationWindow = true"
+               class="d-none d-sm-flex px-4">
+            <v-icon>mdi-help-circle-outline</v-icon>
         </v-btn>
         <DocumentationWindow v-model="showDocumentationWindow"/>
         <v-menu open-on-hover offset-y>
@@ -126,7 +127,7 @@
         </v-menu>
         <a href="https://www.ubc.ca/" target="_blank"
            title="UBC home page"
-           style="display: flex; align-content: center;">
+           class="d-flex align-center pl-3">
             <img
                     :src="require('@/assets/ubc-logo-current.png')"
                     height="40"
