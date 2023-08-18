@@ -684,7 +684,7 @@ export default {
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
         .filter(h => h[0] !== "name") // the name is highlighted in the table
-        .map(h => marked.parseInline("**Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ":** " + h[1]))
+        .map(h => marked.parseInline("Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ": " + h[1]))
         .join("<br/>");
     },
     getName(item) {
