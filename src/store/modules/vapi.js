@@ -67,7 +67,6 @@ export default vapi
   .endpoint("getRoot", "root", "/")
   .endpoint("getOpenApiSpecification", "openApiSpecification", "/openapi.json")
   .endpoint("getDatasets", "datasets", "/datasets", { queryParams: true })
-  .endpoint("getDatasetsByIds", "datasets", ({ ids }) => "/datasets/" + encodeURIComponent(ids))
   .endpoint("getDatasetsCategories", "datasetsCategories", "/datasets/categories", { queryParams: true })
   .endpoint("getDatasetsAnnotationsByCategory", null, "/datasets/annotations", {
     queryParams: true,
