@@ -98,7 +98,7 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
-import { baseUrl, excludedCategories, excludedTerms, marked } from "@/config/gemma";
+import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
 import { chain, debounce, escapeRegExp, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
@@ -684,7 +684,7 @@ export default {
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
         .filter(h => h[0] !== "name") // the name is highlighted in the table
-        .map(h => marked.parseInline("**Tagged " + h[0] + ":** " + h[1]))
+        .map(h => marked.parseInline("**Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ":** " + h[1]))
         .join("<br/>");
     },
     getName(item) {
