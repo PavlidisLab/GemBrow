@@ -140,7 +140,7 @@ export default {
     return {
       baseUrl,
       drawer: true,
-      searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
+      searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
       options: {
         page: 1,
         itemsPerPage: 25,
@@ -299,7 +299,7 @@ export default {
     },
     browsingOptions() {
       // query can be null if reset
-      if (this.searchSettings.query !== null && this.searchSettings.query.length > 0) {
+      if (this.searchSettings.query && this.searchSettings.query.length > 0) {
         return {
           query: this.searchSettings.query,
           filter: this.filter,
@@ -628,7 +628,7 @@ export default {
             // ensures that the terms appearing in filter are always returned
             retainMentionedTerms: true
           };
-          if (query !== undefined) {
+          if (query) {
             payload["query"] = query;
           }
           if (excludedTerms !== undefined) {
@@ -703,13 +703,15 @@ export default {
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
   },
   created() {
+    let query = this.searchSettings.query;
+    let filter = this.filter;
     return Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
       .then(([excludedCategories, excludedTerms]) => {
         return Promise.all([
           this.updateOpenApiSpecification(),
-          this.updateAvailableTaxa(undefined, this.filter),
-          this.updateAvailablePlatforms(undefined, this.filter),
-          this.updateAvailableCategories(undefined, this.filter, excludedCategories, excludedTerms),
+          this.updateAvailableTaxa(query, filter),
+          this.updateAvailablePlatforms(query, filter),
+          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
           this.browse(this.browsingOptions)])
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
       });
