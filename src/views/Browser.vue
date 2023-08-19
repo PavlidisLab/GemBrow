@@ -187,7 +187,7 @@ export default {
           value: "lastUpdated"
         }
       );
-      if (this.debug && this.appliedBrowsingOptions.query) {
+      if (this.debug && this.appliedQuery) {
         h.push({
           text: "Score (dev only)",
           value: "searchResult.score",
@@ -322,25 +322,20 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.entries(state.api.error).flatMap(([key, error]) => key === 'datasetsAnnotationsByCategory' ? Object.values(error) : [error])
+          return Object.entries(state.api.error).flatMap(([key, error]) => key === "datasetsAnnotationsByCategory" ? Object.values(error) : [error])
             .filter(e => e !== null)
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
-          }
-        },
-      datasets: state => state.api.datasets?.data || [],
-      appliedBrowsingOptions(state) {
-        if (state.api.datasets) {
-          return {
-            query: state.api.datasets.query,
-            filter: state.api.datasets.filter,
-            offset: state.api.datasets.offset,
-            limit: state.api.datasets.limit,
-            sort: state.api.datasets.sort ? (state.api.datasets.sort.direction + state.api.datasets.sort.orderBy) : null
-          };
-        } else {
-          return this.browsingOptions;
         }
+      },
+      datasets: state => state.api.datasets?.data || [],
+      /**
+       * Currently applied query.
+       * @param state
+       * @returns {*}
+       */
+      appliedQuery(state) {
+        return state.api.datasets?.query;
       },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
