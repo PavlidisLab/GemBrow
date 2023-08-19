@@ -83,7 +83,6 @@
                     </v-progress-circular>
                     <DownloadButton v-show="totalNumberOfExpressionExperiments > 0"
                                     :browsing-options="browsingOptions"
-                                    :search-settings="searchSettings"
                                     :filter-description="filterDescription"
                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                                     :max-datasets="100"

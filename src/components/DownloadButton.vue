@@ -31,7 +31,6 @@ export default {
      * Browsing options to use for downloading datasets.
      */
     browsingOptions: Object,
-    searchSettings: Object,
     totalNumberOfExpressionExperiments: Number,
     progress: Number,
     filterDescription: String
