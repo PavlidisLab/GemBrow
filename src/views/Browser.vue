@@ -38,7 +38,7 @@
                     dense class="browser-data-table"
             >
                 <template v-slot:item.shortName="{item}">
-                    <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + encodeURIComponent(item.id)">
+                    <a :href="getUrl(item.id)">
                         {{ item.shortName }}
                     </a>
                 </template>
@@ -137,7 +137,6 @@ export default {
   },
   data() {
     return {
-      baseUrl,
       drawer: true,
       searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
       options: {
@@ -692,6 +691,9 @@ export default {
       } else {
         return item.name;
       }
+    },
+    getUrl(item) {
+      return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
     },
     capitalizeFirstLetter(str) {
       return str
