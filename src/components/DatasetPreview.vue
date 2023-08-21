@@ -1,7 +1,7 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
-        <v-chip v-for="term in terms" :key="term.termUri">{{ term.termName }}</v-chip> 
+        <v-chip v-for="term in includedTerms" :key="term.termUri">{{ term.termName }}</v-chip> 
         <!--* 
           * Add the termName and parentName values as chips
           * Color code the chips to correspond to categories (which categories?)
@@ -13,7 +13,7 @@
 
 <script>
 import { highlight } from "@/search-utils";
-import { marked, axiosInst, baseUrl } from "@/config/gemma";
+import { marked, axiosInst, baseUrl, excludedTerms } from "@/config/gemma";
 
 export default {
   name: "DatasetPreview",
@@ -22,7 +22,8 @@ export default {
   },
   data() {
     return {
-      terms: []
+      terms: [],
+      includedTerms: []
     }
   },
   computed: {
@@ -57,11 +58,12 @@ export default {
      * Dispatch the API request when the user opens the dataset preview window 
      * Query the dataset/annotation endpoint (getTerms())
      * store termName for selected experiment
+     * keep only terms not on exclusion list
      * store the Name for any of the parent terms that are not selected as a chip below the title
     */ 
-   console.log('this.dataset', this.dataset)
    this.getTerms().then(terms => {
     this.terms = terms;
+    this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri));
    });
   }
 };
