@@ -1,9 +1,8 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
-        <v-chip v-for="term in includedTerms" :key="term.termUri">{{ term.termName }}</v-chip> 
+        <v-chip v-for="term in includedTerms" :key="term.termUri" @click="handleChipClick(term.termName)" small>{{ term.termName }} </v-chip> 
         <!--* 
-          * Add the termName and parentName values as chips
           * Color code the chips to correspond to categories (which categories?)
           * Add termName/name of chip to search query on click
         -->
@@ -13,7 +12,7 @@
 
 <script>
 import { highlight } from "@/search-utils";
-import { marked, axiosInst, baseUrl, excludedTerms } from "@/config/gemma";
+import { marked, axiosInst, baseUrl, excludedTerms, excludedCategories } from "@/config/gemma";
 
 export default {
   name: "DatasetPreview",
@@ -37,7 +36,6 @@ export default {
   methods: {
     getTerms() {
     const dataset = this.dataset.id
-    console.log('dataset', dataset)
     return axiosInst.request({
       method: 'GET',
         url: baseUrl + `/rest/v2/datasets/annotations`,
@@ -46,24 +44,21 @@ export default {
         }
       })
       .then(response => {
-        console.log('datasets/annotations endpoint data', response.data);
         return response.data.data;
       }).catch(error => {
-        console.error('Failed to get datasets/annotations endpoint data', error);
       });
-   }
+   },
+   handleChipClick(termName) {
+    this.$emit('chip-clicked', termName); // Emit the termUri to the parent or other components
+    }
   },
   created() {
     /** 
-     * Dispatch the API request when the user opens the dataset preview window 
-     * Query the dataset/annotation endpoint (getTerms())
-     * store termName for selected experiment
-     * keep only terms not on exclusion list
      * store the Name for any of the parent terms that are not selected as a chip below the title
     */ 
    this.getTerms().then(terms => {
     this.terms = terms;
-    this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri));
+    this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri));
    });
   }
 };

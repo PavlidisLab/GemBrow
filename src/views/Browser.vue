@@ -66,7 +66,7 @@
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
-                        <DatasetPreview :dataset="item"></DatasetPreview>
+                        <DatasetPreview :dataset="item" @chip-clicked="handleChipClicked"></DatasetPreview>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
@@ -700,7 +700,13 @@ export default {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
     },
-    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
+    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
+    handleChipClicked(termName) {
+      if (this.searchSettings.query !== null) {
+        this.searchSettings.query += ' ';
+      }
+      this.searchSettings.query += termName;
+    }
   },
   created() {
     return Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
