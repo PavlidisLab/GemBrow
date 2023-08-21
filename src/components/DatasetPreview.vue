@@ -1,7 +1,7 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
-        <v-chip v-for="term in includedTerms" :key="term.termUri" @click="handleChipClick(term.termName)" small>{{ term.termName }} </v-chip> 
+        <v-chip v-for="term in includedTerms" :key="term.termUri" @click="handleChipClick(term.termName)" small :color="getChipColor(term.objectClass)">{{ term.termName }} </v-chip> 
         <!--* 
           * Color code the chips to correspond to categories (which categories?)
           * Add termName/name of chip to search query on click
@@ -31,6 +31,13 @@ export default {
         return marked.parseInline(highlight(this.dataset.description, this.dataset.searchResult.highlights.description));
       }
       return marked.parseInline(this.dataset.description);
+    },
+    chipColorMap() {
+      return {
+        FactorValue: 'yellow',
+        ExperimentTag: 'green',
+        BioMaterial: 'blue'
+      };
     }
   },
   methods: {
@@ -38,7 +45,7 @@ export default {
     const dataset = this.dataset.id
     return axiosInst.request({
       method: 'GET',
-        url: baseUrl + `/rest/v2/datasets/annotations`,
+        url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`,
         params: {
           filter: `id = ${dataset}`
         }
@@ -50,15 +57,18 @@ export default {
    },
    handleChipClick(termName) {
     this.$emit('chip-clicked', termName); // Emit the termUri to the parent or other components
+    },
+    getChipColor(objectClass) {
+      return this.chipColorMap[objectClass] || 'orange'
     }
   },
   created() {
     /** 
      * store the Name for any of the parent terms that are not selected as a chip below the title
     */ 
-   this.getTerms().then(terms => {
-    this.terms = terms;
-    this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri));
+    this.getTerms().then(terms => {
+      this.terms = terms;
+      this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri));
    });
   }
 };

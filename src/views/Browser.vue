@@ -702,10 +702,11 @@ export default {
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
     handleChipClicked(termName) {
-      if (this.searchSettings.query !== null) {
-        this.searchSettings.query += ' ';
-      }
-      this.searchSettings.query += termName;
+      termName = termName.replace(/[\(\)\[\]]/g, "")
+      if (this.searchSettings.query !== null && this.searchSettings.query !== '') {
+        this.searchSettings.query += `, ${termName}`
+      } else { this.searchSettings.query = termName
+        }
     }
   },
   created() {
