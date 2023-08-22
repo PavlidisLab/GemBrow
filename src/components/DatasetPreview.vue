@@ -1,11 +1,11 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
-        <v-chip v-for="term in includedTerms" :key="term.termUri" @click="handleChipClick(term.termName)" small :color="getChipColor(term.objectClass)">{{ term.termName }} </v-chip> 
-        <!--* 
-          * Color code the chips to correspond to categories (which categories?)
-          * Add termName/name of chip to search query on click
-        -->
+        <v-chip v-for="term in includedTerms" 
+                :key="term.termUri" @click="handleChipClick(term.termName)" 
+                small :color="getChipColor(term.objectClass)">
+                {{ term.termName }} 
+          </v-chip> 
         <div v-html="this.description"></div>
     </div>
 </template>
@@ -68,8 +68,15 @@ export default {
     */ 
     this.getTerms().then(terms => {
       this.terms = terms;
-      this.includedTerms = terms.filter(term => !excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri));
-   });
+      const seenTermUris = new Set(); // Log the URIs of objects in the terms array to omit duplicates and prevent duplicate URIs causing errors
+      this.includedTerms = terms.filter(term => {
+        if (!excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri) && !seenTermUris.has(term.termUri)) {
+          seenTermUris.add(term.termUri);
+          return true;
+        return false; 
+        }
+      });
+    });
   }
 };
 </script>
