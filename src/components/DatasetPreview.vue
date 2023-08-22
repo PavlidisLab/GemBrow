@@ -73,6 +73,7 @@ export default {
         if (!excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri) && !seenTermUris.has(term.termUri)) {
           seenTermUris.add(term.termUri);
           return true;
+        } else {
         return false; 
         }
       });
