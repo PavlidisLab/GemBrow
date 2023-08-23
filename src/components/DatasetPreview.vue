@@ -42,30 +42,27 @@ export default {
   },
   methods: {
     getTerms() {
-    const dataset = this.dataset.id
-    return axiosInst.request({
-      method: 'GET',
-        url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`,
-        params: {
-          filter: `id = ${dataset}`
-        }
-      })
-      .then(response => {
-        return response.data.data;
-      }).catch(error => {
+      const dataset = this.dataset.id
+      return axiosInst.request({
+        method: 'GET',
+          url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`,
+          params: {
+            filter: `id = ${dataset}`
+          }
+        })
+        .then(response => {
+          return response.data.data;
+        }).catch(error => {
       });
-   },
-   handleChipClick(termName) {
-    this.$emit('chip-clicked', termName); // Emit the termUri to the parent or other components
     },
-    getChipColor(objectClass) {
-      return this.chipColorMap[objectClass] || 'orange'
+    handleChipClick(termName) {
+      this.$emit('chip-clicked', termName); // Emit the termUri to the parent or other components
+      },
+      getChipColor(objectClass) {
+        return this.chipColorMap[objectClass] || 'orange'
     }
   },
   created() {
-    /** 
-     * store the Name for any of the parent terms that are not selected as a chip below the title
-    */ 
     this.getTerms().then(terms => {
       this.terms = terms;
       const seenTermUris = new Set(); // Log the URIs of objects in the terms array to omit duplicates and prevent duplicate URIs causing errors
@@ -74,7 +71,7 @@ export default {
           seenTermUris.add(term.termUri);
           return true;
         } else {
-        return false; 
+          return false; 
         }
       });
     });
