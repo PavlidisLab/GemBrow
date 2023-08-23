@@ -505,6 +505,7 @@ export default {
       }).catch(err => {
         // because the function is debounced, the caller might never get resulting promise and ability to handle the error
         console.error("Error while searching: " + err.message + ".", err);
+        this.setLastError(err);
       });
     }, 1000),
     browse(browsingOptions, updateEverything) {
@@ -696,7 +697,7 @@ export default {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
     },
-    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
+    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"])
   },
   created() {
     let query = this.searchSettings.query;
@@ -753,9 +754,11 @@ export default {
     },
     myself: function(newVal, oldVal) {
       if (!isEqual(newVal, oldVal)) {
-        this.browse(this.browsingOptions, true).catch(err => {
-          console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
-        });
+        this.browse(this.browsingOptions, true)
+          .catch(err => {
+            console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
+            this.setLastError(err);
+          });
       }
     }
   }
