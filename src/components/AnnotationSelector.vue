@@ -30,6 +30,8 @@
                 <div v-if="!item.isCategory || debug" class="text-right">
                     {{ formatNumber(item.numberOfExpressionExperiments) }}<br>
                 </div>
+                <div v-if="item.isCategory && !debug && getNumberCategorySelections(item) > 0" class="text-right" style="font-size: 14px; color: grey;"> {{ getNumberCategorySelections(item) }} selected <br>
+                </div>
             </template>
         </v-treeview>
         <p v-show="annotations.length === 0 && !loading">
@@ -195,6 +197,11 @@ export default {
           return source.getExternalUrl(uri);
         }
       }
+    },
+    getNumberCategorySelections(item) {
+      let classUri = item.classUri;
+      let selectedValuesClassUris = this.selectedValues.map(Values => Values.split('|')[0]);
+      return selectedValuesClassUris.filter(value => value.includes(classUri)).length;
     },
     /**
      * Selected annotations, grouped by category and excluding selected categories.
