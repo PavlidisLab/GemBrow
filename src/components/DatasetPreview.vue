@@ -2,9 +2,10 @@
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" 
-                :key="term.termUri" @click="handleChipClick(term.termName)" 
+                :key="term.termUri" @click="handleChipClick(term)" 
                 small :color="getChipColor(term.objectClass)">
                 {{ term.termName }} 
+                <v-icon right>mdi-plus</v-icon>
           </v-chip> 
         <div v-html="this.description"></div>
     </div>
@@ -45,10 +46,7 @@ export default {
       const dataset = this.dataset.id
       return axiosInst.request({
         method: 'GET',
-          url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`,
-          params: {
-            filter: `id = ${dataset}`
-          }
+          url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`
         })
         .then(response => {
           return response.data.data;

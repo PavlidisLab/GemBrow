@@ -701,12 +701,9 @@ export default {
         .join(" ");
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
-    handleChipClicked(termName) {
-      termName = termName.replace(/[\(\)\[\]]/g, "")
-      if (this.searchSettings.query !== null && this.searchSettings.query !== '') {
-        this.searchSettings.query += `, ${termName}`
-      } else { this.searchSettings.query = termName
-        }
+    handleChipClicked(previewTerm) {
+     console.log('previewTerm', previewTerm)
+     this.searchSettings.annotations.push(previewTerm)
     }
   },
   created() {
