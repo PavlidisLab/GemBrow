@@ -13,7 +13,7 @@
         <v-progress-linear :active="loading" indeterminate/>
         <v-text-field v-model="search" dense label="Filter Annotations" outlined hide-details
                       prepend-inner-icon="filter_list" :disabled="disabled"
-                      class="mt-1"/>
+                      class="my-1"/>
         <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
                     selectable
                     dense
