@@ -38,7 +38,7 @@
                     dense class="browser-data-table"
             >
                 <template v-slot:item.shortName="{item}">
-                    <a :href="getUrl(item.id)">
+                    <a :href="getUrl(item)">
                         {{ item.shortName }}
                     </a>
                 </template>
