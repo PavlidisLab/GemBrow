@@ -428,23 +428,27 @@ export default {
     filterDescription() {
       const filter = [];
       if (this.searchSettings.query) {
-        filter.push({ key: "Query", value: ` "${this.searchSettings.query}"` });
+        filter.push({ key: "Query ", value: `"${this.searchSettings.query}"` });
       }
       if (this.searchSettings.taxon.length > 0) {
         const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
-        filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
+        filter.push({ key: "Taxa ", value: taxaValues.join(" OR ") });
       }
       if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
         const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
         if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.includes('RNASEQ')) {
           platformValues.unshift('All RNA-Seq platforms')
         }
-        filter.push({ key: "Platforms", value: platformValues });
+        filter.push({ key: "Platforms ", value: platformValues });
       }
       if (this.searchSettings.categories.length > 0) {
         for (let cat of this.searchSettings.categories) {
           if (cat.className) {
-            filter.push({ key: cat.className + "s", value: "ANY" });
+            if (cat.className !== 'biological sex') {
+              filter.push({ key: cat.className + "s ", value: "ANY" });
+            } else {
+              filter.push({key: cat.className + "es ", value: "ANY" })
+            }
           } else if (cat.classUri) {
             filter.push({ key: cat.classUri, value: "ANY" });
           } else {
@@ -456,7 +460,11 @@ export default {
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
           let { classUri, className, termName } = annotation;
           if (className) {
-            className = className + "s";
+            if (className !== 'biological sex') {
+              className = className + "s ";
+            } else {
+              className = className + "es ";
+            }
           } else if (classUri) {
             className = classUri;
           } else {
