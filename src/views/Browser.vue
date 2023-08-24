@@ -453,6 +453,7 @@ export default {
         }
       }
       if (this.searchSettings.annotations.length > 0) {
+        console.log(this.searchSettings.annotations);
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
           let { classUri, className, termName } = annotation;
           if (className) {
@@ -702,8 +703,12 @@ export default {
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
     handleChipClicked(previewTerm) {
-     console.log('previewTerm', previewTerm)
-     this.searchSettings.annotations.push(previewTerm)
+      console.log(previewTerm);
+     this.searchSettings.annotations.push({
+        classUri: previewTerm.classUri, 
+        className: previewTerm.className,
+        termUri: previewTerm.termUri, 
+        termName: previewTerm.termName})
     }
   },
   created() {

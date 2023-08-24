@@ -51,6 +51,7 @@ export default {
         .then(response => {
           return response.data.data;
         }).catch(error => {
+          this.setLastError
       });
     },
     handleChipClick(termName) {
