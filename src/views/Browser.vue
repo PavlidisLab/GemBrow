@@ -430,7 +430,10 @@ export default {
       if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
         const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
         if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.includes('RNASEQ')) {
-          platformValues.unshift('All RNA-Seq platforms')
+          platformValues.unshift('RNA-Seq')
+        }
+        if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.length >= 3 && this.searchSettings.platforms.length === 0) {
+          platformValues.unshift('Microarray')
         }
         filter.push({ key: "Platforms ", value: platformValues });
       }
