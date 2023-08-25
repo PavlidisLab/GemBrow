@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { isEqual } from "lodash";
 import { formatNumber } from "@/utils";
 
 export default {
@@ -105,8 +106,13 @@ export default {
     }
   },
   watch: {
-    selectedTaxa(newVal) {
-      this.$emit("input", newVal);
+    value(newVal){
+      this.selectedTaxaIds = newVal && newVal.map(t => t.id) || []
+    },
+    selectedTaxa(newVal, oldVal) {
+      if (!isEqual(newVal, oldVal)) {
+        this.$emit("input", newVal);
+      }
     }
   }
 };

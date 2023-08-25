@@ -256,6 +256,9 @@ export default {
         this.previouslyOpen = null;
       }
     },
+    value(newVal){
+      this.selectedValues = newVal.map(term => this.getId(term))
+    },
     selectedValues(newVal, oldVal) {
       let sc = this.computeSelectedCategories(newVal);
       let sa = this.computeSelectedAnnotations(newVal, sc);
