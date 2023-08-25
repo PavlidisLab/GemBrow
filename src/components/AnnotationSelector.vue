@@ -46,7 +46,7 @@
 
 <script>
 import { chain, isEqual, max } from "lodash";
-import { formatNumber, getCategoryId, getTermId } from "@/utils";
+import { formatNumber, getCategoryId, getTermId, pluralize } from "@/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 
@@ -194,7 +194,7 @@ export default {
     },
     getTitle(item) {
       // TODO: handle
-      return item.isCategory ? (item.className || item.classUri) : (item.termName || item.termUri);
+      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri) : (item.termName || item.termUri);
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);

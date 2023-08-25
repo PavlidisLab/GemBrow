@@ -109,7 +109,8 @@ import {
   formatNumber,
   formatPercent,
   getCategoryId,
-  getTermId
+  getTermId,
+  pluralize
 } from "@/utils";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
@@ -440,11 +441,7 @@ export default {
       if (this.searchSettings.categories.length > 0) {
         for (let cat of this.searchSettings.categories) {
           if (cat.className) {
-            if (cat.className !== 'biological sex') {
-              filter.push({ key: cat.className + "s ", value: "ANY" });
-            } else {
-              filter.push({key: cat.className + "es ", value: "ANY" })
-            }
+            filter.push({ key: pluralize(cat.className), value: "ANY" });
           } else if (cat.classUri) {
             filter.push({ key: cat.classUri, value: "ANY" });
           } else {
@@ -456,11 +453,7 @@ export default {
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
           let { classUri, className, termName } = annotation;
           if (className) {
-            if (className !== 'biological sex') {
-              className = className + "s ";
-            } else {
-              className = className + "es ";
-            }
+            className = pluralize(className);
           } else if (classUri) {
             className = classUri;
           } else {
