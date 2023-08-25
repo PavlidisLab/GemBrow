@@ -38,7 +38,7 @@
                     dense class="browser-data-table"
             >
                 <template v-slot:item.shortName="{item}">
-                    <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + encodeURIComponent(item.id)">
+                    <a :href="getUrl(item)">
                         {{ item.shortName }}
                     </a>
                 </template>
@@ -83,7 +83,6 @@
                     </v-progress-circular>
                     <DownloadButton v-show="totalNumberOfExpressionExperiments > 0"
                                     :browsing-options="browsingOptions"
-                                    :search-settings="searchSettings"
                                     :filter-description="filterDescription"
                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                                     :max-datasets="100"
@@ -138,9 +137,8 @@ export default {
   },
   data() {
     return {
-      baseUrl,
       drawer: true,
-      searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
+      searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
       options: {
         page: 1,
         itemsPerPage: 25,
@@ -189,7 +187,7 @@ export default {
           value: "lastUpdated"
         }
       );
-      if (this.debug && this.appliedBrowsingOptions.query) {
+      if (this.debug && this.appliedQuery) {
         h.push({
           text: "Score (dev only)",
           value: "searchResult.score",
@@ -299,7 +297,7 @@ export default {
     },
     browsingOptions() {
       // query can be null if reset
-      if (this.searchSettings.query !== null && this.searchSettings.query.length > 0) {
+      if (this.searchSettings.query && this.searchSettings.query.length > 0) {
         return {
           query: this.searchSettings.query,
           filter: this.filter,
@@ -324,25 +322,20 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.entries(state.api.error).flatMap(([key, error]) => key === 'datasetsAnnotationsByCategory' ? Object.values(error) : [error])
+          return Object.entries(state.api.error).flatMap(([key, error]) => key === "datasetsAnnotationsByCategory" ? Object.values(error) : [error])
             .filter(e => e !== null)
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
-          }
-        },
-      datasets: state => state.api.datasets?.data || [],
-      appliedBrowsingOptions(state) {
-        if (state.api.datasets) {
-          return {
-            query: state.api.datasets.query,
-            filter: state.api.datasets.filter,
-            offset: state.api.datasets.offset,
-            limit: state.api.datasets.limit,
-            sort: state.api.datasets.sort ? (state.api.datasets.sort.direction + state.api.datasets.sort.orderBy) : null
-          };
-        } else {
-          return this.browsingOptions;
         }
+      },
+      datasets: state => state.api.datasets?.data || [],
+      /**
+       * Currently applied query.
+       * @param state
+       * @returns {*}
+       */
+      appliedQuery(state) {
+        return state.api.datasets?.query;
       },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
@@ -520,6 +513,7 @@ export default {
       }).catch(err => {
         // because the function is debounced, the caller might never get resulting promise and ability to handle the error
         console.error("Error while searching: " + err.message + ".", err);
+        this.setLastError(err);
       });
     }, 1000),
     browse(browsingOptions, updateEverything) {
@@ -636,7 +630,7 @@ export default {
             // ensures that the terms appearing in filter are always returned
             retainMentionedTerms: true
           };
-          if (query !== undefined) {
+          if (query) {
             payload["query"] = query;
           }
           if (excludedTerms !== undefined) {
@@ -702,22 +696,27 @@ export default {
         return item.name;
       }
     },
+    getUrl(item) {
+      return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
+    },
     capitalizeFirstLetter(str) {
       return str
         .split(" ")
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
     },
-    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
+    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"])
   },
   created() {
+    let query = this.searchSettings.query;
+    let filter = this.filter;
     return Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
       .then(([excludedCategories, excludedTerms]) => {
         return Promise.all([
           this.updateOpenApiSpecification(),
-          this.updateAvailableTaxa(undefined, this.filter),
-          this.updateAvailablePlatforms(undefined, this.filter),
-          this.updateAvailableCategories(undefined, this.filter, excludedCategories, excludedTerms),
+          this.updateAvailableTaxa(query, filter),
+          this.updateAvailablePlatforms(query, filter),
+          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
           this.browse(this.browsingOptions)])
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
       });
@@ -763,9 +762,11 @@ export default {
     },
     myself: function(newVal, oldVal) {
       if (!isEqual(newVal, oldVal)) {
-        this.browse(this.browsingOptions, true).catch(err => {
-          console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
-        });
+        this.browse(this.browsingOptions, true)
+          .catch(err => {
+            console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
+            this.setLastError(err);
+          });
       }
     }
   }

@@ -140,7 +140,7 @@
 
 <script>
 import { axiosInst, baseUrl } from "@/config/gemma";
-import { mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
 import DocumentationWindow from "@/components/DocumentationWindow.vue"; 
 
@@ -156,9 +156,11 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["setLastError"]),
     updateMyself() {
       return this.$store.dispatch("api/getMyself").catch(e => {
         console.error("Failed to update user info: " + e.message + ".", e);
+        this.setLastError(e);
       });
     },
     updateWhatsNew() {
@@ -167,12 +169,14 @@ export default {
           window.location.reload();
         }).catch(e => {
           console.error("Failed to update \"What's New\".", e);
+          this.setLastError(e);
         });
     },
     logout() {
       return axiosInst.get(baseUrl + "/j_spring_security_logout")
         .then(this.updateMyself).catch(e => {
           console.error("Failed to logout.", e);
+          this.setLastError(e);
         });
     }
   },

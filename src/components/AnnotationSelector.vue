@@ -11,9 +11,15 @@
             </v-btn>
         </div>
         <v-progress-linear :active="loading" indeterminate/>
+        <v-text-field v-model="search" dense label="Filter Annotations" outlined hide-details
+                      prepend-inner-icon="filter_list" :disabled="disabled"
+                      class="my-1"/>
         <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
                     selectable
                     dense
+                    :open.sync="open"
+                    :search="search"
+                    :filter="filter"
                     :class="debug ? '' : 'hide-root-checkboxes'"
         >
             <template v-slot:label="{item}">
@@ -39,8 +45,8 @@
 </template>
 
 <script>
-import { chain, isEqual, max, sumBy } from "lodash";
-import { formatDecimal, formatNumber, getCategoryId, getTermId } from "@/utils";
+import { chain, isEqual, max } from "lodash";
+import { formatNumber, getCategoryId, getTermId } from "@/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 
@@ -75,7 +81,20 @@ export default {
        * An array of selected values formatted as "categoryId|termId".
        * @type Array
        */
-      selectedValues: this.value.map(term => this.getId(term))
+      selectedValues: this.value.map(term => this.getId(term)),
+      /**
+       * Search for annotations.
+       */
+      search: null,
+      /**
+       * A list of opened categories.
+       */
+      open: [],
+      /**
+       * A lits of previously opened categories when a search term is entered. This is used to restore opened categories
+       * if the search is cleared.
+       */
+      previouslyOpen: []
     };
   },
   emits: ["input", "update:selectedCategories"],
@@ -151,9 +170,11 @@ export default {
     })
   },
   methods: {
-    sumBy,
     formatNumber,
-    formatDecimal,
+    filter(item, search) {
+      let fragments = search.toLowerCase().split(" ");
+      return fragments.every(fragment => this.getTitle(item).toLowerCase().includes(fragment) || this.getUri(item)?.toLowerCase() === fragment);
+    },
     getId(term) {
       return getCategoryId(term) + SEPARATOR + getTermId(term);
     },
@@ -223,6 +244,18 @@ export default {
     }
   },
   watch: {
+    search(newVal) {
+      if (newVal) {
+        if (this.previouslyOpen === null) {
+          this.previouslyOpen = this.open;
+        }
+        // open everything!
+        this.open = this.rankedAnnotations.map(a => a.id);
+      } else {
+        this.open = this.previouslyOpen;
+        this.previouslyOpen = null;
+      }
+    },
     selectedValues(newVal, oldVal) {
       let sc = this.computeSelectedCategories(newVal);
       let sa = this.computeSelectedAnnotations(newVal, sc);
