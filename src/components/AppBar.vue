@@ -44,10 +44,10 @@
             </template>
             <v-list>
                 <v-list-item>
-                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
+                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline" ref="searchForm">
                         <v-text-field label="Search" autofocus @click.stop autocomplete="off"
                                       name="query"></v-text-field>
-                        <v-btn class="ml-2">Go</v-btn>
+                        <v-btn class="ml-2" @click="submitSearch">Go</v-btn>
                     </form>
                 </v-list-item>
                 <v-divider/>
@@ -178,6 +178,9 @@ export default {
           console.error("Failed to logout.", e);
           this.setLastError(e);
         });
+    },
+    submitSearch() {
+      this.$refs.searchForm.submit();
     }
   },
   computed: {
