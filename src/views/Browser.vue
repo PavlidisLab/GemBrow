@@ -702,7 +702,6 @@ export default {
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
     handleChipClicked(previewTerm) {
-      console.log(previewTerm);
      this.searchSettings.annotations.push({
         classUri: previewTerm.classUri, 
         className: previewTerm.className,

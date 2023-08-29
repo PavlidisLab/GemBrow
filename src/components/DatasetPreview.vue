@@ -1,12 +1,23 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
+        <div v-if="!debug" >
         <v-chip v-for="term in availableAnnotationsIncludedTerms" 
                 :key="term.termUri" @click="handleChipClick(term)" 
                 small :color="getChipColor(term.objectClass)">
                 {{ term.termName }} 
                 <v-icon right>mdi-plus</v-icon>
           </v-chip> 
+        </div>
+        <div v-else >
+        <v-chip v-for="term in includedTerms" 
+                :key="term.termUri" @click="handleChipClick(term)" 
+                small :color="getChipColor(term.objectClass)" :outlined="!availableAnnotationsIncludedTerms.includes(term)">
+                {{ term.termName }} 
+                <v-icon right>mdi-plus</v-icon>
+          </v-chip> 
+        </div>
+
         <div v-html="this.description"></div>
     </div>
 </template>
@@ -14,6 +25,7 @@
 <script>
 import { highlight } from "@/search-utils";
 import { marked, axiosInst, baseUrl, excludedTerms, excludedCategories } from "@/config/gemma";
+import { mapState } from "vuex";
 
 export default {
   name: "DatasetPreview",
@@ -48,7 +60,10 @@ export default {
           annotation.children.some(child => child.termUri === term.termUri)
         );
       });
-    }
+    },
+    ...mapState({
+      debug: state => state.debug
+    })
   },
   methods: {
     getTerms() {
