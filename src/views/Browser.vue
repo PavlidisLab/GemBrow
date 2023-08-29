@@ -66,7 +66,7 @@
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
-                        <DatasetPreview :dataset="item" @chip-clicked="handleChipClicked"></DatasetPreview>
+                        <DatasetPreview :dataset="item" :availableAnnotations="datasetsAnnotations" @chip-clicked="handleChipClicked"></DatasetPreview>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
@@ -453,7 +453,6 @@ export default {
         }
       }
       if (this.searchSettings.annotations.length > 0) {
-        console.log(this.searchSettings.annotations);
         const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
           let { classUri, className, termName } = annotation;
           if (className) {

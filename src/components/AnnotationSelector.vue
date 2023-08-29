@@ -102,6 +102,7 @@ export default {
         return this.getNumberOfExpressionExperiments(b) - this.getNumberOfExpressionExperiments(a);
       };
       return this.annotations
+      
         .map(a => {
           let that = this;
 
@@ -211,7 +212,8 @@ export default {
       return newVal
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
-        .map(a => this.annotationById[a]);
+        .map(a => this.annotationById[a])
+        .filter(a => a);
     },
     /**
      * Selected categories.
@@ -231,6 +233,7 @@ export default {
   },
   watch: {
     value(newVal){
+      // make sure that newVal is an option
       this.selectedValues = newVal.map(term => this.getId(term));
     },
     selectedValues(newVal, oldVal) {

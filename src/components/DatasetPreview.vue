@@ -1,7 +1,7 @@
 <template>
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
-        <v-chip v-for="term in includedTerms" 
+        <v-chip v-for="term in availableAnnotationsIncludedTerms" 
                 :key="term.termUri" @click="handleChipClick(term)" 
                 small :color="getChipColor(term.objectClass)">
                 {{ term.termName }} 
@@ -18,7 +18,8 @@ import { marked, axiosInst, baseUrl, excludedTerms, excludedCategories } from "@
 export default {
   name: "DatasetPreview",
   props: {
-    dataset: Object    
+    dataset: Object,
+    availableAnnotations: Array    
   },
   data() {
     return {
@@ -39,6 +40,14 @@ export default {
         ExperimentTag: 'green',
         BioMaterial: 'blue'
       };
+    },
+    availableAnnotationsIncludedTerms() {
+      return this.includedTerms.filter(term => {
+        // Check if the termUri is included in any of the children arrays
+        return this.availableAnnotations.some(annotation =>
+          annotation.children.some(child => child.termUri === term.termUri)
+        );
+      });
     }
   },
   methods: {
@@ -54,11 +63,11 @@ export default {
           this.setLastError
       });
     },
-    handleChipClick(termName) {
-      this.$emit('chip-clicked', termName); // Emit the termUri to the parent or other components
-      },
-      getChipColor(objectClass) {
-        return this.chipColorMap[objectClass] || 'orange'
+    handleChipClick(term) {
+      this.$emit('chip-clicked', term); 
+    },
+    getChipColor(objectClass) {
+      return this.chipColorMap[objectClass] || 'orange'
     }
   },
   created() {
