@@ -460,7 +460,7 @@ export default {
             className = "Uncategorized";
           }
           if (!acc[className]) {
-            acc[className] = [termName];
+            acc[className + ' '] = [termName];
           } else {
             acc[className].push(termName);
           }
