@@ -17,6 +17,7 @@ import { parse } from "json2csv";
 import { chain } from "lodash";
 import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/utils";
 import axios from "axios";
+import { mapMutations } from "vuex";
 
 const termsAndConditionsHeader = [
   "# If you use this file for your research, please cite:",
@@ -31,7 +32,6 @@ export default {
      * Browsing options to use for downloading datasets.
      */
     browsingOptions: Object,
-    searchSettings: Object,
     totalNumberOfExpressionExperiments: Number,
     progress: Number,
     filterDescription: String
@@ -45,6 +45,7 @@ export default {
   },
   events: ["update:progress"],
   methods: {
+    ...mapMutations(["setLastError"]),
     formatNumber,
     download() {
       if (this.downloading) {
@@ -115,6 +116,7 @@ export default {
       }).catch(err => {
         if (!axios.isCancel(err)) {
           console.error("Error while downloading datasets to TSV: " + err.message + ".", err);
+          this.setLastError(err);
         }
       }).finally(() => {
         this.downloading = false;

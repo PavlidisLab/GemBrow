@@ -44,10 +44,10 @@
             </template>
             <v-list>
                 <v-list-item>
-                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
+                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline" ref="searchForm">
                         <v-text-field label="Search" autofocus @click.stop autocomplete="off"
                                       name="query"></v-text-field>
-                        <v-btn class="ml-2">Go</v-btn>
+                        <v-btn class="ml-2" @click="submitSearch">Go</v-btn>
                     </form>
                 </v-list-item>
                 <v-divider/>
@@ -140,7 +140,7 @@
 
 <script>
 import { axiosInst, baseUrl } from "@/config/gemma";
-import { mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
 import DocumentationWindow from "@/components/DocumentationWindow.vue"; 
 
@@ -156,9 +156,11 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["setLastError"]),
     updateMyself() {
       return this.$store.dispatch("api/getMyself").catch(e => {
         console.error("Failed to update user info: " + e.message + ".", e);
+        this.setLastError(e);
       });
     },
     updateWhatsNew() {
@@ -167,13 +169,18 @@ export default {
           window.location.reload();
         }).catch(e => {
           console.error("Failed to update \"What's New\".", e);
+          this.setLastError(e);
         });
     },
     logout() {
       return axiosInst.get(baseUrl + "/j_spring_security_logout")
         .then(this.updateMyself).catch(e => {
           console.error("Failed to logout.", e);
+          this.setLastError(e);
         });
+    },
+    submitSearch() {
+      this.$refs.searchForm.submit();
     }
   },
   computed: {
