@@ -60,16 +60,7 @@ export default {
         BioMaterial: 'blue'
       };
     },
-/*    availableAnnotationsIncludedTerms() {
-    console.log('it is happening')
-      return this.includedTerms.filter(term => {
-        // Check if the termUri is included in any of the children arrays
-        return this.availableAnnotations.some(annotation =>
-          annotation.children.some(child => child.termUri === term.termUri)
-        );
-      });
-    },*/
-     availableAnnotationsIncludedTerms() {
+    availableAnnotationsIncludedTerms() {
       const availableAnnotationIds = new Set();
         this.availableAnnotations.forEach(annotation => {
           annotation.children.forEach(child => {
