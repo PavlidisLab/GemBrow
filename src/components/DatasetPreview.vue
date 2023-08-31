@@ -26,6 +26,13 @@
 import { highlight } from "@/search-utils";
 import { marked, axiosInst, baseUrl, excludedTerms, excludedCategories } from "@/config/gemma";
 import { mapState } from "vuex";
+import { getCategoryId, getTermId } from "@/utils";
+
+/**
+ * Separator used to constructing keys of nested elements in the tree view.
+ * @type {string}
+ */
+ const SEPARATOR = "|";
 
 export default {
   name: "DatasetPreview",
@@ -53,13 +60,28 @@ export default {
         BioMaterial: 'blue'
       };
     },
-    availableAnnotationsIncludedTerms() {
+/*    availableAnnotationsIncludedTerms() {
+    console.log('it is happening')
       return this.includedTerms.filter(term => {
         // Check if the termUri is included in any of the children arrays
         return this.availableAnnotations.some(annotation =>
           annotation.children.some(child => child.termUri === term.termUri)
         );
       });
+    },*/
+     availableAnnotationsIncludedTerms() {
+      const availableAnnotationIds = new Set();
+        this.availableAnnotations.forEach(annotation => {
+          annotation.children.forEach(child => {
+            availableAnnotationIds.add(this.getId(child));
+          });
+        });
+
+      const filteredIncludedTerms = this.includedTerms.filter(term => {
+        return availableAnnotationIds.has(this.getId(term));
+      });
+
+      return filteredIncludedTerms;
     },
     ...mapState({
       debug: state => state.debug
@@ -77,6 +99,9 @@ export default {
         }).catch(error => {
           this.setLastError
       });
+    },
+    getId(term) {
+      return getCategoryId(term) + SEPARATOR + getTermId(term);
     },
     handleChipClick(term) {
       this.$emit('chip-clicked', term); 
