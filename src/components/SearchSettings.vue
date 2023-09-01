@@ -13,11 +13,12 @@
             </v-btn>
         </v-btn-toggle>
         <div class="d-flex justify-end">
-          <v-btn v-if="searchSettings.annotations.length > 0 || searchSettings.platforms.length > 0 || searchSettings.taxon.length > 0 || searchSettings.technologyTypes.length > 0 || searchSettings.query !== undefined" 
-                  @click="clearAllSelections" 
-                  right medium text color="primary">
-              Clear All Selections
-          </v-btn> 
+            <v-btn v-if="searchSettings.annotations.length > 0 || searchSettings.platforms.length > 0 || searchSettings.taxon.length > 0 || searchSettings.technologyTypes.length > 0 || searchSettings.query !== undefined"
+                   @click="clearAllSelections"
+                   right medium text color="primary"
+                   class="mb-3">
+                Clear All Selections
+            </v-btn>
         </div>
         <v-text-field
                 v-model="searchSettings.query"
