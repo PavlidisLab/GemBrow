@@ -7,7 +7,6 @@
                     @click="isClickable(term) && handleChipClick(term) || null"
                     small :color="getChipColor(term.objectClass)"
                     :title="getTitle(term)"
-                    :outlined="!availableAnnotationIds.has(getId(term))"
                     class="mb-1 mr-1">
                 {{ term.termName }}
                 <v-icon v-if="isClickable(term)" right>mdi-plus</v-icon>
@@ -15,7 +14,6 @@
             <v-chip v-else :key="getId(term)"
                     small :color="getChipColor(term.objectClass)"
                     :title="getTitle(term)"
-                    :outlined="!availableAnnotationIds.has(getId(term))"
                     class="mb-1 mr-1">
                 {{ term.termName }}
             </v-chip>
@@ -26,7 +24,7 @@
 
 <script>
 import { highlight } from "@/search-utils";
-import { axiosInst, baseUrl, excludedCategories, excludedTerms, marked } from "@/config/gemma";
+import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import { getCategoryId, getTermId } from "@/utils";
 
@@ -137,15 +135,7 @@ export default {
     updateTerms() {
       this.includedTerms = [];
       this.getTerms().then(terms => {
-        const seenTermUris = new Set(); // Log the URIs of objects in the terms array to omit duplicates and prevent duplicate URIs causing errors
-        this.includedTerms = terms.filter(term => {
-          if (!excludedTerms.includes(term.termUri) && !excludedCategories.includes(term.classUri) && !seenTermUris.has(term.termUri)) {
-            seenTermUris.add(term.termUri);
-            return true;
-          } else {
-            return false;
-          }
-        });
+        this.includedTerms = terms;
       });
     }
   },
