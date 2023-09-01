@@ -66,7 +66,11 @@
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
-                        <DatasetPreview :dataset="item" :availableAnnotations="datasetsAnnotations" @chip-clicked="handleChipClicked"></DatasetPreview>
+                        <DatasetPreview :dataset="item"
+                                        :selected-categories="searchSettings.categories"
+                                        :selected-annotations="searchSettings.annotations"
+                                        :available-annotations="datasetsAnnotations"
+                                        @chip-clicked="handleChipClicked"></DatasetPreview>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
