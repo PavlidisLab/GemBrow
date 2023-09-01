@@ -36,6 +36,8 @@
                 <div v-if="!item.isCategory || debug" class="text-right">
                     {{ formatNumber(item.numberOfExpressionExperiments) }}<br>
                 </div>
+                <div v-if="item.isCategory && !debug && getNumberCategorySelections(item) > 0" class="text-right" style="font-size: 14px; color: grey;"> {{ getNumberCategorySelections(item) }} selected <br>
+                </div>
             </template>
         </v-treeview>
         <p v-show="annotations.length === 0 && !loading">
@@ -119,6 +121,7 @@ export default {
         return this.getNumberOfExpressionExperiments(b) - this.getNumberOfExpressionExperiments(a);
       };
       return this.annotations
+      
         .map(a => {
           let that = this;
 
@@ -217,15 +220,27 @@ export default {
         }
       }
     },
+    getNumberCategorySelections(item) {
+      let classUri = item.classUri;
+      let selectedValuesClassUris = this.selectedValues.map(Values => Values.split('|')[0]);
+      return selectedValuesClassUris.filter(value => value.includes(classUri)).length;
+    },
     /**
      * Selected annotations, grouped by category and excluding selected categories.
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
       let sc = new Set(selectedCategories.map(sc => getCategoryId(sc)));
-      return newVal
+      let selectedAnnotations = newVal
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
         .map(a => this.annotationById[a]);
+        selectedAnnotations.forEach(a => {
+          if (!a) {
+            console.warn('Term is not selectable');
+          }
+        });
+
+        return selectedAnnotations.filter(a => a)
     },
     /**
      * Selected categories.
@@ -257,7 +272,8 @@ export default {
       }
     },
     value(newVal){
-      this.selectedValues = newVal.map(term => this.getId(term))
+      // make sure that newVal is an option
+      this.selectedValues = newVal.map(term => this.getId(term));
     },
     selectedValues(newVal, oldVal) {
       let sc = this.computeSelectedCategories(newVal);
