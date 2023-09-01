@@ -79,16 +79,16 @@ export default {
     })
   },
   methods: {
+    ...mapMutations(["setLastError"]),
     getTerms() {
-      const dataset = this.dataset.id
+      const dataset = this.dataset.id;
       return axiosInst.request({
-        method: 'GET',
-          url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`
-        })
-        .then(response => {
-          return response.data.data;
-        }).catch(error => {
-          this.setLastError
+        method: "GET",
+        url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`
+      }).then(response => {
+        return response.data.data;
+      }).catch(error => {
+        this.setLastError(error);
       });
     },
     getId(term) {
