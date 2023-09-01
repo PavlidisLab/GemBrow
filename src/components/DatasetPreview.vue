@@ -34,6 +34,15 @@ import { getCategoryId, getTermId } from "@/utils";
  */
 const SEPARATOR = "|";
 
+/**
+ * Priority to use for sorting terms by object class.
+ */
+const OBJECT_CLASS_PRIORITY = {
+  BioMaterial: 0,
+  ExperimentTag: 1,
+  FactorValue: 2
+};
+
 export default {
   name: "DatasetPreview",
   props: {
@@ -135,7 +144,7 @@ export default {
     updateTerms() {
       this.includedTerms = [];
       this.getTerms().then(terms => {
-        this.includedTerms = terms;
+        this.includedTerms = terms.sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass]);
       });
     }
   },
