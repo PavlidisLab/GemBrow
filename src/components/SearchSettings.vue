@@ -13,7 +13,7 @@
             </v-btn>
         </v-btn-toggle>
         <div class="d-flex justify-end">
-            <v-btn v-if="searchSettings.annotations.length > 0 || searchSettings.platforms.length > 0 || searchSettings.taxon.length > 0 || searchSettings.technologyTypes.length > 0 || searchSettings.query !== undefined"
+            <v-btn v-if="showClearAllSelections"
                    @click="clearAllSelections"
                    right medium text color="primary"
                    class="mb-3">
@@ -117,6 +117,16 @@ export default {
     supportedResultTypes() {
 
       return SUPPORTED_RESULT_TYPES.sort((a, b) => a.order - b.order);
+    },
+    /**
+     * Since individual search setting have their clear buttons, we only show the clear all if there is more than one.
+     */
+    showClearAllSelections() {
+      return (this.searchSettings.annotations.length > 0)
+        + (this.searchSettings.platforms.length > 0)
+        + (this.searchSettings.taxon.length > 0)
+        + (this.searchSettings.technologyTypes.length > 0)
+        + (!!this.searchSettings.query) > 1;
     },
     ...mapState({
       debug: state => state.debug
