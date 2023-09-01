@@ -60,19 +60,13 @@ export default {
         BioMaterial: 'blue'
       };
     },
+    availableAnnotationIds() {
+      return new Set(this.availableAnnotations.flatMap(c => c.children).map(this.getId));
+    },
     availableAnnotationsIncludedTerms() {
-      const availableAnnotationIds = new Set();
-        this.availableAnnotations.forEach(annotation => {
-          annotation.children.forEach(child => {
-            availableAnnotationIds.add(this.getId(child));
-          });
-        });
-
-      const filteredIncludedTerms = this.includedTerms.filter(term => {
-        return availableAnnotationIds.has(this.getId(term));
+      return this.includedTerms.filter(term => {
+        return this.availableAnnotationIds.has(this.getId(term));
       });
-
-      return filteredIncludedTerms;
     },
     ...mapState({
       debug: state => state.debug

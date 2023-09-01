@@ -116,7 +116,6 @@ export default {
      * @returns {(*&{isCategory: boolean, children: *, id: *})[]}
      */
     rankedAnnotations() {
-      let selectedValues = new Set(this.selectedValues);
       let byNumberOfExpressionExperiments = (a, b) => {
         return this.getNumberOfExpressionExperiments(b) - this.getNumberOfExpressionExperiments(a);
       };
