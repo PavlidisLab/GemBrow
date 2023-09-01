@@ -12,6 +12,13 @@
                 {{ m.title }}
             </v-btn>
         </v-btn-toggle>
+        <div class="d-flex justify-end">
+          <v-btn v-if="searchSettings.annotations.length > 0 || searchSettings.platforms.length > 0 || searchSettings.taxon.length > 0 || searchSettings.technologyTypes.length > 0 || searchSettings.query !== undefined" 
+                  @click="clearAllSelections" 
+                  right medium text color="primary">
+              Clear All Selections
+          </v-btn> 
+        </div>
         <v-text-field
                 v-model="searchSettings.query"
                 label="Search"
@@ -113,6 +120,15 @@ export default {
     ...mapState({
       debug: state => state.debug
     })
+  },
+  methods: {
+    clearAllSelections() {
+      this.searchSettings.annotations = [];
+      this.searchSettings.platforms = [];
+      this.searchSettings.taxon = []; 
+      this.searchSettings.technologyTypes = [];
+      this.searchSettings.query = undefined;
+    }
   },
   watch: {
     searchSettings: {
