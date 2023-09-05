@@ -27,6 +27,8 @@ import { highlight } from "@/search-utils";
 import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import { getCategoryId, getTermId } from "@/utils";
+import { chain } from "lodash";
+
 
 /**
  * Separator used to constructing keys of nested elements in the tree view.
@@ -144,7 +146,14 @@ export default {
     updateTerms() {
       this.includedTerms = [];
       this.getTerms().then(terms => {
-        this.includedTerms = terms.sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass]);
+        const uniqueTerms = chain(terms)
+          .sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass])
+          .groupBy(term => getCategoryId(term) + SEPARATOR + getTermId(term))
+          .mapValues(terms => terms[0])
+          .values()
+          .value();
+
+        this.includedTerms = uniqueTerms
       });
     }
   },
