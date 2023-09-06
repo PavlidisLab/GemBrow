@@ -11,7 +11,7 @@
                 {{ term.termName }}
                 <v-icon v-if="isClickable(term)" right>mdi-plus</v-icon>
             </v-chip>
-            <v-chip v-else :key="getId(term)"
+            <v-chip v-else :key="'else-' + getId(term)"
                     small :color="getChipColor(term.objectClass)"
                     :title="getTitle(term)"
                     class="mb-1 mr-1">
