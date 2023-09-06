@@ -117,9 +117,9 @@ export default {
     getTitle(term) {
       let n = this.getNumberOfExpressionExperiments(term);
       if (n > 0) {
-        return `${term.termName}: a ${term.className} with ${n} datasets`;
+        return `${term.objectClass} with ${n} datasets, click to add to filter`;
       } else {
-        return `${term.termName}: a ${term.className}`;
+        return `${term.objectClass}, click to add to filter`;
       }
     },
     /**
