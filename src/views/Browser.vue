@@ -120,8 +120,8 @@ import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 
 const MAX_URIS_IN_CLAUSE = 200;
-const MAX_TERMS_PER_CATEGORY = 200;
-const MAX_PLATFORMS = 200;
+const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;;
+const MAX_PLATFORMS = process.env.NODE_ENV !== "production" ? 50 : 200;
 
 function quoteIfNecessary(s) {
   if (s.match(/[(), "]/) || s.length === 0) {
