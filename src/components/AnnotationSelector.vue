@@ -229,17 +229,15 @@ export default {
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
       let sc = new Set(selectedCategories.map(sc => getCategoryId(sc)));
-      let selectedAnnotations = newVal
+      return newVal
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
-        .map(a => this.annotationById[a]);
-        selectedAnnotations.forEach(a => {
-          if (!a) {
-            console.warn('Term is not selectable');
-          }
+        .map(a => this.annotationById[a] || {
+          classUri: a.split(SEPARATOR, 2)[0],
+          className: "",
+          termUri: a.split(SEPARATOR, 2)[1],
+          termName: ""
         });
-
-        return selectedAnnotations.filter(a => a)
     },
     /**
      * Selected categories.

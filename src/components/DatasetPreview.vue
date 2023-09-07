@@ -2,20 +2,15 @@
     <div class="py-3">
         <h3>{{ dataset.name }}</h3>
         <template v-for="term in includedTerms">
-            <v-chip v-if="isClickable(term)"
+            <v-chip
                     :key="getId(term)"
-                    @click="isClickable(term) && handleChipClick(term) || null"
+                    @click="handleChipClick(term)"
                     small :color="getChipColor(term.objectClass)"
                     :title="getTitle(term)"
-                    class="mb-1 mr-1">
+                    class="text-capitalize mb-1 mr-1">
                 {{ term.termName }}
-                <v-icon v-if="isClickable(term)" right>mdi-plus</v-icon>
-            </v-chip>
-            <v-chip v-else :key="getId(term)"
-                    small :color="getChipColor(term.objectClass)"
-                    :title="getTitle(term)"
-                    class="mb-1 mr-1">
-                {{ term.termName }}
+                <v-icon v-if="isSelectable(term)" right>mdi-plus</v-icon>
+                <v-icon v-else-if="isUnselectable(term)" right>mdi-minus</v-icon>
             </v-chip>
         </template>
         <div v-html="this.description"></div>
@@ -51,6 +46,7 @@ export default {
     selectedAnnotations: Array,
     availableAnnotations: Array
   },
+  events: ["annotation-selected", "annotation-unselected"],
   data() {
     return {
       includedTerms: []
@@ -126,13 +122,20 @@ export default {
      * @param term
      * @returns {boolean}
      */
-    isClickable(term) {
-      return this.availableAnnotationIds.has(this.getId(term))
-        && !this.selectedCategoryIds.has(getCategoryId(term))
-        && !this.selectedAnnotationIds.has(this.getId(term));
+    isSelectable(term) {
+      return !this.selectedCategoryIds.has(getCategoryId(term)) && !this.selectedAnnotationIds.has(this.getId(term));
+    },
+    isUnselectable(term) {
+      return this.selectedAnnotationIds.has(this.getId(term));
     },
     handleChipClick(term) {
-      this.$emit("chip-clicked", term);
+      if (this.isSelectable(term)) {
+        this.$emit("annotation-selected", term);
+      } else if (this.isUnselectable(term)) {
+        this.$emit("annotation-unselected", term);
+      } else {
+        console.warn(`Term ${term} cannot be unselected.`, term);
+      }
     },
     getChipColor(objectClass) {
       return this.chipColorMap[objectClass] || "orange";
@@ -144,7 +147,19 @@ export default {
     updateTerms() {
       this.includedTerms = [];
       this.getTerms().then(terms => {
-        this.includedTerms = terms.sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass]);
+        // we don't display the same term from different object classes
+        let seenIds = new Set();
+        this.includedTerms = terms
+          .sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass])
+          .filter(term => {
+            let id = this.getId(term);
+            if (seenIds.has(id)) {
+              console.log("Skipped already seen term");
+              return true;
+            }
+            seenIds.add(id);
+            return true;
+          });
       });
     }
   },

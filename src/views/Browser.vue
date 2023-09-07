@@ -70,7 +70,8 @@
                                         :selected-categories="searchSettings.categories"
                                         :selected-annotations="searchSettings.annotations"
                                         :available-annotations="datasetsAnnotations"
-                                        @chip-clicked="handleChipClicked"></DatasetPreview>
+                                        @annotation-selected="selectTerm"
+                                        @annotation-unselected="unselectTerm"/>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
@@ -101,7 +102,7 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
-import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
+import { baseUrl, excludedCategories, excludedTerms, HIGHLIGHT_LABELS, marked } from "@/config/gemma";
 import { chain, debounce, escapeRegExp, isEqual, sumBy } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/search-utils";
@@ -564,8 +565,16 @@ export default {
       let mFilter = filter;
       if (mFilter) {
         mFilter = mFilter.map(clause => clause
-          .filter(subClause => !disallowedPrefixes.some(p => subClause.startsWith(p))))
-          .filter(clause => clause.length > 0);
+          .map(subClause => {
+            for (let p of disallowedPrefixes) {
+              if (subClause.startsWith(p)) {
+                // this will render the clause always true and preserve the term URI for retainMentionedTerms to work
+                subClause = `${subClause} or ${p}id > 0`;
+                break;
+              }
+            }
+            return subClause;
+          }));
       }
       return compressFilter(mFilter).then(compressedFilter => {
         let payload = {
@@ -580,6 +589,7 @@ export default {
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
         }
+        payload["retainMentionedTerms"] = true;
         if (this.myself) {
           payload["gid"] = this.myself.group;
         }
@@ -706,12 +716,24 @@ export default {
         .join(" ");
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
-    handleChipClicked(previewTerm) {
-     this.searchSettings.annotations.push({
-        classUri: previewTerm.classUri, 
+    selectTerm(previewTerm) {
+      this.searchSettings.annotations.push({
+        classUri: previewTerm.classUri,
         className: previewTerm.className,
-        termUri: previewTerm.termUri, 
-        termName: previewTerm.termName})
+        termUri: previewTerm.termUri,
+        termName: previewTerm.termName
+      });
+    },
+    unselectTerm(previewTerm) {
+      let categoryId = getCategoryId(previewTerm);
+      let termId = getTermId(previewTerm);
+      for (let [i, a] of this.searchSettings.annotations.entries()) {
+        if (getCategoryId(a) === categoryId && getTermId(a) === termId) {
+          this.searchSettings.annotations.splice(i, 1);
+          return;
+        }
+      }
+      console.warn(`${previewTerm} is not selected and thus cannot be unselected.`);
     }
   },
   created() {
