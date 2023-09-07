@@ -86,7 +86,8 @@
                                         :selected-categories="searchSettings.categories"
                                         :selected-annotations="searchSettings.annotations"
                                         :available-annotations="datasetsAnnotations"
-                                        @chip-clicked="handleChipClicked"></DatasetPreview>
+                                        @annotation-selected="selectTerm"
+                                        @annotation-unselected="unselectTerm"/>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
@@ -546,12 +547,23 @@ export default {
       return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
-    handleChipClicked(previewTerm) {
-     this.searchSettings.annotations.push({
-        classUri: previewTerm.classUri, 
+    selectTerm(previewTerm) {
+      this.searchSettings.annotations.push({
+        classUri: previewTerm.classUri,
         className: previewTerm.className,
         termUri: previewTerm.termUri, 
         termName: previewTerm.termName})
+    },
+    unselectTerm(previewTerm) {
+      let categoryId = getCategoryId(previewTerm);
+      let termId = getTermId(previewTerm);
+      for (let [i, a] of this.searchSettings.annotations.entries()) {
+        if (getCategoryId(a) === categoryId && getTermId(a) === termId) {
+          this.searchSettings.annotations.splice(i, 1);
+          return;
+        }
+      }
+      console.warn(`${previewTerm} is not selected and thus cannot be unselected.`);
     },
     toggleAllDatasetsExpanded() {
       // check whether all datasets are expanded
