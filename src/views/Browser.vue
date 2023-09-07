@@ -81,6 +81,10 @@
                         Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
                     </div>
                     <v-spacer/>
+                    <v-btn :style="buttonStyle" icon x-large class="expand-all-button">
+                      <v-icon>mdi-chevron-down</v-icon>
+                    </v-btn>
+                    <v-spacer/>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
                         <span style="font-size: .6rem">{{ formatPercent(downloadProgress) }}</span>
@@ -491,6 +495,23 @@ export default {
       } else {
         return "";
       }
+   },
+    toggledOn() {
+      return true
+    },
+    buttonStyle() {
+      // Get the position of the .v-data-table__expand-icon element
+      const iconElement = document.querySelector('.v-data-table__expand-icon');
+      if (iconElement) {
+        const rect = iconElement.getBoundingClientRect();
+        const leftPosition = rect.left + rect.width / 2;
+        return {
+          position: 'absolute',
+          left: `${leftPosition}px`,
+          transform: 'translateX(-50%)'
+        };
+      }
+      return {};
     }
   },
   methods: {
@@ -797,5 +818,9 @@ export default {
     bottom: 0;
     right: 0;
     margin-right: 0 !important;
+}
+
+.expand-all-button {
+  margin: 1px
 }
 </style>
