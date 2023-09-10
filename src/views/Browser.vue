@@ -100,11 +100,11 @@
 
 <script>
 import SearchSettings from "@/components/SearchSettings";
-import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
+import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/lib/models";
 import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
-import { chain, debounce, escapeRegExp, isEqual, sumBy } from "lodash";
+import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
-import { highlight } from "@/search-utils";
+import { highlight } from "@/lib/highlight";
 import DownloadButton from "@/components/DownloadButton.vue";
 import {
   compressArg,
@@ -113,23 +113,14 @@ import {
   formatNumber,
   formatPercent,
   getCategoryId,
-  getTermId,
-  pluralize
-} from "@/utils";
+  getTermId
+} from "@/lib/utils";
+import { generateFilter, generateFilterDescription, generateFilterSummary } from "@/lib/filter";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 
-const MAX_URIS_IN_CLAUSE = 200;
-const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;;
+const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;
 const MAX_PLATFORMS = process.env.NODE_ENV !== "production" ? 50 : 200;
-
-function quoteIfNecessary(s) {
-  if (s.match(/[(), "]/) || s.length === 0) {
-    return "\"" + s.replaceAll("\"", "\\") + "\"";
-  } else {
-    return s;
-  }
-}
 
 export default {
   name: "Browser",
@@ -203,102 +194,7 @@ export default {
       return h;
     },
     filter() {
-      let filter = [];
-      if (this.searchSettings.taxon.length === 1) {
-        filter.push(["taxon.id = " + this.searchSettings.taxon[0].id]);
-      } else if (this.searchSettings.taxon.length > 0) {
-        filter.push(["taxon.id in (" + this.searchSettings.taxon.map(t => t.id).join(",") + ")"]);
-      }
-      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
-        let platformIds = this.searchSettings.platforms.map(p => p.id);
-        let clause = [];
-        if (this.searchSettings.platforms.length > 0) {
-          clause.push("bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")");
-          clause.push("bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")");
-        }
-        if (this.searchSettings.technologyTypes.length > 0) {
-          let technologyTypes = this.searchSettings.technologyTypes.filter(t => t !== "RNASEQ");
-          // special case if searching exclusively for RNA-Seq
-          if (this.searchSettings.technologyTypes.includes("RNASEQ")) {
-            // if searching exclusively for RNA-Seq data, we can add an extra filter for correctness
-            // only microarray platforms can be selected individually
-            if (this.searchSettings.technologyTypes.length === 1 && this.searchSettings.platforms.length === 0) {
-              filter.push(["bioAssays.originalPlatform.technologyType = SEQUENCING"]);
-            }
-            technologyTypes.push("GENELIST");
-          }
-        clause.push(
-          "bioAssays.arrayDesignUsed.technologyType in (" + technologyTypes.join(",") + ")"
-        );
-      }
-      filter.push(clause);
-      }
-      
-      if (this.searchSettings.categories.length > 0) {
-        // check if all categories are picked
-        let categories = this.searchSettings.categories;
-        if (categories.length > MAX_URIS_IN_CLAUSE) {
-          console.warn(`Too many categories (${categories.length}) in clause, will only retain the first ${MAX_URIS_IN_CLAUSE} categories.`);
-          categories = categories.slice(0, MAX_URIS_IN_CLAUSE);
-        }
-        if (categories.length > 0) {
-          for (const category of categories) {
-            if (category.classUri) {
-              filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(category.classUri)]);
-            } else if (category.className) {
-              filter.push(["allCharacteristics.category = " + quoteIfNecessary(category.className)]);
-            } else {
-              console.warn("Selection of the 'Uncategorized' category is not supported");
-            }
-          }
-        }
-      }
-      if (this.searchSettings.annotations.length > 0) {
-        let annotationByCategoryId = chain(this.searchSettings.annotations)
-          .groupBy(getCategoryId)
-          .value();
-        for (const categoryId in annotationByCategoryId) {
-          let categoryUri = annotationByCategoryId[categoryId].find(t => t.classUri !== null)?.classUri || null;
-          let categoryName = annotationByCategoryId[categoryId].find(t => t.classUri === null)?.className || null;
-          // FIXME: the category should be in a conjunction with the value, but that is not supported
-          // add a clause for the category, this is not exactly correct
-          if (categoryUri !== null) {
-            filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(categoryId)]);
-          } else if (categoryName !== null) {
-            filter.push(["allCharacteristics.category = " + quoteIfNecessary(categoryId)]);
-          } else {
-            console.warn("Selection of the 'Uncategorized' category is not supported.");
-          }
-          let termUris = annotationByCategoryId[categoryId]
-            .filter(t => t.termUri !== null)
-            .map(t => t.termUri);
-          let termNames = annotationByCategoryId[categoryId]
-            .filter(t => t.termName === null)
-            .map(t => t.termName);
-          let f = [];
-          if (termUris.length > MAX_URIS_IN_CLAUSE) {
-            console.warn(`Too many annotations (${termUris.length}) selected under ${categoryId}, will only retain the first ${MAX_URIS_IN_CLAUSE} terms.`);
-            termUris = termUris.slice(0, MAX_URIS_IN_CLAUSE);
-          }
-          if (termUris.length > 0) {
-            f.push("allCharacteristics.valueUri in (" + termUris.map(quoteIfNecessary).join(", ") + ")");
-          }
-          if (termNames.length > MAX_URIS_IN_CLAUSE) {
-            console.warn(`Too many annotations (${termNames.length}) selected under ${categoryId}, will only retain the first${MAX_URIS_IN_CLAUSE} terms.`);
-            termNames = termNames.slice(0, MAX_URIS_IN_CLAUSE);
-          }
-          if (termNames.length > 0) {
-            f.push("allCharacteristics.value in (" + termNames.map(quoteIfNecessary).join(", ") + ")");
-          }
-          filter.push(f);
-        }
-      }
-      let numberOfClauses = sumBy(filter, f => f.length);
-      if (numberOfClauses > 100) {
-        console.error("Too many clauses (" + numberOfClauses + ") in filter.");
-        return [];
-      }
-      return filter;
+      return generateFilter(this.searchSettings);
     },
     browsingOptions() {
       // query can be null if reset
@@ -337,7 +233,7 @@ export default {
       /**
        * Currently applied query.
        * @param state
-       * @returns {*}
+       * @returns {String|undefined}
        */
       appliedQuery(state) {
         return state.api.datasets?.query;
@@ -404,93 +300,10 @@ export default {
       }
     }),
     filterSummary() {
-      const filters = [];
-      if (this.searchSettings.query) {
-        filters.push("query");
-      }
-      if (this.searchSettings.taxon.length > 0) {
-        filters.push("taxa");
-      }
-      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
-        filters.push("platforms");
-      }
-      if (this.searchSettings.categories.length > 0 || this.searchSettings.annotations.length > 0) {
-        filters.push("annotations");
-      }
-      if (filters.length > 0) {
-        return "Filters applied: " + filters.join(", ");
-      } else {
-        return "";
-      }
+      return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      const filter = [];
-      if (this.searchSettings.query) {
-        filter.push({ key: "Query ", value: `"${this.searchSettings.query}"` });
-      }
-      if (this.searchSettings.taxon.length > 0) {
-        const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
-        filter.push({ key: "Taxa ", value: taxaValues.join(" OR ") });
-      }
-      if (this.searchSettings.platforms.length > 0 || this.searchSettings.technologyTypes.length > 0) {
-        const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
-        if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.includes('RNASEQ')) {
-          platformValues.unshift('RNA-Seq')
-        }
-        if (this.searchSettings.technologyTypes && this.searchSettings.technologyTypes.length >= 3 && this.searchSettings.platforms.length === 0) {
-          platformValues.unshift('Microarray')
-        }
-        filter.push({ key: "Platforms ", value: platformValues });
-      }
-      if (this.searchSettings.categories.length > 0) {
-        for (let cat of this.searchSettings.categories) {
-          if (cat.className) {
-            filter.push({ key: pluralize(cat.className), value: "ANY" });
-          } else if (cat.classUri) {
-            filter.push({ key: cat.classUri, value: "ANY" });
-          } else {
-            filter.push({ key: "Uncategorized", value: "ANY" });
-          }
-        }
-      }
-      if (this.searchSettings.annotations.length > 0) {
-        const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
-          let { classUri, className, termName } = annotation;
-          if (className) {
-            className = pluralize(className);
-          } else if (classUri) {
-            className = classUri;
-          } else {
-            className = "Uncategorized";
-          }
-          if (!acc[className]) {
-            acc[className + ' '] = [termName];
-          } else {
-            acc[className].push(termName);
-          }
-          return acc;
-        }, {});
-        for (const className in annotationGroups) {
-          filter.push({ key: className, value: annotationGroups[className] });
-        }
-      }
-      if (filter.length > 0) {
-        const description = filter.map(filter => {
-          const { key, value } = filter;
-          const capitalizedKey = this.capitalizeFirstLetter(key);
-
-          if (Array.isArray(value)) {
-            const capitalizedValues = value.map(this.capitalizeFirstLetter);
-            return `${capitalizedKey}= ${capitalizedValues.join(" OR ")}`;
-          } else {
-            const capitalizedValue = this.capitalizeFirstLetter(value);
-            return `${capitalizedKey}= ${capitalizedValue}`;
-          }
-        }).join("\n AND \n");
-        return description;
-      } else {
-        return "";
-      }
+      return generateFilterDescription(this.searchSettings);
     }
   },
   methods: {
@@ -699,12 +512,6 @@ export default {
     getUrl(item) {
       return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
     },
-    capitalizeFirstLetter(str) {
-      return str
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
     handleChipClicked(previewTerm) {
      this.searchSettings.annotations.push({
@@ -741,7 +548,7 @@ export default {
     filterDescription: function(newVal) {
       this.setFilterDescription(newVal);
     },
-    "browsingOptions": function(newVal, oldVal) {
+    browsingOptions: function(newVal, oldVal) {
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || !isEqual(oldVal.filter, newVal.filter) || oldVal.ignoreExcludedTerms !== newVal.ignoreExcludedTerms)) {
         // query has changed, debounce

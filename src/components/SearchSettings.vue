@@ -78,7 +78,7 @@
 
 <script>
 import TaxonSelector from "@/components/TaxonSelector";
-import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/models";
+import { ArrayDesignType, SearchSettings, SUPPORTED_RESULT_TYPES } from "@/lib/models";
 import AnnotationSelector from "@/components/AnnotationSelector.vue";
 import { mapState } from "vuex";
 import TechnologyTypeSelector from "@/components/TechnologyTypeSelector.vue";
