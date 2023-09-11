@@ -51,8 +51,11 @@
                     </form>
                 </v-list-item>
                 <v-divider/>
-                <v-list-item link :href="baseUrl + '/expressionExperiment/showAllExpressionExperiments.html'">
+                <v-list-item link to="/">
                     Browse Datasets
+                </v-list-item>
+                <v-list-item link :href="baseUrl + '/expressionExperiment/showAllExpressionExperiments.html'">
+                    Browse Datasets (legacy)
                 </v-list-item>
                 <v-list-item link :href="baseUrl + '/arrays/showAllArrayDesigns.html'">
                     Browse Platforms
