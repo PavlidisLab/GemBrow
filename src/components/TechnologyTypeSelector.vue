@@ -33,7 +33,7 @@
 <script>
 
 import { chain, isEqual } from "lodash";
-import { formatNumber } from "@/utils";
+import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
 
 const MICROARRAY_TECHNOLOGY_TYPES = ["ONECOLOR", "TWOCOLOR", "DUALMODE"];

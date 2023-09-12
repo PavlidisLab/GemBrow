@@ -48,7 +48,7 @@
 
 <script>
 import { chain, isEqual, max } from "lodash";
-import { formatNumber, getCategoryId, getTermId, pluralize } from "@/utils";
+import { formatNumber, getCategoryId, getTermId, pluralize } from "@/lib/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 

@@ -23,10 +23,10 @@
 </template>
 
 <script>
-import { highlight } from "@/search-utils";
+import { highlight } from "@/lib/highlight";
 import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
-import { getCategoryId, getTermId } from "@/utils";
+import { getCategoryId, getTermId } from "@/lib/utils";
 import { chain } from "lodash";
 
 

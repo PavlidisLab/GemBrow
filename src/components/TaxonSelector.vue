@@ -35,7 +35,7 @@
 
 <script>
 import { isEqual } from "lodash";
-import { formatNumber } from "@/utils";
+import { formatNumber } from "@/lib/utils";
 
 export default {
   name: "TaxonSelector",

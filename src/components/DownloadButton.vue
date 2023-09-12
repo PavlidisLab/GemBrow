@@ -15,7 +15,7 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
-import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/utils";
+import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/lib/utils";
 import axios from "axios";
 import { mapMutations } from "vuex";
 
