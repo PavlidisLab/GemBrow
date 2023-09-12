@@ -67,9 +67,9 @@ export default {
     },
     chipColorMap() {
       return {
-        FactorValue: "#F0DE70",
-        ExperimentTag: "#B0DE78",
-        BioMaterial: "#D1E4FD"
+        FactorValue: "yellow lighten-3",
+        ExperimentTag: "green lighten-3",
+        BioMaterial: "blue lighten-3"
       };
     },
     /**
