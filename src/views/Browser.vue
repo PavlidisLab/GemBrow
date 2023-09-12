@@ -34,6 +34,8 @@
                     :server-items-length="totalNumberOfExpressionExperiments"
                     :footer-props="footerProps"
                     show-expand
+                    :expanded="expansionToggle"
+                    ref="dataTableRef"
                     fixed-header
                     dense class="browser-data-table"
             >
@@ -74,12 +76,14 @@
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
-                    <v-btn v-show="!drawer" icon @click="drawer = true">
-                        <v-icon>mdi-chevron-right</v-icon>
-                    </v-btn>
-                    <div v-show="searchSettings.query">
-                        Displaying {{ formatNumber(totalNumberOfExpressionExperiments) }} search results
-                    </div>
+                        <v-btn v-if="expansionToggle.length < datasets.length" class="expand-all-button" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                          <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
+                          Expand all datasets
+                        </v-btn>
+                        <v-btn v-else class="expand-all-button" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                          <v-icon color="grey darken-2"> mdi-chevron-up </v-icon>
+                          Collapse all datasets
+                        </v-btn>
                     <v-spacer/>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
@@ -141,7 +145,9 @@ export default {
         sortBy: ["id"],
         sortDesc: [true]
       },
-      downloadProgress: null
+      downloadProgress: null,
+      expansionToggle: [],
+      tableWidth: ''
     };
   },
   computed: {
@@ -519,6 +525,20 @@ export default {
         className: previewTerm.className,
         termUri: previewTerm.termUri, 
         termName: previewTerm.termName})
+    },
+    toggleAllDatasetsExpanded() {
+      // check whether all datasets are expanded
+      const expansionKeys = Object.keys(this.$refs.dataTableRef.expansion); // get expanded datasets
+      const expansionKeysNum = expansionKeys.map(eKeys => Number(eKeys)) 
+      const datasetIds = this.datasets.map(dataset => dataset.id); // get ids for all datasets
+      const allDatasetsExpanded = datasetIds.every(id => expansionKeysNum.includes(id)); // check if all dataset ids are present in expanded
+      
+      // toggle expansion
+      if (allDatasetsExpanded === true) { // If all datasets are already expanded change toggle to empty array and toggle the state to change the arrow direction
+        this.expansionToggle = []
+      } else { // If all datasets are not already expanded change expansionToggle to all datasets and set allDatasetsExpanded to reflect change
+        this.expansionToggle = this.datasets
+      };
     }
   },
   created() {
@@ -534,6 +554,14 @@ export default {
           this.browse(this.browsingOptions)])
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
       });
+  },
+  mounted() {
+    let observer = new ResizeObserver((entries) => {
+      let newWidth = entries[0].contentRect.width;
+      //this.$refs.dataTableRef.footer.$el.width = newWidth;
+      this.tableWidth = newWidth + 'px';
+    });
+    observer.observe(this.$refs.dataTableRef.$el);
   },
   watch: {
     title(newVal) {
@@ -600,9 +628,16 @@ export default {
 .browser-data-table >>> .v-data-footer {
     background: white;
     position: fixed;
-    width: 100%;
+    width: v-bind('tableWidth');
     bottom: 0;
     right: 0;
     margin-right: 0 !important;
+}
+
+.expand-all-button {
+  text-transform: none;
+  font-size: 10px;
+  position: absolute;
+  left: 0;
 }
 </style>
