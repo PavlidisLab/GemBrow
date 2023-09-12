@@ -636,8 +636,5 @@ export default {
 
 .expand-all-button {
   text-transform: none;
-  font-size: 10px;
-  position: absolute;
-  left: 0;
 }
 </style>
