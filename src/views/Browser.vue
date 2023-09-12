@@ -76,14 +76,17 @@
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
-                        <v-btn v-if="expansionToggle.length < datasets.length" class="expand-all-button" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
-                          <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
-                          Expand all datasets
-                        </v-btn>
-                        <v-btn v-else class="expand-all-button" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
-                          <v-icon color="grey darken-2"> mdi-chevron-up </v-icon>
-                          Collapse all datasets
-                        </v-btn>
+                    <v-btn v-show="!drawer" icon @click="drawer = true">
+                        <v-icon>mdi-chevron-right</v-icon>
+                    </v-btn>
+                    <v-btn v-if="expansionToggle.length < datasets.length" class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                        <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
+                        Expand all datasets
+                    </v-btn>
+                    <v-btn v-else class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                        <v-icon color="grey darken-2"> mdi-chevron-up </v-icon>
+                        Collapse all datasets
+                    </v-btn>
                     <v-spacer/>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
