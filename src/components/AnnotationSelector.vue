@@ -33,11 +33,12 @@
                 </div>
             </template>
             <template v-slot:append="{item}">
-                <div v-if="!item.isCategory || debug" class="text-right">
-                    {{ formatNumber(item.numberOfExpressionExperiments) }}<br>
-                </div>
-                <div v-if="item.isCategory && !debug && getNumberCategorySelections(item) > 0" class="text-right" style="font-size: 14px; color: grey;"> {{ getNumberCategorySelections(item) }} selected <br>
-                </div>
+                <span v-if="!item.isCategory || debug"
+                      class="text-right">{{ formatNumber(item.numberOfExpressionExperiments) }}</span>
+                <span v-if="item.isCategory && !debug && getNumberCategorySelections(item) > 0"
+                      class="text-right text--secondary text-body-2">{{
+                        getNumberCategorySelections(item)
+                    }} selected</span>
             </template>
         </v-treeview>
         <p v-show="annotations.length === 0 && !loading">
