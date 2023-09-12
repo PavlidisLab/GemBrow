@@ -620,7 +620,9 @@ export default {
 
 <style scoped>
 .browser-data-table >>> .v-data-table__wrapper {
-    margin-bottom: 59px;
+    position: absolute;
+    top: 0;
+    bottom: 59px;
     max-height: 100%;
 }
 
