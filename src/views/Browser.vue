@@ -641,5 +641,6 @@ export default {
 
 .expand-all-button {
   text-transform: none;
+  margin-left: -7.5px;
 }
 </style>
