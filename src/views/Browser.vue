@@ -55,14 +55,15 @@
                     </small>
                 </template>
                       <template v-slot:item.geeq.publicQualityScore="{ item }">
-                        <v-tooltip right>
+                        <v-tooltip left max-width="400px">
                           <template v-slot:activator="{ on }">
                             <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="icon-happy" v-on="on">mdi-emoticon-happy-outline</v-icon>
                             <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="icon-neutral" v-on="on">mdi-emoticon-neutral-outline</v-icon>
                             <v-icon v-else class="icon-sad" v-on="on">mdi-emoticon-sad-outline</v-icon>
                           </template>
                         <span> 
-                          Quality score: {{  item.geeq.publicQualityScore.toFixed(1) }}
+                          <p>Quality: {{  item.geeq.publicQualityScore.toFixed(1) }}</p>
+                        <p>Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data</p>
                         </span>
                     </v-tooltip>
                   </template>
