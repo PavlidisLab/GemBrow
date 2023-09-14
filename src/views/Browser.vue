@@ -54,11 +54,18 @@
                            v-html="getHighlight(item)">
                     </small>
                 </template>
-                <template v-slot:item.geeq.publicQualityScore="{ item }">
-                  <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="icon-happy">mdi-emoticon-happy-outline</v-icon>
-                  <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="icon-neutral">mdi-emoticon-neutral-outline</v-icon>
-                  <v-icon v-else class="icon-sad">mdi-emoticon-sad-outline</v-icon>
-                </template>
+                      <template v-slot:item.geeq.publicQualityScore="{ item }">
+                        <v-tooltip right>
+                          <template v-slot:activator="{ on }">
+                            <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="icon-happy" v-on="on">mdi-emoticon-happy-outline</v-icon>
+                            <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="icon-neutral" v-on="on">mdi-emoticon-neutral-outline</v-icon>
+                            <v-icon v-else class="icon-sad" v-on="on">mdi-emoticon-sad-outline</v-icon>
+                          </template>
+                        <span> 
+                          Quality score: {{  item.geeq.publicQualityScore.toFixed(1) }}
+                        </span>
+                    </v-tooltip>
+                  </template>
                 <template v-slot:item.lastUpdated="{item}">
                     {{ new Date(item.lastUpdated).toLocaleDateString() }}
                 </template>
@@ -191,6 +198,10 @@ export default {
           text: "Number of Samples",
           value: "bioAssays.size",
           align: "center"
+        },
+        {
+          text: "Quality",
+          value: "geeq.publicQualityScore"
         },
         {
           text: "Last Updated",
