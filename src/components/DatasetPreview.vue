@@ -116,10 +116,18 @@ export default {
     },
     getTitle(term) {
       let n = this.getNumberOfExpressionExperiments(term);
-      if (n > 0) {
-        return `${term.objectClass} with ${n} datasets, click to add to filter`;
+      if (term.termUri !== null) { // if the term is not free text
+        if (n > 0) { 
+          return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}; click to add terms to filter (associated with ${n} datasets)`;
+        } else { 
+          return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}`;
+        }
       } else {
-        return `${term.objectClass}, click to add to filter`;
+        if (n > 0) {
+          return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: Free text via ${term.objectClass}; click to add terms to filter (associated with ${n} datasets)`;
+        } else {
+          return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: Free text via ${term.objectClass}`;
+        }
       }
     },
     /**
