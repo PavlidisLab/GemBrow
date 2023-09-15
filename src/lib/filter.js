@@ -95,7 +95,7 @@ export function generateFilter(searchSettings) {
         .filter(t => t.termUri !== null)
         .map(t => t.termUri);
       let termNames = annotationByCategoryId[categoryId]
-        .filter(t => t.termName === null)
+        .filter(t => t.termUri === null)
         .map(t => t.termName);
       let f = [];
       if (termUris.length > MAX_URIS_IN_CLAUSE) {
