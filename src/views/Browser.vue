@@ -79,7 +79,7 @@
                     <v-btn v-show="!drawer" icon @click="drawer = true">
                         <v-icon>mdi-chevron-right</v-icon>
                     </v-btn>
-                    <v-btn v-if="expansionToggle.length < datasets.length" class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                    <v-btn v-if="datasetsAllExpanded" class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
                         <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
                         Expand all datasets
                     </v-btn>
@@ -313,6 +313,11 @@ export default {
     },
     filterDescription() {
       return generateFilterDescription(this.searchSettings);
+    },
+    datasetsAllExpanded() {
+      return this.datasets.every(dataset => {
+        return !this.expansionToggle.some(item => item.accession === dataset.accession);
+      });
     }
   },
   methods: {
