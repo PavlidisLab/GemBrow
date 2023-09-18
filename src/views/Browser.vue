@@ -54,19 +54,20 @@
                            v-html="getHighlight(item)">
                     </small>
                 </template>
-                      <template v-slot:item.geeq.publicQualityScore="{ item }">
-                        <v-tooltip left max-width="400px">
-                          <template v-slot:activator="{ on }">
+                <template v-slot:item.geeq.publicQualityScore="{ item }">
+                    <v-tooltip v-if="item.geeq" left max-width="400px">
+                        <template v-slot:activator="{ on }">
                             <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="emoticon" color="green" v-on="on">mdi-emoticon-happy</v-icon>
                             <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="emoticon" color="amber lighten-1" v-on="on">mdi-emoticon-neutral</v-icon>
                             <v-icon v-else class="emoticon" color="red" v-on="on">mdi-emoticon-sad</v-icon>
-                          </template>
-                        <span> 
-                          <p>Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}</p>
-                        <p>Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data</p>
-                        </span>
+                        </template>
+                        <div>
+                            <p>Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}</p>
+                            <p>Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data</p>
+                        </div>
                     </v-tooltip>
-                  </template>
+                    <span v-else>N/A</span>
+                </template>
                 <template v-slot:item.lastUpdated="{item}">
                     {{ new Date(item.lastUpdated).toLocaleDateString() }}
                 </template>
