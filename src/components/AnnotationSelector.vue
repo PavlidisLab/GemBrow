@@ -24,8 +24,10 @@
         >
             <template v-slot:label="{item}">
                 <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
-                <span v-else v-text="getTitle(item)" class="text-capitalize text-truncate"
-                      :title="getTitle(item).length > 30 && getTitle(item)"/>
+                <span v-else
+                      :title="getTitle(item).length > 30 && getTitle(item)"> 
+                    <span v-html="getTitle(item)" class="text-capitalize text-truncate"></span>
+                    </span>
                 <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
                                                            class="mdi mdi-open-in-new"></a></span>
                 <div v-if="debug && getUri(item)">
@@ -197,6 +199,9 @@ export default {
     },
     getTitle(item) {
       // TODO: handle
+      if (this.search && item.termName) {
+        return this.highlightSearchTerm(item.termName, this.search);
+      }
       return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri) : (item.termName || item.termUri);
     },
     getUri(item) {
@@ -256,6 +261,11 @@ export default {
       return this.annotations
         .filter(a => a.children.length > 10 && a.children.every(b => s.has(this.getId(b))))
         .map(a => ({ classUri: a.classUri, className: a.className }));
+    },
+    highlightSearchTerm(text, query) {
+      const regex = new RegExp(query, 'gi');
+      const highlightedText = text.replace(regex, match => `<strong>${match}</strong>`); 
+      return highlightedText;
     }
   },
   watch: {
