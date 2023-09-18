@@ -202,7 +202,7 @@ export default {
       if (this.search && item.termName) {
         return this.highlightSearchTerm(item.termName, this.search);
       }
-      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri) : (item.termName || item.termUri);
+      return item.isCategory ? ((item.className && pluralize(this.highlightSearchTerm(item.className, this.search))) || item.classUri) : (item.termName || item.termUri);
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
