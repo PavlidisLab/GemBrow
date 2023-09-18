@@ -1,5 +1,5 @@
 <template>
-    <v-alert type="error">
+    <v-alert type="error" dismissible>
         <div v-if="error.code === 400">
             {{ error.message }}
         </div>
@@ -95,6 +95,7 @@ export default {
 
 <style scoped>
 .v-alert {
+    z-index: 5;
     border-radius: 0 !important;
 }
 </style>
