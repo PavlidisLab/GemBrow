@@ -202,7 +202,8 @@ export default {
         },
         {
           text: "Quality",
-          value: "geeq.publicQualityScore"
+          value: "geeq.publicQualityScore",
+          align: "center"
         },
         {
           text: "Last Updated",
