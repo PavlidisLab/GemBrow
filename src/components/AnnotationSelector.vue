@@ -202,7 +202,10 @@ export default {
       if (this.search && item.termName) {
         return this.highlightSearchTerm(item.termName, this.search);
       }
-      return item.isCategory ? ((item.className && pluralize(this.highlightSearchTerm(item.className, this.search))) || item.classUri) : (item.termName || item.termUri);
+      if (this.search && item.isCategory) {
+        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri);
+      }
+      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri) : (item.termName || item.termUri);
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
@@ -263,13 +266,22 @@ export default {
         .map(a => ({ classUri: a.classUri, className: a.className }));
     },
     highlightSearchTerm(text, query) {
-      const regex = new RegExp(query, 'gi');
-      const highlightedText = text.replace(regex, match => `<strong>${match}</strong>`); 
-      return highlightedText;
+      const words = text.split(' ');
+      const highlightedWords = words.map(word => {
+        if (word.toLowerCase().includes(query.toLowerCase())) {
+          const regex = new RegExp(`\\b.*${query}.*\\b`, 'gi');
+          return word.replace(regex, match => `<strong>${match}</strong>`);
+        }
+        return word;
+      });
+      return highlightedWords.join(' ');
     }
   },
   watch: {
     search(newVal) {
+      /* if (newVal === '') {
+        this.search = null
+      } */
       if (newVal) {
         if (this.previouslyOpen === null) {
           this.previouslyOpen = this.open;
