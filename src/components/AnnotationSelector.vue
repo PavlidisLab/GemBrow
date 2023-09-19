@@ -279,9 +279,6 @@ export default {
   },
   watch: {
     search(newVal) {
-      /* if (newVal === '') {
-        this.search = null
-      } */
       if (newVal) {
         if (this.previouslyOpen === null) {
           this.previouslyOpen = this.open;
