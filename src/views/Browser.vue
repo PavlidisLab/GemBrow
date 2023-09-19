@@ -647,7 +647,7 @@ export default {
     position: absolute;
     top: 0;
     bottom: 59px;
-    max-height: 100%;
+    width: 100%;
 }
 
 .browser-data-table >>> .v-data-table-header th {
