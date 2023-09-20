@@ -39,6 +39,15 @@
                     fixed-header
                     dense class="browser-data-table"
             >
+                <template v-for="h in headers" v-slot:[`header.${h.value}`]>
+                  <v-tooltip :key="h.value" bottom v-if="h.value === 'geeq.publicQualityScore'" max-width="300px">
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">{{h.text}}</span>
+                    </template>
+                    <span>{{h.tip}}</span>
+                  </v-tooltip>
+                  <span v-else :key="h.value">{{ h.text }}</span>
+                </template>
                 <template v-slot:item.shortName="{item}">
                     <a :href="getUrl(item)">
                         {{ item.shortName }}
@@ -55,15 +64,14 @@
                     </small>
                 </template>
                 <template v-slot:item.geeq.publicQualityScore="{ item }">
-                    <v-tooltip v-if="item.geeq" left max-width="400px">
+                    <v-tooltip v-if="item.geeq" left>
                         <template v-slot:activator="{ on }">
                             <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="emoticon" color="green" v-on="on">mdi-emoticon-happy</v-icon>
                             <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="emoticon" color="amber lighten-1" v-on="on">mdi-emoticon-neutral</v-icon>
                             <v-icon v-else class="emoticon" color="red" v-on="on">mdi-emoticon-sad</v-icon>
                         </template>
                         <div>
-                            <p>Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}</p>
-                            <p>Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data</p>
+                          Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}
                         </div>
                     </v-tooltip>
                     <span v-else>N/A</span>
@@ -182,17 +190,11 @@ export default {
         {
           text: "Short name",
           value: "shortName"
-        }
-      );
-      if (this.searchSettings.taxon.length !== 1) {
-        h.push(
-          {
-            text: "Taxon",
-            value: "taxon"
-          }
-        );
-      }
-      h.push(
+        },
+        {
+          text: "Taxon",
+          value: "taxon"
+        },
         {
           text: "Title",
           value: "name"
@@ -205,7 +207,8 @@ export default {
         {
           text: "Quality",
           value: "geeq.publicQualityScore",
-          align: "center"
+          align: "center",
+          tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
         },
         {
           text: "Last Updated",
