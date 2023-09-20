@@ -77,7 +77,7 @@ export default {
         if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
         queryGemmaR.unshift(`library(gemma.R)\n` +
                             `library(dplyr)\n` + 
-                            `data <- get_datasets_by_ids(`);
+                            `data <- get_datasets(`);
         queryGemmaR.push(`) %>% \n` +
         `gemma.R:::get_all_pages()`);
       } 
