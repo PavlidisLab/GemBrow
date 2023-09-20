@@ -1,17 +1,26 @@
 <template>
     <v-layout>
-        <v-navigation-drawer app permanent width="400">
+        <v-navigation-drawer v-model="drawer" app width="400">
             <SearchSettings v-model="searchSettings"
                             class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
                             :annotation-disabled="loadingAnnotation"
                             :annotation-loading="loadingAnnotation"
+                            :taxa-disabled="loadingTaxa"
+                            :taxa-loading="loadingTaxa"
                             :platform-disabled="loadingPlatforms"
+                            :platform-loading="loadingPlatforms"
                             :technology-types="technologyTypes"
                             :taxon="taxon"
                             :platforms="datasetsPlatforms"
                             :annotations="datasetsAnnotations"
-                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"/>
+                            :total-number-of-expression-experiments="totalNumberOfExpressionExperiments">
+                <template v-slot:deactivator>
+                    <v-btn icon @click="drawer = false">
+                        <v-icon>mdi-chevron-left</v-icon>
+                    </v-btn>
+                </template>
+            </SearchSettings>
         </v-navigation-drawer>
         <v-main>
             <Error v-for="(error, key) in errors" :key="key" :error="error"/>
@@ -25,11 +34,22 @@
                     :server-items-length="totalNumberOfExpressionExperiments"
                     :footer-props="footerProps"
                     show-expand
+                    :expanded="expansionToggle"
+                    ref="dataTableRef"
                     fixed-header
                     dense class="browser-data-table"
             >
+                <template v-for="h in headers" v-slot:[`header.${h.value}`]>
+                  <v-tooltip :key="h.value" bottom v-if="h.value === 'geeq.publicQualityScore'" max-width="300px">
+                    <template v-slot:activator="{ on }">
+                      <span v-on="on">{{h.text}}</span>
+                    </template>
+                    <span>{{h.tip}}</span>
+                  </v-tooltip>
+                  <span v-else :key="h.value">{{ h.text }}</span>
+                </template>
                 <template v-slot:item.shortName="{item}">
-                    <a :href="baseUrl + '/expressionExperiment/showExpressionExperiment.html?id=' + encodeURIComponent(item.id)">
+                    <a :href="getUrl(item)">
                         {{ item.shortName }}
                     </a>
                 </template>
@@ -42,6 +62,19 @@
                     <small v-if="hasHighlight(item)"
                            v-html="getHighlight(item)">
                     </small>
+                </template>
+                <template v-slot:item.geeq.publicQualityScore="{ item }">
+                    <v-tooltip v-if="item.geeq" left>
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="emoticon" color="green" v-on="on">mdi-emoticon-happy</v-icon>
+                            <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="emoticon" color="amber lighten-1" v-on="on">mdi-emoticon-neutral</v-icon>
+                            <v-icon v-else class="emoticon" color="red" v-on="on">mdi-emoticon-sad</v-icon>
+                        </template>
+                        <div>
+                          Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}
+                        </div>
+                    </v-tooltip>
+                    <span v-else>N/A</span>
                 </template>
                 <template v-slot:item.lastUpdated="{item}">
                     {{ new Date(item.lastUpdated).toLocaleDateString() }}
@@ -57,15 +90,31 @@
                 </template>
                 <template v-slot:expanded-item="{item}">
                     <td :colspan="headers.length + 1">
-                        <DatasetPreview :dataset="item"></DatasetPreview>
+                        <DatasetPreview :dataset="item"
+                                        :selected-categories="searchSettings.categories"
+                                        :selected-annotations="searchSettings.annotations"
+                                        :available-annotations="datasetsAnnotations"
+                                        @annotation-selected="selectTerm"
+                                        @annotation-unselected="unselectTerm"/>
                     </td>
                 </template>
                 <template v-slot:footer.prepend>
-                  <v-spacer/>
-                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== ''" ref="codeSnippetMenu">
+                    <v-btn v-show="!drawer" icon @click="drawer = true">
+                        <v-icon>mdi-chevron-right</v-icon>
+                    </v-btn>
+                    <v-btn v-if="datasetsAllExpanded" class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                        <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
+                        Expand all datasets
+                    </v-btn>
+                    <v-btn v-else class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                        <v-icon color="grey darken-2"> mdi-chevron-up </v-icon>
+                        Collapse all datasets
+                    </v-btn>
+                    <v-spacer/>
+                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== undefined && searchSettings.query !== ''" ref="codeSnippetMenu">
                       <template v-slot:activator = "{ on, attrs }">
                         <v-btn plain v-on="on" v-bind="attrs">
-                          <span style="text-transform: none;">Dataset Download Code</span>
+                          <span style="text-transform: none;">Dataset download code</span>
                           <v-icon>mdi-chevron-up</v-icon>
                         </v-btn>
                       </template>
@@ -80,7 +129,7 @@
                     </v-progress-circular>
                     <DownloadButton v-show="totalNumberOfExpressionExperiments > 0"
                                     :browsing-options="browsingOptions"
-                                    :search-settings="searchSettings"
+                                    :filter-description="filterDescription"
                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
                                     :max-datasets="100"
                                     :progress.sync="downloadProgress"
@@ -93,26 +142,28 @@
 
 <script>
 import SearchSettings from "@/components/SearchSettings";
-import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/models";
-import { baseUrl, excludedTerms, marked } from "@/config/gemma";
-import { chain, debounce, groupBy, isEqual, sumBy } from "lodash";
+import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/lib/models";
+import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
+import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
-import { highlight } from "@/search-utils";
+import { highlight } from "@/lib/highlight";
 import DownloadButton from "@/components/DownloadButton.vue";
-import { compressArg, compressFilter, formatDecimal, formatNumber, formatPercent } from "@/utils";
+import {
+  compressArg,
+  compressFilter,
+  formatDecimal,
+  formatNumber,
+  formatPercent,
+  getCategoryId,
+  getTermId
+} from "@/lib/utils";
+import { generateFilter, generateFilterDescription, generateFilterSummary } from "@/lib/filter";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 import CodeSnippet from "@/components/CodeSnippet.vue"; 
 
-const MAX_URIS_IN_CLAUSE = 200;
-
-function quoteIfNecessary(s) {
-  if (s.match(/[(), "]/) || s.length === 0) {
-    return "\"" + s.replaceAll("\"", "\\") + "\"";
-  } else {
-    return s;
-  }
-}
+const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;
+const MAX_PLATFORMS = process.env.NODE_ENV !== "production" ? 50 : 200;
 
 export default {
   name: "Browser",
@@ -125,15 +176,17 @@ export default {
   },
   data() {
     return {
-      baseUrl,
-      searchSettings: new SearchSettingsModel(this.query || "", [ExpressionExperimentType]),
+      drawer: true,
+      searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
       options: {
         page: 1,
         itemsPerPage: 25,
         sortBy: ["id"],
         sortDesc: [true]
       },
-      downloadProgress: null
+      downloadProgress: null,
+      expansionToggle: [],
+      tableWidth: ''
     };
   },
   computed: {
@@ -150,17 +203,11 @@ export default {
         {
           text: "Short name",
           value: "shortName"
-        }
-      );
-      if (this.searchSettings.taxon === null) {
-        h.push(
-          {
-            text: "Taxon",
-            value: "taxon"
-          }
-        );
-      }
-      h.push(
+        },
+        {
+          text: "Taxon",
+          value: "taxon"
+        },
         {
           text: "Title",
           value: "name"
@@ -171,11 +218,17 @@ export default {
           align: "center"
         },
         {
+          text: "Quality",
+          value: "geeq.publicQualityScore",
+          align: "center",
+          tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
+        },
+        {
           text: "Last Updated",
           value: "lastUpdated"
         }
       );
-      if (this.debug && this.appliedBrowsingOptions.query) {
+      if (this.debug && this.appliedQuery) {
         h.push({
           text: "Score (dev only)",
           value: "searchResult.score",
@@ -186,98 +239,11 @@ export default {
       return h;
     },
     filter() {
-      let filter = [];
-      if (this.searchSettings.taxon?.length > 0) {
-        filter.push(["taxon.id in (" + this.searchSettings.taxon.map(t => t.id).join(",") + ")"]);
-      }
-      if (this.searchSettings.platforms.length > 0) {
-        let platformIds = this.searchSettings.platforms
-          .filter(p => this.searchSettings.technologyType && p.technologyType !== this.searchSettings.technologyType)
-          .map(p => p.id);
-        if (platformIds.length > 0) {
-          filter.push([
-            "bioAssays.arrayDesignUsed.id in (" + platformIds.join(",") + ")",
-            "bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")"
-          ]);
-        }
-      }
-      if (this.searchSettings.technologyType) {
-        filter.push([
-          "bioAssays.arrayDesignUsed.technologyType = " + quoteIfNecessary(this.searchSettings.technologyType),
-          "bioAssays.originalPlatform.technologyType = " + quoteIfNecessary(this.searchSettings.technologyType)
-        ]);
-      }
-      if (this.searchSettings.categories.length > 0) {
-        // check if all categories are picked
-        let categories = this.searchSettings.categories;
-        if (categories.length > MAX_URIS_IN_CLAUSE) {
-          console.warn(`Too many categories (${categories.length}) in clause, will only retain the first ${MAX_URIS_IN_CLAUSE} categories.`);
-          categories = categories.slice(0, MAX_URIS_IN_CLAUSE);
-        }
-        if (categories.length > 0) {
-          for (const category of categories) {
-            if (category.classUri) {
-              filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(category.classUri)]);
-            } else if (category.className) {
-              filter.push(["allCharacteristics.category = " + quoteIfNecessary(category.className)]);
-            } else {
-              console.warn("Selection of the 'Uncategorized' category is not supported");
-            }
-          }
-        }
-      }
-      if (this.searchSettings.annotations.length > 0) {
-        let annotationByCategoryId = chain(this.searchSettings.annotations)
-          .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
-          .value();
-        for (const categoryId in annotationByCategoryId) {
-          let categoryUri = annotationByCategoryId[categoryId].find(t => t.classUri !== null)?.classUri || null;
-          let categoryName = annotationByCategoryId[categoryId].find(t => t.classUri === null)?.className || null;
-          // FIXME: the category should be in a conjunction with the value, but that is not supported
-          // add a clause for the category, this is not exactly correct
-          if (categoryUri !== null) {
-            filter.push(["allCharacteristics.categoryUri = " + quoteIfNecessary(categoryId)]);
-          } else if (categoryName !== null) {
-            filter.push(["allCharacteristics.category = " + quoteIfNecessary(categoryId)]);
-          } else {
-            console.warn("Selection of the 'Uncategorized' category is not supported.");
-          }
-          let termUris = annotationByCategoryId[categoryId]
-            .filter(t => t.termUri !== null)
-            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
-            .map(t => t.termUri);
-          let termNames = annotationByCategoryId[categoryId]
-            .filter(t => t.termName === null)
-            .sort((a, b) => a.numberOfExpressionExperiments - b.numberOfExpressionExperiment)
-            .map(t => t.termName);
-          let f = [];
-          if (termUris.length > MAX_URIS_IN_CLAUSE) {
-            console.warn(`Too many annotations (${termUris.length}) selected under ${categoryId}, will only retain the first ${MAX_URIS_IN_CLAUSE} terms.`);
-            termUris = termUris.slice(0, MAX_URIS_IN_CLAUSE);
-          }
-          if (termUris.length > 0) {
-            f.push("allCharacteristics.valueUri in (" + termUris.map(quoteIfNecessary).join(", ") + ")");
-          }
-          if (termNames.length > MAX_URIS_IN_CLAUSE) {
-            console.warn(`Too many annotations (${termNames.length}) selected under ${categoryId}, will only retain the first${MAX_URIS_IN_CLAUSE} terms.`);
-            termNames = termNames.slice(0, MAX_URIS_IN_CLAUSE);
-          }
-          if (termNames.length > 0) {
-            f.push("allCharacteristics.value in (" + termNames.map(quoteIfNecessary).join(", ") + ")");
-          }
-          filter.push(f);
-        }
-      }
-      let numberOfClauses = sumBy(filter, f => f.length);
-      if (numberOfClauses > 100) {
-        console.error("Too many clauses (" + numberOfClauses + ") in filter.");
-        return [];
-      }
-      return filter;
+      return generateFilter(this.searchSettings);
     },
     browsingOptions() {
       // query can be null if reset
-      if (this.searchSettings.query !== null && this.searchSettings.query.length > 0) {
+      if (this.searchSettings.query && this.searchSettings.query.length > 0) {
         return {
           query: this.searchSettings.query,
           filter: this.filter,
@@ -302,25 +268,20 @@ export default {
         if (state.lastError) {
           return [state.lastError];
         } else {
-          return Object.values(state.api.error)
+          return Object.entries(state.api.error).flatMap(([key, error]) => key === "datasetsAnnotationsByCategory" ? Object.values(error) : [error])
             .filter(e => e !== null)
             .map(e => e.response?.data?.error || e)
             .slice(0, 1);
         }
       },
       datasets: state => state.api.datasets?.data || [],
-      appliedBrowsingOptions(state) {
-        if (state.api.datasets) {
-          return {
-            query: state.api.datasets.query,
-            filter: state.api.datasets.filter,
-            offset: state.api.datasets.offset,
-            limit: state.api.datasets.limit,
-            sort: state.api.datasets.sort ? (state.api.datasets.sort.direction + state.api.datasets.sort.orderBy) : null
-          };
-        } else {
-          return this.browsingOptions;
-        }
+      /**
+       * Currently applied query.
+       * @param state
+       * @returns {String|undefined}
+       */
+      appliedQuery(state) {
+        return state.api.datasets?.query;
       },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
@@ -334,7 +295,7 @@ export default {
             pageStart: state.api.datasets.offset,
             pageStop: state.api.datasets.offset + state.api.datasets.limit,
             pageCount: Math.ceil(state.api.datasets.totalElements / state.api.datasets.limit),
-            itemsLength: state.api.datasets.totalElements
+            itemsLength: formatNumber(state.api.datasets.totalElements)
           },
           disablePagination: state.api.pending.datasets,
           disableItemsPerPage: state.api.pending.datasets,
@@ -357,103 +318,42 @@ export default {
       },
       loadingDatasets: state => !!state.api.pending["datasets"],
       loadingPlatforms: state => !!state.api.pending["datasetsPlatforms"],
-      loadingAnnotation: state => !!state.api.pending["datasetsAnnotations"],
+      loadingAnnotation: state => !!state.api.pending["datasetsCategories"] || !!Object.values(state.api.pending["datasetsAnnotationsByCategory"]).some(x => x),
       loadingTaxa: state => !!state.api.pending["datasetsTaxa"],
       datasetsPlatforms: state => state.api.datasetsPlatforms?.data || [],
       datasetsTaxa: state => state.api.datasetsTaxa?.data || [],
       taxon: state => state.api.datasetsTaxa?.data || [],
       datasetsAnnotations(state) {
-        if (state.api.datasetsAnnotations === undefined) {
-          return [];
-        }
-        // first grouping by category
-        let filteredTerms = state.api.datasetsAnnotations.data;
-        let termsByCategory = groupBy(filteredTerms, elem => (elem.classUri || elem.className?.toLowerCase()));
-        let annotations = [];
-        for (let key in termsByCategory) {
-          // find the first non-null URI and name for the category
-          let classUri = termsByCategory[key].find(el => el.classUri !== null)?.classUri;
-          let className = termsByCategory[key].find(el => el.className !== null)?.className;
-          annotations.push({
-            classUri: classUri,
-            className: className,
-            children: termsByCategory[key]
-          });
-        }
-        return annotations;
+        return (state.api.datasetsCategories?.data || [])
+          .map(category => {
+            return {
+              classUri: category.classUri,
+              className: category.className,
+              children: state.api.datasetsAnnotationsByCategory[getCategoryId(category)]?.data || [],
+              numberOfExpressionExperiments: category.numberOfExpressionExperiments
+            };
+          })
+          // exclude categories with no selectable terms
+          // categories are not retrieved with all the filters
+          .filter(c => c.children.length > 0);
       },
-      myself: state => state.api.myself?.data
+      myself(state) {
+        if (state.api.myself === undefined) {
+          return null;
+        }
+        return state.api.myself.code === 401 ? null : state.api.myself.data;
+      }
     }),
     filterSummary() {
-      const filters = [];
-      if (this.searchSettings.query) {
-        filters.push("query");
-      }
-      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
-        filters.push("taxa");
-      }
-      if (this.searchSettings.platforms.length > 0) {
-        filters.push("platforms");
-      }
-      if (this.searchSettings.technologyType) {
-        filters.push("technology type");
-      }
-      if (this.searchSettings.annotations.length > 0) {
-        filters.push("annotations");
-      }
-      if (filters.length > 0) {
-        return "Filters applied: " + filters.join(", ");
-      } else {
-        return "";
-      }
+      return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      const filter = [];
-      if (this.searchSettings.query) {
-        filter.push({ key: "Query", value: ` "${this.searchSettings.query}"` });
-      }
-      if (this.searchSettings.taxon !== null && this.searchSettings.taxon.length > 0) {
-        const taxaValues = this.searchSettings.taxon.map(taxon => taxon.commonName);
-        filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
-      }
-      if (this.searchSettings.platforms.length > 0) {
-        const platformValues = this.searchSettings.platforms.map(platforms => platforms.name);
-        filter.push({ key: "Platforms", value: platformValues });
-      }
-      if (this.searchSettings.technologyType) {
-        filter.push({ key: "Technology Type", value: [this.searchSettings.technologyType] });
-      }
-      if (this.searchSettings.annotations.length > 0) {
-        const annotationGroups = this.searchSettings.annotations.reduce((acc, annotation) => {
-          const { className, termName } = annotation;
-          if (!acc[className]) {
-            acc[className] = [termName];
-          } else {
-            acc[className].push(termName);
-          }
-          return acc;
-        }, {});
-        for (const className in annotationGroups) {
-          filter.push({ key: className, value: annotationGroups[className] });
-        }
-      }
-      if (filter.length > 0) {
-        const description = filter.map(filter => {
-          const { key, value } = filter;
-          const capitalizedKey = this.capitalizeFirstLetter(key);
-
-          if (Array.isArray(value)) {
-            const capitalizedValues = value.map(this.capitalizeFirstLetter);
-            return `${capitalizedKey}= ${capitalizedValues.join(" OR ")}`;
-          } else {
-            const capitalizedValue = this.capitalizeFirstLetter(value);
-            return `${capitalizedKey}= ${capitalizedValue}`;
-          }
-        }).join("\n AND \n");
-        return description;
-      } else {
-        return "";
-      }
+      return generateFilterDescription(this.searchSettings);
+    },
+    datasetsAllExpanded() {
+      return this.datasets.every(dataset => {
+        return !this.expansionToggle.some(item => item.accession === dataset.accession);
+      });
     }
   },
   methods: {
@@ -476,6 +376,7 @@ export default {
       }).catch(err => {
         // because the function is debounced, the caller might never get resulting promise and ability to handle the error
         console.error("Error while searching: " + err.message + ".", err);
+        this.setLastError(err);
       });
     }, 1000),
     browse(browsingOptions, updateEverything) {
@@ -487,10 +388,10 @@ export default {
         this.options.page = 1;
         let updateDatasetsAnnotationsPromise;
         if (browsingOptions.ignoreExcludedTerms) {
-          updateDatasetsAnnotationsPromise = this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter);
+          updateDatasetsAnnotationsPromise = this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter);
         } else {
-          updateDatasetsAnnotationsPromise = compressArg(excludedTerms.join(","))
-            .then(excludedTerms => this.updateAvailableAnnotations(browsingOptions.query, browsingOptions.filter, excludedTerms));
+          updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
         }
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
@@ -505,39 +406,104 @@ export default {
         if (query !== undefined) {
           payload["query"] = query;
         }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasets", {
           params: payload
         });
       });
     },
-    updateAvailableAnnotations(query, filter, excludedTerms) {
-      // we want to keep category-wide sub-clauses, but not individual terms
+    /**
+     * Update available categories.
+     */
+    updateAvailableCategories(query, filter, excludedCategories, excludedTerms) {
       let disallowedPrefixes = [
-        "allCharacteristics.value",
-        "characteristics.value",
-        "bioAssays.sampleUsed.characteristics.value",
-        "experimentalDesign.experimentalFactors.factorValues.characteristics.value"
+        "allCharacteristics.",
+        "characteristics.",
+        "bioAssays.sampleUsed.characteristics.",
+        "experimentalDesign.experimentalFactors.factorValues.characteristics."
       ];
-      if (filter) {
-        filter = filter.map(clause => clause
+      let mFilter = filter;
+      if (mFilter) {
+        mFilter = mFilter.map(clause => clause
           .filter(subClause => !disallowedPrefixes.some(p => subClause.startsWith(p))))
           .filter(clause => clause.length > 0);
       }
-      return compressFilter(filter).then(compressedFilter => {
+      return compressFilter(mFilter).then(compressedFilter => {
         let payload = {
-          filter: compressedFilter,
-          // the cap limit is 5000, so anything below 4 is useless
-          minFrequency: filter.length > 0 ? 1 : excludedTerms ? 4 : 3,
-          exclude: ["parentTerms"]
+          filter: compressedFilter
         };
         if (query !== undefined) {
           payload["query"] = query;
         }
+        if (excludedCategories !== undefined) {
+          payload["excludedCategories"] = excludedCategories;
+        }
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
         }
-        return this.$store.dispatch("api/getDatasetsAnnotations", { params: payload });
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
+        // proactively query categories we already know about, otherwise we have to wait until the
+        // getDatasetsCategories() endpoint finishes
+        let categories = this.datasetsAnnotations.map(getCategoryId);
+        for (let categoryId of categories) {
+          this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
+        }
+        return this.$store.dispatch("api/getDatasetsCategories", { params: payload })
+          .then(data => {
+            return Promise.all([...categories, ...data.data.data.map(category => {
+              let categoryId = getCategoryId(category);
+              if (!categories.includes(categoryId)) {
+                return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
+              }
+            })]);
+          });
       });
+    },
+    /**
+     * Update available annotations for a specific category.
+     *
+     * To get accurate counts, we have to exclude all the clauses involving terms from the category. This is a bit
+     * tricky because at this point the filter is already generated, so we remove clauses matching a regex constructed
+     * by concatenating all the terms in the category.
+     */
+    updateAvailableAnnotationsByCategory(category, query, filter, excludedTerms) {
+      // generate a regex to match clauses we want to exclude
+      let annotationsToExclude = this.datasetsAnnotations
+        .filter(t => getCategoryId(t) === category)
+        .flatMap(c => c.children)
+        .map(getTermId);
+      if (annotationsToExclude.length > 0) {
+        let annotationsToExcludeR = new RegExp(annotationsToExclude.map(escapeRegExp).join("|"));
+        filter = filter
+          .map(clause => clause.filter(subClause => !annotationsToExcludeR.test(subClause)))
+          .filter(clause => clause.length > 0);
+      }
+      // exclude filters for the category
+      return compressFilter(filter)
+        .then(compressedFilter => {
+          let payload = {
+            category: category,
+            filter: compressedFilter,
+            limit: MAX_TERMS_PER_CATEGORY,
+            exclude: ["parentTerms"],
+            // ensures that the terms appearing in filter are always returned
+            retainMentionedTerms: true
+          };
+          if (query) {
+            payload["query"] = query;
+          }
+          if (excludedTerms !== undefined) {
+            payload["excludedTerms"] = excludedTerms;
+          }
+          if (this.myself) {
+            payload["gid"] = this.myself.group;
+          }
+          return this.$store.dispatch("api/getDatasetsAnnotationsByCategory", { params: payload });
+        });
     },
     updateOpenApiSpecification() {
       return this.$store.dispatch("api/getOpenApiSpecification");
@@ -548,7 +514,13 @@ export default {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("taxon."))).filter(clause => clause.length > 0);
       }
       return compressFilter(filter).then(compressedFilter => {
-        let payload = query !== undefined ? { query: query, filter: compressedFilter } : { filter: compressedFilter };
+        let payload = { filter: compressedFilter };
+        if (query) {
+          payload["query"] = query;
+        }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasetsTaxa", { params: payload });
       });
     },
@@ -558,7 +530,16 @@ export default {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("bioAssays.arrayDesignUsed.") && !subClause.startsWith("bioAssays.originalPlatform."))).filter(clause => clause.length > 0);
       }
       return compressFilter(filter).then(compressedFilter => {
-        let payload = query !== undefined ? { query: query, filter: compressedFilter } : { filter: compressedFilter };
+        let payload = {
+          filter: compressedFilter,
+          limit: MAX_PLATFORMS
+        };
+        if (query) {
+          payload["query"] = query;
+        }
+        if (this.myself) {
+          payload["gid"] = this.myself.group;
+        }
         return this.$store.dispatch("api/getDatasetsPlatforms", { params: payload });
       });
     },
@@ -568,7 +549,7 @@ export default {
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
         .filter(h => h[0] !== "name") // the name is highlighted in the table
-        .map(h => marked.parseInline("**Tagged " + h[0] + ":** " + h[1]))
+        .map(h => marked.parseInline("Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ": " + h[1]))
         .join("<br/>");
     },
     getName(item) {
@@ -578,27 +559,68 @@ export default {
         return item.name;
       }
     },
-    capitalizeFirstLetter(str) {
-      return str
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
+    getUrl(item) {
+      return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
+    },
+    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
+    selectTerm(previewTerm) {
+      this.searchSettings.annotations.push({
+        classUri: previewTerm.classUri,
+        className: previewTerm.className,
+        termUri: previewTerm.termUri, 
+        termName: previewTerm.termName})
+    },
+    unselectTerm(previewTerm) {
+      let categoryId = getCategoryId(previewTerm);
+      let termId = getTermId(previewTerm);
+      for (let [i, a] of this.searchSettings.annotations.entries()) {
+        if (getCategoryId(a) === categoryId && getTermId(a) === termId) {
+          this.searchSettings.annotations.splice(i, 1);
+          return;
+        }
+      }
+      console.warn(`${previewTerm} is not selected and thus cannot be unselected.`);
     },
     repositionCodeSnippetMenu() {
       setTimeout(() => this.$refs.codeSnippetMenu.onResize(), 100);
     },
-    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"])
+    ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
+    toggleAllDatasetsExpanded() {
+      // check whether all datasets are expanded
+      const expansionKeys = Object.keys(this.$refs.dataTableRef.expansion); // get expanded datasets
+      const expansionKeysNum = expansionKeys.map(eKeys => Number(eKeys)) 
+      const datasetIds = this.datasets.map(dataset => dataset.id); // get ids for all datasets
+      const allDatasetsExpanded = datasetIds.every(id => expansionKeysNum.includes(id)); // check if all dataset ids are present in expanded
+      
+      // toggle expansion
+      if (allDatasetsExpanded === true) { // If all datasets are already expanded change toggle to empty array and toggle the state to change the arrow direction
+        this.expansionToggle = []
+      } else { // If all datasets are not already expanded change expansionToggle to all datasets and set allDatasetsExpanded to reflect change
+        this.expansionToggle = this.datasets
+      };
+    }
   },
   created() {
-    compressArg(excludedTerms.join(",")).then((excludedTerms) => {
-      return Promise.all([
-        this.updateOpenApiSpecification(),
-        this.updateAvailableTaxa(undefined, this.filter),
-        this.updateAvailablePlatforms(undefined, this.filter),
-        this.updateAvailableAnnotations(undefined, this.filter, excludedTerms),
-        this.browse(this.browsingOptions)])
-        .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
+    let query = this.searchSettings.query;
+    let filter = this.filter;
+    return Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+      .then(([excludedCategories, excludedTerms]) => {
+        return Promise.all([
+          this.updateOpenApiSpecification(),
+          this.updateAvailableTaxa(query, filter),
+          this.updateAvailablePlatforms(query, filter),
+          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
+          this.browse(this.browsingOptions)])
+          .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
+      });
+  },
+  mounted() {
+    let observer = new ResizeObserver((entries) => {
+      let newWidth = entries[0].contentRect.width;
+      //this.$refs.dataTableRef.footer.$el.width = newWidth;
+      this.tableWidth = newWidth + 'px';
     });
+    observer.observe(this.$refs.dataTableRef.$el);
   },
   watch: {
     title(newVal) {
@@ -613,7 +635,7 @@ export default {
     filterDescription: function(newVal) {
       this.setFilterDescription(newVal);
     },
-    "browsingOptions": function(newVal, oldVal) {
+    browsingOptions: function(newVal, oldVal) {
       let promise;
       if (oldVal !== undefined && (oldVal.query !== newVal.query || !isEqual(oldVal.filter, newVal.filter) || oldVal.ignoreExcludedTerms !== newVal.ignoreExcludedTerms)) {
         // query has changed, debounce
@@ -623,10 +645,10 @@ export default {
           promise = this.browse(newVal, true);
         } else if (oldVal.ignoreExcludedTerms !== newVal.ignoreExcludedTerms) {
           if (newVal.ignoreExcludedTerms) {
-            promise = this.updateAvailableAnnotations(newVal.query, newVal.filter);
+            promise = this.updateAvailableCategories(newVal.query, newVal.filter);
           } else {
-            promise = compressArg(excludedTerms.join(","))
-              .then(excludedTerms => this.updateAvailableAnnotations(newVal.query, newVal.filter, excludedTerms));
+            promise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
+              .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(newVal.query, newVal.filter, excludedCategories, excludedTerms));
           }
         } else {
           promise = Promise.resolve();
@@ -641,9 +663,11 @@ export default {
     },
     myself: function(newVal, oldVal) {
       if (!isEqual(newVal, oldVal)) {
-        this.browse(this.browsingOptions, true).catch(err => {
-          console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
-        });
+        this.browse(this.browsingOptions, true)
+          .catch(err => {
+            console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
+            this.setLastError(err);
+          });
       }
     }
   }
@@ -652,8 +676,10 @@ export default {
 
 <style scoped>
 .browser-data-table >>> .v-data-table__wrapper {
-    margin-bottom: 59px;
-    max-height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 59px;
+    width: 100%;
 }
 
 .browser-data-table >>> .v-data-table-header th {
@@ -663,9 +689,19 @@ export default {
 .browser-data-table >>> .v-data-footer {
     background: white;
     position: fixed;
-    width: 100%;
+    width: v-bind('tableWidth');
     bottom: 0;
     right: 0;
     margin-right: 0 !important;
+}
+.expand-all-button {
+  text-transform: none;
+  margin-left: -7.5px;
+}
+.emoticon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: black;
 }
 </style>

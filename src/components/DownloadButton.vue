@@ -15,8 +15,9 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
 import { chain } from "lodash";
-import { compressFilter, downloadAs, formatNumber } from "@/utils";
+import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/lib/utils";
 import axios from "axios";
+import { mapMutations } from "vuex";
 
 const termsAndConditionsHeader = [
   "# If you use this file for your research, please cite:",
@@ -31,9 +32,9 @@ export default {
      * Browsing options to use for downloading datasets.
      */
     browsingOptions: Object,
-    searchSettings: Object,
     totalNumberOfExpressionExperiments: Number,
-    progress: Number
+    progress: Number,
+    filterDescription: String
   },
   data() {
     return {
@@ -44,40 +45,8 @@ export default {
   },
   events: ["update:progress"],
   methods: {
+    ...mapMutations(["setLastError"]),
     formatNumber,
-    readableQuery() {
-      return this.browsingOptions.query || "All datasets. ";
-    },
-    readableFilter() {
-      let annotationByCategoryId = chain(this.searchSettings.annotations)
-        .groupBy(t => t.classUri || t.className?.toLowerCase() || null)
-        .values()
-        .map(annotations => annotations.map(a => a.termName).join(", "))
-        .join("; ")
-        .value();
-      let categories = this.searchSettings.categories.map(c => c.className).join("; ");
-      let taxon = this.searchSettings.taxon?.scientificName;
-      let platforms = this.searchSettings.platforms.map(p => p.name);
-      let browsingOptionsFilter = this.browsingOptions.filter;
-      if (browsingOptionsFilter.length > 0) {
-        let browsingOptionsFilterReadable = [];
-        if (annotationByCategoryId !== "" && annotationByCategoryId !== undefined) {
-          browsingOptionsFilterReadable.push("Annotation: " + annotationByCategoryId + ".");
-        }
-        if (categories) {
-          browsingOptionsFilterReadable.push("Category: " + categories + ".");
-        }
-        if (taxon) {
-          browsingOptionsFilterReadable.push("Taxon: " + taxon + ".");
-        }
-        if (platforms.length > 0) {
-          browsingOptionsFilterReadable.push("Platforms: " + platforms.join(", ") + ".");
-        }
-        return browsingOptionsFilterReadable.join(" ");
-      } else {
-        return "No filter applied. ";
-      }
-    },
     download() {
       if (this.downloading) {
         return;
@@ -87,8 +56,6 @@ export default {
       let limit = 100;
       let sort = this.browsingOptions.sort;
       let total = this.total = this.totalNumberOfExpressionExperiments;
-      let readableFilter = this.readableFilter();
-      let readableQuery = this.readableQuery();
       return compressFilter(filter).then(compressedFilter => {
         let controller = this.controller = new AbortController();
         let progress_ = 0;
@@ -123,7 +90,8 @@ export default {
         return Promise.all(promises)
           .then((responses) => {
             let data = responses.flatMap(response => response.data.data);
-            let csvHeader = termsAndConditionsHeader + "\n# QUERY: " + readableQuery + "\n# FILTERS: " + readableFilter;
+            let formattedFilterDescription = this.filterDescription.replace(/\n/g, ""); 
+            let csvHeader = termsAndConditionsHeader + "\n# " + formattedFilterDescription;
             let csvContent = parse(data, {
               delimiter: "\t",
               quote: "",
@@ -148,6 +116,7 @@ export default {
       }).catch(err => {
         if (!axios.isCancel(err)) {
           console.error("Error while downloading datasets to TSV: " + err.message + ".", err);
+          this.setLastError(err);
         }
       }).finally(() => {
         this.downloading = false;

@@ -1,6 +1,6 @@
 {
   "name": "gembrow",
-  "version": "0.3.0",
+  "version": "0.4.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,12 +15,12 @@
     "highlight.js": "^10.7.2",
     "json2csv": "^5.0.7",
     "lodash": "^4.17.21",
-    "marked": "^5.1.0",
-    "material-icons": "^1.13.8",
+    "marked": "^7.0.4",
+    "material-icons": "^1.13.10",
     "qs": "^6.11.2",
     "vue": "^2.7.14",
     "vue-router": "^3.6.5",
-    "vuetify": "^2.7.0",
+    "vuetify": "^2.7.1",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^4.1.0",
     "vuex-rest-api": "^2.15.0"
@@ -30,15 +30,15 @@
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/eslint-config-prettier": "^7.1.0",
-    "eslint": "^8.43.0",
-    "eslint-plugin-vue": "^9.15.0",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "eslint": "^8.47.0",
+    "eslint-plugin-vue": "^9.17.0",
     "eslint-plugin-vuetify": "^1.1.0",
-    "lint-staged": "^13.2.2",
-    "sass": "^1.63.6",
+    "lint-staged": "^14.0.1",
+    "sass": "^1.66.1",
     "sass-loader": "^13.3.2",
     "vue-template-compiler": "^2.7.14",
-    "webpack": "^5.88.0"
+    "webpack": "^5.88.2"
   },
   "babel": {
     "presets": [
@@ -79,12 +79,10 @@
   },
   "lint-staged": {
     "*.js": [
-      "vue-cli-service lint",
-      "git add"
+      "vue-cli-service lint"
     ],
     "*.vue": [
-      "vue-cli-service lint",
-      "git add"
+      "vue-cli-service lint"
     ]
   }
 }

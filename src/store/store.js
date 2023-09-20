@@ -12,7 +12,7 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null };
+    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null};
   },
   mutations: {
     setDebug(state, newVal) {

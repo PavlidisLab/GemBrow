@@ -6,8 +6,7 @@
  */
 export function highlight(text, highlightedFragment) {
   let rawFragment = highlightedFragment
-    .replaceAll("<b>", "")
-    .replaceAll("</b>", "");
+    .replaceAll("**", "")
   if (!text.includes(rawFragment)) {
     console.warn("\"" + text + "\" does not contain the highlighted fragment \"" + rawFragment + "\"");
     return text;

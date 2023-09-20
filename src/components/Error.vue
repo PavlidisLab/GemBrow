@@ -1,5 +1,5 @@
 <template>
-    <v-alert type="error">
+    <v-alert type="error" dismissible>
         <div v-if="error.code === 400">
             {{ error.message }}
         </div>
@@ -22,7 +22,6 @@
                 </v-btn>
             </div>
             <div v-show="revealErrorDetails">
-                <p class="my-3">Make sure that you include the following details in the issue:</p>
                 <v-card class="my-3">
                     <v-card-text>
                         <pre class="mb-1" style="white-space: pre-wrap;">{{ JSON.stringify(error) }}</pre>
@@ -30,7 +29,7 @@
                         Browser: {{ browser }}
                     </v-card-text>
                 </v-card>
-                <v-btn href="https://github.com/PavlidisLab/GemBrow/issues/new"
+                <v-btn :href="githubUrl"
                        target="_blank" rel="noreferrer noopener">
                     <v-icon>mdi-github</v-icon>
                     Create an issue on GitHub
@@ -64,11 +63,31 @@ export default {
         subject: "Gemma Browser Bug Report: " + this.error.message,
         body: "Please indicate how this error can be reproduced here:\n"
           + "\n\n\n"
-          + "Error details:\n" + JSON.stringify(this.error) + "\n"
+          + "Error details:\n"
+          + JSON.stringify(this.error) + "\n"
           + "\n"
           + "Application Version: " + this.applicationVersion + "\n"
           + "Browser: " + this.browser
       };
+    },
+    githubIssue() {
+      return {
+        title: this.error.message,
+        body: "Please indicate how this error can be reproduced here:\n"
+          + "\n\n\n"
+          + "Error details:\n"
+          + "```json\n" + JSON.stringify(this.error) + "\n```\n"
+          + "\n"
+          + "Application Version: " + this.applicationVersion + "\n"
+          + "Browser: " + this.browser,
+        labels: ["bug"]
+      };
+    },
+    githubUrl() {
+      return "https://github.com/PavlidisLab/GemBrow/issues/new"
+        + "?title=" + encodeURIComponent(this.githubIssue.title)
+        + "&body=" + encodeURIComponent(this.githubIssue.body)
+        + "&labels=" + encodeURIComponent(this.githubIssue.labels.join(","));
     }
   }
 };
@@ -76,6 +95,7 @@ export default {
 
 <style scoped>
 .v-alert {
+    z-index: 5;
     border-radius: 0 !important;
 }
 </style>

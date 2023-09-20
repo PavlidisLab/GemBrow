@@ -8,26 +8,33 @@
                     alt="The Gemma Browser logo"
             />
         </a>
-        <div v-show=true style="align-self: center; padding-left: 15px;">
+        <div class="d-none d-md-flex px-3">
             {{ title }}
         </div>
         <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
           <template v-slot:activator= "{ on, attrs }">
-            <v-btn plain v-bind="attrs" v-on="on"> {{ filterSummary }}
+            <v-btn plain v-bind="attrs" v-on="on" style="text-transform: none;"> {{ filterSummary }}
               <v-icon>mdi-chevron-down</v-icon>
             </v-btn>
           </template>
           <v-card flat max-width="650px" class="scroll"> 
             <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
               <v-card-text>
-                <div v-for="line, index in filterDescription.split('\n')" :key="index">
-                  {{ line }}
+                <div v-for="line, lineIndex in filterDescription.split('\n')" :key="lineIndex">
+                  <span v-for="word, wordIndex in line.split(' ')" :key="lineIndex + '-' + wordIndex" :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
+                    {{ word }}&nbsp;
+                  </span>                 
                 </div>
               </v-card-text>
           </v-card>
         </v-menu>
         <v-spacer/>
-        <v-switch v-if="initiallyDebug" v-model="debug" label="Debug Mode" hide-details class="px-4"/>
+        <v-switch v-if="devMode" v-model="debug" label="Debug Mode" hide-details class="d-none d-sm-flex px-4"/>
+        <v-btn fab small tile depressed @click="showDocumentationWindow = true"
+               class="d-none d-sm-flex px-4">
+            <v-icon>mdi-help-circle-outline</v-icon>
+        </v-btn>
+        <DocumentationWindow v-model="showDocumentationWindow"/>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{on, attrs}">
                 <v-btn plain v-bind="attrs" v-on="on">
@@ -37,15 +44,18 @@
             </template>
             <v-list>
                 <v-list-item>
-                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
+                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline" ref="searchForm">
                         <v-text-field label="Search" autofocus @click.stop autocomplete="off"
                                       name="query"></v-text-field>
-                        <v-btn class="ml-2">Go</v-btn>
+                        <v-btn class="ml-2" @click="submitSearch">Go</v-btn>
                     </form>
                 </v-list-item>
                 <v-divider/>
-                <v-list-item link :href="baseUrl + '/expressionExperiment/showAllExpressionExperiments.html'">
+                <v-list-item link to="/">
                     Browse Datasets
+                </v-list-item>
+                <v-list-item link :href="baseUrl + '/expressionExperiment/showAllExpressionExperiments.html'">
+                    Browse Datasets (legacy)
                 </v-list-item>
                 <v-list-item link :href="baseUrl + '/arrays/showAllArrayDesigns.html'">
                     Browse Platforms
@@ -120,7 +130,7 @@
         </v-menu>
         <a href="https://www.ubc.ca/" target="_blank"
            title="UBC home page"
-           style="display: flex; align-content: center;">
+           class="d-flex align-center pl-3">
             <img
                     :src="require('@/assets/ubc-logo-current.png')"
                     height="40"
@@ -133,23 +143,27 @@
 
 <script>
 import { axiosInst, baseUrl } from "@/config/gemma";
-import { mapState } from "vuex";
+import { mapMutations, mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
+import DocumentationWindow from "@/components/DocumentationWindow.vue"; 
 
 export default {
   name: "AppBar",
-  components: { AboutDialog },
+  components: { AboutDialog, DocumentationWindow},
   data() {
     return {
       baseUrl: baseUrl,
       showAboutDialog: false,
-      initiallyDebug: process.env.NODE_ENV !== "production"
+      showDocumentationWindow: false,
+      devMode: process.env.NODE_ENV !== "production"
     };
   },
   methods: {
+    ...mapMutations(["setLastError"]),
     updateMyself() {
       return this.$store.dispatch("api/getMyself").catch(e => {
         console.error("Failed to update user info: " + e.message + ".", e);
+        this.setLastError(e);
       });
     },
     updateWhatsNew() {
@@ -158,13 +172,18 @@ export default {
           window.location.reload();
         }).catch(e => {
           console.error("Failed to update \"What's New\".", e);
+          this.setLastError(e);
         });
     },
     logout() {
       return axiosInst.get(baseUrl + "/j_spring_security_logout")
         .then(this.updateMyself).catch(e => {
           console.error("Failed to logout.", e);
+          this.setLastError(e);
         });
+    },
+    submitSearch() {
+      this.$refs.searchForm.submit();
     }
   },
   computed: {
@@ -198,5 +217,16 @@ export default {
 <style scoped>
 .v-list-item--link {
     font-weight: normal;
+}
+
+.scroll {
+  overflow-y: scroll;
+  max-height: calc(100vh - 100px);
+}
+
+.andOrStyle {
+  font-weight: bold;
+  font-style: italic;
+  color: rgb(42, 42, 223);
 }
 </style>

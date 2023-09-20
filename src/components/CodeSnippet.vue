@@ -20,7 +20,7 @@
 
 <script>
 
-import { compressFilter } from "@/utils";
+import { compressFilter } from "@/lib/utils";
 
 export default {
   name: "CodeSnippet",
@@ -39,7 +39,7 @@ export default {
     snippetTabs() {
       const tabs = [
         {label: "gemmapy", language: "python", instructions: 'Install the gemmapy package from Github and run the following code in a Python console.'}, 
-        {label: "gemma.R", language: "r", instructions: `Install the gemma.R package from BioConductor and run the following code in an R console.` },
+        {label: "gemma.R", language: "r", instructions: `Install the gemma.R package from Github and run the following code in an R console.` },
         {label: "curl", language: "bash", instructions: `Run the following code in a terminal (limit 100 datasets).`},
         {label: "HTTP/1.1", language: "http", instructions: `To use with your favourite HTTP client.`}
       ];
@@ -95,13 +95,13 @@ export default {
         params.append('sort', sort);
       }
       const queryString = params.toString();
-      const baseURL = 'https://dev.gemma.msl.ubc.ca/rest/v2/datasets'; // remove dev before deployment
+      const baseURL = 'https://gemma.msl.ubc.ca/rest/v2/datasets'; // remove dev before deployment
 
       const queryCurl = `curl -X 'GET' --compressed '${baseURL}?${queryString}' -H 'accept: application/json'`; 
       tabs[2].content = queryCurl;
 
       // HTTP/1.1 snippet
-      const queryHttp = `GET ${baseURL}?${queryString} HTTP/1.1\nHost: dev.gemma.msl.ubc.ca\nAccept: application/json`;
+      const queryHttp = `GET ${baseURL}?${queryString} HTTP/1.1\nHost: gemma.msl.ubc.ca\nAccept: application/json`;
       tabs[3].content = queryHttp;
       
       return tabs;
