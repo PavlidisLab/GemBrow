@@ -3,10 +3,15 @@
         <v-tab v-for="tab in snippetTabs" :key="tab.label" :label="tab.label" @click.stop=""> {{ tab.label }}
         </v-tab>
         <v-tab-item v-for="(tab) in snippetTabs" :key="tab.label" @click.stop="">
+            <v-alert v-if="compressedUrl.length > MAX_URL_LENGTH" type="warning"
+                     class="mb-0 rounded-0">
+                The URL for the API call exceeds {{ MAX_URL_LENGTH }} characters it might not work as intended!
+            </v-alert>
             <v-card flat max-width="650px" class="scroll">
                 <v-card-subtitle><span v-html="renderMarkdown(tab.instructions)"/></v-card-subtitle>
                 <v-card-text>
-                    <highlightjs :language="tab.language" :code="tab.content"/>
+                    <highlightjs :language="tab.language" :code="tab.content" class="mb-3"/>
+                    <div v-if="tab.postInstructions" v-html="renderMarkdown(tab.postInstructions)"/>
                 </v-card-text>
                 <v-card-actions v-show="browsingOptions.query !== undefined || browsingOptions.filter !== ''">
                     <v-btn @click="copy(tab.content)">
@@ -20,9 +25,21 @@
 
 <script>
 
-import { compressFilter } from "@/lib/utils";
+import { compressFilter, formatNumber } from "@/lib/utils";
 import { debounce } from "lodash";
-import { marked } from "@/config/gemma";
+import { baseUrl, marked } from "@/config/gemma";
+
+/**
+ * Maximum URL length.
+ * @type {number}
+ */
+const MAX_URL_LENGTH = 2000;
+
+/**
+ * Maximum of datasets that can be retrieved in a page.
+ * @type {number}
+ */
+const MAX_DATASETS = 100;
 
 export default {
   name: "CodeSnippet",
@@ -33,11 +50,42 @@ export default {
   },
   data() {
     return {
+      MAX_URL_LENGTH,
       selectedTab: 0,
       compressedFilter: ""
     };
   },
   computed: {
+    uncompressedUrl() {
+      const params = new URLSearchParams();
+      if (this.browsingOptions.query !== undefined) {
+        params.append("query", this.browsingOptions.query);
+      }
+      if (this.browsingOptions.filter?.map(subClauses => subClauses.join(" or "))?.join(" and ").length > 0) {
+        params.append("filter", this.browsingOptions.filter?.map(subClauses => subClauses.join(" or "))?.join(" and "));
+      }
+      if (this.browsingOptions.sort !== undefined) {
+        params.append("sort", this.browsingOptions.sort);
+      }
+      params.append("offset", "0");
+      params.append("limit", MAX_DATASETS.toString());
+      return baseUrl + "/rest/v2/datasets?" + params.toString();
+    },
+    compressedUrl() {
+      const params = new URLSearchParams();
+      if (this.browsingOptions.query !== undefined) {
+        params.append("query", this.browsingOptions.query);
+      }
+      if (this.compressedFilter.length > 0) {
+        params.append("filter", this.compressedFilter);
+      }
+      if (this.browsingOptions.sort !== undefined) {
+        params.append("sort", this.browsingOptions.sort);
+      }
+      params.append("offset", "0");
+      params.append("limit", MAX_DATASETS.toString());
+      return baseUrl + "/rest/v2/datasets?" + params.toString();
+    },
     snippetTabs() {
       const tabs = [
         {
@@ -53,79 +101,92 @@ export default {
         {
           label: "curl",
           language: "bash",
-          instructions: `Run the following [curl](https://curl.se/) command in a terminal (limit 100 datasets):`
+          instructions: `Run the following [curl](https://curl.se/) command in a terminal:`,
+          postInstructions:
+            "Replace the `offset` query parameters to retrieve all the pages. " +
+            "You can use `$(seq 0 " + MAX_DATASETS + " " + this.totalNumberOfExpressionExperiments + ")` to get a sequence of values for the offset."
         },
-        { label: "HTTP/1.1", language: "http", instructions: `To use with your favourite HTTP client.` }
+        {
+          label: "HTTP/1.1",
+          language: "http",
+          instructions: `To use with your favourite HTTP client.`,
+          postInstructions: "Replace the `offset` query parameter to retrieve all the pages. " +
+            "Values for `offset` can range from 0 to " + formatNumber(this.totalNumberOfExpressionExperiments) + " by increments of " + MAX_DATASETS + "."
+        }
       ];
 
       // Modify the content based on the searchSettings prop
       let query = this.browsingOptions.query;
-      let filter = this.browsingOptions.filter;
+      let filter = this.browsingOptions.filter?.map(subClauses => subClauses.join(" or "))?.join(" and ");
       let sort = this.browsingOptions.sort;
+
+      // if the uncompressed URL is too long, always use the compressed filter
+      // TODO: remove this when gemma.R and gemmapy supports filter compression (see https://github.com/PavlidisLab/GemBrow/issues/78)
+      if (this.uncompressedUrl.length > MAX_URL_LENGTH) {
+        filter = this.compressedFilter;
+      }
 
       // Gemmapy snippet
       let queryGemmapy = [];
       if (query !== undefined) {
-        queryGemmapy.push(`query = '` + this.sanitizePyQuery(query) + `', `);
+        queryGemmapy.push(`query=${this.escapePythonString(query)}`);
       }
       if (filter !== undefined && filter.length > 0) {
-        queryGemmapy.push(`filter = '` + filter + `', `);
+        if (queryGemmapy.length > 0) {
+          queryGemmapy.push(", ");
+        }
+        queryGemmapy.push(`filter=${this.escapePythonString(filter)}`);
       }
       if (queryGemmapy.length > 0) {
         if (sort !== undefined) {
-          queryGemmapy.push(`sort = '` + sort + `', offset = offset, limit = '100'`);
+          queryGemmapy.push(`, sort=${this.escapePythonString(sort)}`);
         }
+        queryGemmapy.push(", offset=offset, limit=limit)");
 
         queryGemmapy.unshift(`import gemmapy\n` +
           `api_instance = gemmapy.GemmaPy()\n` +
           `all_datasets = []\n` +
-          `for offset in range(0, ${this.totalNumberOfExpressionExperiments}, 100):\n` +
-          `\tapi_response = api_instance.get_datasets_by_ids([],`);
+          `limit = ${MAX_DATASETS}\n` +
+          `for offset in range(0, ${this.totalNumberOfExpressionExperiments}, limit):\n` +
+          `\tapi_response = api_instance.get_datasets_by_ids([], `);
         queryGemmapy.push(`)\n` +
           `\tif api_response.data:\n` +
           `\t\tall_datasets.extend(api_response.data)\n` +
           `\telse:\n` +
           `\t\tbreak`);
       }
-      tabs[0].content = queryGemmapy.join("").replace(/\,\s*\)/, ")");
+      tabs[0].content = queryGemmapy.join("");
 
       // Gemma.R snippet
       let queryGemmaR = [];
       if (query !== undefined) {
-        queryGemmaR.push(`query = '` + this.sanitizeRQuery(query) + `', `);
+        queryGemmaR.push(`query = ${this.escapeRString(query)}`);
       }
       if (filter !== undefined && filter.length > 0) {
-        queryGemmaR.push(`filter = '` + filter.map(subClauses => subClauses.join(" or ")).join(" and ") + `', `);
+        if (queryGemmaR.length > 0) {
+          queryGemmaR.push(`, `);
+        }
+        queryGemmaR.push(`filter = ${this.escapeRString(filter)}`);
       }
       if (queryGemmaR.length > 0) {
-        if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
+        if (sort !== undefined) {
+          queryGemmaR.push(`, sort = ${this.escapeRString(sort)}`);
+        }
         queryGemmaR.unshift(`devtools::install_github("PavlidisLab/gemma.R")\n` +
-                            `library(gemma.R)\n` +
-                            `library(dplyr)\n` + 
-                            `data <- get_datasets(`);
+          `library(gemma.R)\n` +
+          `library(dplyr)\n` +
+          `data <- get_datasets(`);
         queryGemmaR.push(`) %>% \n` +
-        `\tgemma.R:::get_all_pages()`);
-      } 
-      tabs[1].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
+          `\tgemma.R:::get_all_pages()`);
+      }
+      tabs[1].content = queryGemmaR.join("");
 
       // curl snippet
-      const params = new URLSearchParams();
-      if (query !== undefined) {
-        params.append("query", query);
-      }
-      if (filter.length > 0) {
-        params.append("filter", this.compressedFilter);
-      }
-      if (sort > 0) {
-        params.append("sort", sort);
-      }
-      const queryString = params.toString();
-      const baseURL = "https://gemma.msl.ubc.ca/rest/v2/datasets"; // remove dev before deployment
-
-      tabs[2].content = `curl -X 'GET' --compressed '${baseURL}?${queryString}' -H 'accept: application/json'`;
+      tabs[2].content = `curl -X 'GET' --compressed -H 'accept: application/json' ${this.escapeShellString(this.compressedUrl)}`;
 
       // HTTP/1.1 snippet
-      tabs[3].content = `GET ${baseURL}?${queryString} HTTP/1.1\nHost: gemma.msl.ubc.ca\nAccept: application/json`;
+      const parsedBaseUrl = new URL(this.compressedUrl);
+      tabs[3].content = `GET ${parsedBaseUrl.pathname}${parsedBaseUrl.search} HTTP/1.1\nHost: ${parsedBaseUrl.hostname}\nAccept: application/json`;
 
       return tabs;
     }
@@ -156,14 +217,27 @@ export default {
       // copy the snippet to the clipboard
       navigator.clipboard.writeText(content);
     },
-    sanitizeRQuery(query) {
-      return query.replace(/['"[{()},;!$&@#]/g, "\\$&");
+    /**
+     * Escape and produce a valid R string.
+     */
+    escapeRString(query) {
+      return "'" + query.replace(/['"[{()},;!$&@#\\]/g, "\\$&") + "'";
     },
-    sanitizePyQuery(query) {
-      return query.replace(/['"[{()},;!$&@]/g, "\\$&");
+    /**
+     * Escape and produce a valid Python string.
+     */
+    escapePythonString(query) {
+      return "'" + query.replace(/['"[{()},;!$&@\\]/g, "\\$&") + "'";
+    },
+    /**
+     * Escape and produce a valid shell string.
+     */
+    escapeShellString(query) {
+      return "'" + query.replace(/['\\]/g, "\\$&") + "'";
     }
   }
 };
+;
 </script>
 
 <style scoped>
