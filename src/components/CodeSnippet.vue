@@ -75,11 +75,12 @@ export default {
       if (filter !== undefined && filter.length > 0){ queryGemmaR.push(`filter = '` + filter.map(subClauses => subClauses.join(" or ")).join(" and ") + `', `) };
       if (queryGemmaR.length > 0) {
         if (sort !== undefined){ queryGemmaR.push(`sort = '` + sort + `', `) };
-        queryGemmaR.unshift(`library(gemma.R)\n` +
+        queryGemmaR.unshift(`devtools::install_github("PavlidisLab/gemma.R")\n` +
+                            `library(gemma.R)\n` +
                             `library(dplyr)\n` + 
                             `data <- get_datasets(`);
         queryGemmaR.push(`) %>% \n` +
-        `gemma.R:::get_all_pages()`);
+        `\tgemma.R:::get_all_pages()`);
       } 
       tabs[1].content = queryGemmaR.join("").replace(/\,\s*\)/, ')');
 
