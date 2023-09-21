@@ -40,13 +40,13 @@
                     dense class="browser-data-table"
             >
                 <template v-for="h in headers" v-slot:[`header.${h.value}`]>
-                  <v-tooltip :key="h.value" bottom v-if="h.value === 'geeq.publicQualityScore'" max-width="300px">
-                    <template v-slot:activator="{ on }">
-                      <span v-on="on">{{h.text}}</span>
-                    </template>
-                    <span>{{h.tip}}</span>
-                  </v-tooltip>
-                  <span v-else :key="h.value">{{ h.text }}</span>
+                    <v-tooltip :key="h.value" bottom v-if="h.value === 'geeq.publicQualityScore'" max-width="300px">
+                        <template v-slot:activator="{ on }">
+                            <span v-on="on">{{ h.text }}</span>
+                        </template>
+                        <span>{{ h.tip }}</span>
+                    </v-tooltip>
+                    <span v-else :key="h.value">{{ h.text }}</span>
                 </template>
                 <template v-slot:item.shortName="{item}">
                     <a :href="getUrl(item)">
@@ -66,12 +66,16 @@
                 <template v-slot:item.geeq.publicQualityScore="{ item }">
                     <v-tooltip v-if="item.geeq" left>
                         <template v-slot:activator="{ on }">
-                            <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="emoticon" color="green" v-on="on">mdi-emoticon-happy</v-icon>
-                            <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="emoticon" color="amber lighten-1" v-on="on">mdi-emoticon-neutral</v-icon>
+                            <v-icon v-if="item.geeq.publicQualityScore > 0.45" class="emoticon" color="green" v-on="on">
+                                mdi-emoticon-happy
+                            </v-icon>
+                            <v-icon v-else-if="item.geeq.publicQualityScore > 0.1" class="emoticon"
+                                    color="amber lighten-1" v-on="on">mdi-emoticon-neutral
+                            </v-icon>
                             <v-icon v-else class="emoticon" color="red" v-on="on">mdi-emoticon-sad</v-icon>
                         </template>
                         <div>
-                          Quality: {{  formatDecimal(item.geeq.publicQualityScore) }}
+                            Quality: {{ formatDecimal(item.geeq.publicQualityScore) }}
                         </div>
                     </v-tooltip>
                     <span v-else>N/A</span>
@@ -102,26 +106,29 @@
                     <v-btn v-show="!drawer" icon @click="drawer = true">
                         <v-icon>mdi-chevron-right</v-icon>
                     </v-btn>
-                    <v-btn v-if="datasetsAllExpanded" class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
+                    <v-btn v-if="datasetsAllExpanded" class="expand-all-button d-none d-md-flex" text
+                           color="grey darken-2" @click=toggleAllDatasetsExpanded>
                         <v-icon color="grey darken-2"> mdi-chevron-down</v-icon>
                         Expand all datasets
                     </v-btn>
-                    <v-btn v-else class="expand-all-button d-none d-md-flex" text color="grey darken-2" @click=toggleAllDatasetsExpanded>
-                        <v-icon color="grey darken-2"> mdi-chevron-up </v-icon>
+                    <v-btn v-else class="expand-all-button d-none d-md-flex" text color="grey darken-2"
+                           @click=toggleAllDatasetsExpanded>
+                        <v-icon color="grey darken-2"> mdi-chevron-up</v-icon>
                         Collapse all datasets
                     </v-btn>
                     <v-spacer/>
-                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== undefined && searchSettings.query !== ''" ref="codeSnippetMenu">
-                      <template v-slot:activator = "{ on, attrs }">
-                        <v-btn plain v-on="on" v-bind="attrs">
-                          <span style="text-transform: none;">Dataset download code</span>
-                          <v-icon>mdi-chevron-up</v-icon>
-                        </v-btn>
-                      </template>
-                      <CodeSnippet :browsing-options="browsingOptions" 
-                                   :search-settings="searchSettings" 
-                                   :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
-                                   @resize="repositionCodeSnippetMenu()"/>
+                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== undefined && searchSettings.query !== ''"
+                            ref="codeSnippetMenu">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn plain v-on="on" v-bind="attrs">
+                                <span style="text-transform: none;">Dataset download code</span>
+                                <v-icon>mdi-chevron-up</v-icon>
+                            </v-btn>
+                        </template>
+                        <CodeSnippet :browsing-options="browsingOptions"
+                                     :search-settings="searchSettings"
+                                     :total-number-of-expression-experiments="totalNumberOfExpressionExperiments"
+                                     @resize="$refs.codeSnippetMenu.onResize()"/>
                     </v-menu>
                     <v-progress-circular v-show="downloadProgress !== null" :value="100 * downloadProgress" icon
                                          class="mr-3">
@@ -143,7 +150,7 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/lib/models";
-import { baseUrl, excludedCategories, excludedTerms, marked, HIGHLIGHT_LABELS } from "@/config/gemma";
+import { baseUrl, excludedCategories, excludedTerms, HIGHLIGHT_LABELS, marked } from "@/config/gemma";
 import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/lib/highlight";
@@ -160,7 +167,7 @@ import {
 import { generateFilter, generateFilterDescription, generateFilterSummary } from "@/lib/filter";
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
-import CodeSnippet from "@/components/CodeSnippet.vue"; 
+import CodeSnippet from "@/components/CodeSnippet.vue";
 
 const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;
 const MAX_PLATFORMS = process.env.NODE_ENV !== "production" ? 50 : 200;
@@ -186,7 +193,7 @@ export default {
       },
       downloadProgress: null,
       expansionToggle: [],
-      tableWidth: ''
+      tableWidth: ""
     };
   },
   computed: {
@@ -567,8 +574,9 @@ export default {
       this.searchSettings.annotations.push({
         classUri: previewTerm.classUri,
         className: previewTerm.className,
-        termUri: previewTerm.termUri, 
-        termName: previewTerm.termName})
+        termUri: previewTerm.termUri,
+        termName: previewTerm.termName
+      });
     },
     unselectTerm(previewTerm) {
       let categoryId = getCategoryId(previewTerm);
@@ -581,23 +589,21 @@ export default {
       }
       console.warn(`${previewTerm} is not selected and thus cannot be unselected.`);
     },
-    repositionCodeSnippetMenu() {
-      setTimeout(() => this.$refs.codeSnippetMenu.onResize(), 100);
-    },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
     toggleAllDatasetsExpanded() {
       // check whether all datasets are expanded
       const expansionKeys = Object.keys(this.$refs.dataTableRef.expansion); // get expanded datasets
-      const expansionKeysNum = expansionKeys.map(eKeys => Number(eKeys)) 
+      const expansionKeysNum = expansionKeys.map(eKeys => Number(eKeys));
       const datasetIds = this.datasets.map(dataset => dataset.id); // get ids for all datasets
       const allDatasetsExpanded = datasetIds.every(id => expansionKeysNum.includes(id)); // check if all dataset ids are present in expanded
-      
+
       // toggle expansion
       if (allDatasetsExpanded === true) { // If all datasets are already expanded change toggle to empty array and toggle the state to change the arrow direction
-        this.expansionToggle = []
+        this.expansionToggle = [];
       } else { // If all datasets are not already expanded change expansionToggle to all datasets and set allDatasetsExpanded to reflect change
-        this.expansionToggle = this.datasets
-      };
+        this.expansionToggle = this.datasets;
+      }
+      ;
     }
   },
   created() {
@@ -618,7 +624,7 @@ export default {
     let observer = new ResizeObserver((entries) => {
       let newWidth = entries[0].contentRect.width;
       //this.$refs.dataTableRef.footer.$el.width = newWidth;
-      this.tableWidth = newWidth + 'px';
+      this.tableWidth = newWidth + "px";
     });
     observer.observe(this.$refs.dataTableRef.$el);
   },
@@ -694,14 +700,16 @@ export default {
     right: 0;
     margin-right: 0 !important;
 }
+
 .expand-all-button {
-  text-transform: none;
-  margin-left: -7.5px;
+    text-transform: none;
+    margin-left: -7.5px;
 }
+
 .emoticon {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background-color: black;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: black;
 }
 </style>
