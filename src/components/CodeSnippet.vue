@@ -123,6 +123,7 @@ export default {
       // if the uncompressed URL is too long, always use the compressed filter
       // TODO: remove this when gemma.R and gemmapy supports filter compression (see https://github.com/PavlidisLab/GemBrow/issues/78)
       if (this.uncompressedUrl.length > MAX_URL_LENGTH) {
+        console.warn("The uncompressed URL is too long, the compressed filter will be displayed in the R/Python snippets.");
         filter = this.compressedFilter;
       }
 
@@ -197,8 +198,8 @@ export default {
     });
   },
   watch: {
-    "browsingOptions": function(newVal) {
-      compressFilter(newVal.filter).then((result) => {
+    "browsingOptions.filter": function(newVal) {
+      compressFilter(newVal).then((result) => {
         this.compressedFilter = result;
       });
     },
@@ -221,13 +222,13 @@ export default {
      * Escape and produce a valid R string.
      */
     escapeRString(query) {
-      return "'" + query.replace(/['"[{()},;!$&@#\\]/g, "\\$&") + "'";
+      return "'" + query.replace(/['\\]/g, "\\$&") + "'";
     },
     /**
      * Escape and produce a valid Python string.
      */
     escapePythonString(query) {
-      return "'" + query.replace(/['"[{()},;!$&@\\]/g, "\\$&") + "'";
+      return "'" + query.replace(/['\\]/g, "\\$&") + "'";
     },
     /**
      * Escape and produce a valid shell string.
