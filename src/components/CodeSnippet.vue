@@ -1,5 +1,5 @@
 <template>
-    <v-tabs v-model="selectedTab" grow>
+    <v-tabs v-model="selectedTab" grow @change="emitResize()">
         <v-tab v-for="tab in snippetTabs" :key="tab.label" :label="tab.label" @click.stop=""> {{ tab.label }}
         </v-tab>
         <v-tab-item v-for="(tab) in snippetTabs" :key="tab.label" @click.stop="">
@@ -202,15 +202,21 @@ export default {
       compressFilter(newVal).then((result) => {
         this.compressedFilter = result;
       });
-    },
-    selectedTab() {
-      this.emitResize();
     }
   },
   methods: {
     renderMarkdown(markdown) {
       return marked.parseInline(markdown);
     },
+    /**
+     * Emit a resize event when the selected tab changes. This a workaround
+     * because the v-menu that holds the snippet does not reposition itself when
+     * the height of the snippet changes. See https://github.com/PavlidisLab/GemBrow/issues/39
+     * for the full details.
+     *
+     * There is a 150ms delay and debounce to wait until the resize animation
+     * completes.
+     */
     emitResize: debounce(function() {
       this.$emit("resize");
     }, 150),
