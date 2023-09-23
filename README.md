@@ -30,7 +30,7 @@ npm run serve
 Configurations are located in `.env.production`. Use `.env.production.local` to supply secrets.
 
 ```bash
-npm run build
+npm run build # or devbuild for a development build
 rsync -av dist/ foo@bar:/deployment/destination/
 ```
 
