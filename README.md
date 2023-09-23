@@ -48,7 +48,7 @@ Alias /browse /deployment/destination
   Order allow,deny
   Allow from all
   # compress static assets
-  AddOutputFilterByType DEFLATE text/css text/javascript application/javascript font/woff2 font/woff font/sfnt application/font-fsnt application/vnd.ms-fontobject image/svg+xml
+  AddOutputFilterByType DEFLATE text/css text/javascript application/javascript font/sfnt application/font-fsnt application/vnd.ms-fontobject image/svg+xml
 </Directory>
 ```
 
