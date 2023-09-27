@@ -44,10 +44,10 @@
             </template>
             <v-list>
                 <v-list-item>
-                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline" ref="searchForm">
-                        <v-text-field label="Search" autofocus @click.stop autocomplete="off"
+                    <form :action="baseUrl + '/searcher.html'" method="get" class="d-flex align-baseline">
+                        <v-text-field v-model="query" label="Search" autofocus @click.stop autocomplete="off"
                                       name="query"></v-text-field>
-                        <v-btn class="ml-2" @click="submitSearch">Go</v-btn>
+                        <v-btn type="submit" class="ml-2" :disabled="!query || query.trim().length === 0">Go</v-btn>
                     </form>
                 </v-list-item>
                 <v-divider/>
@@ -145,16 +145,17 @@
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
-import DocumentationWindow from "@/components/DocumentationWindow.vue"; 
+import DocumentationWindow from "@/components/DocumentationWindow.vue";
 
 export default {
   name: "AppBar",
-  components: { AboutDialog, DocumentationWindow},
+  components: { AboutDialog, DocumentationWindow },
   data() {
     return {
       baseUrl: baseUrl,
       showAboutDialog: false,
       showDocumentationWindow: false,
+      query: null,
       devMode: process.env.NODE_ENV !== "production"
     };
   },
@@ -181,9 +182,6 @@ export default {
           console.error("Failed to logout.", e);
           this.setLastError(e);
         });
-    },
-    submitSearch() {
-      this.$refs.searchForm.submit();
     }
   },
   computed: {
