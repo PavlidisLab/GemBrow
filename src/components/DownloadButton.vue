@@ -5,7 +5,7 @@
             <v-icon>mdi-download</v-icon>
         </v-btn>
         <v-btn v-if="downloading" @click="cancelDownload()" icon
-        :title="'Cancel the metadata download of ' + formatNumber(total) + ' datasets'">
+               :title="'Cancel the metadata download of ' + formatNumber(total) + ' datasets'">
             <v-icon>mdi-cancel</v-icon>
         </v-btn>
     </div>
@@ -14,8 +14,7 @@
 <script>
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { parse } from "json2csv";
-import { chain } from "lodash";
-import { compressFilter, downloadAs, formatNumber, getCategoryId } from "@/lib/utils";
+import { compressFilter, downloadAs, formatNumber, swallowCancellation } from "@/lib/utils";
 import axios from "axios";
 import { mapMutations } from "vuex";
 
@@ -90,7 +89,7 @@ export default {
         return Promise.all(promises)
           .then((responses) => {
             let data = responses.flatMap(response => response.data.data);
-            let formattedFilterDescription = this.filterDescription.replace(/\n/g, ""); 
+            let formattedFilterDescription = this.filterDescription.replace(/\n/g, "");
             let csvHeader = termsAndConditionsHeader + "\n# " + formattedFilterDescription;
             let csvContent = parse(data, {
               delimiter: "\t",
@@ -113,16 +112,15 @@ export default {
             const fileName = `datasets_${timestamp}.tsv`; // Update the file name
             downloadAs(new Blob([csv], { type: "text/tab-separated-values" }), fileName);
           });
-      }).catch(err => {
-        if (!axios.isCancel(err)) {
+      }).catch(swallowCancellation)
+        .catch(err => {
           console.error("Error while downloading datasets to TSV: " + err.message + ".", err);
           this.setLastError(err);
-        }
-      }).finally(() => {
-        this.downloading = false;
-        this.controller = null;
-        this.$emit("update:progress", null);
-      });
+        }).finally(() => {
+          this.downloading = false;
+          this.controller = null;
+          this.$emit("update:progress", null);
+        });
     },
     cancelDownload() {
       this.controller.abort();

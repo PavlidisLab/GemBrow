@@ -12,21 +12,22 @@
             {{ title }}
         </div>
         <v-menu v-if="filterSummary && filterDescription" style="align-self: center; padding-left: 15px;" offset-y>
-          <template v-slot:activator= "{ on, attrs }">
-            <v-btn plain v-bind="attrs" v-on="on" style="text-transform: none;"> {{ filterSummary }}
-              <v-icon>mdi-chevron-down</v-icon>
-            </v-btn>
-          </template>
-          <v-card flat max-width="650px" class="scroll"> 
-            <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
-              <v-card-text>
-                <div v-for="line, lineIndex in filterDescription.split('\n')" :key="lineIndex">
-                  <span v-for="word, wordIndex in line.split(' ')" :key="lineIndex + '-' + wordIndex" :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
+            <template v-slot:activator="{ on, attrs }">
+                <v-btn plain v-bind="attrs" v-on="on" style="text-transform: none;"> {{ filterSummary }}
+                    <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+            </template>
+            <v-card flat max-width="650px" class="scroll">
+                <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
+                <v-card-text>
+                    <div v-for="line, lineIndex in filterDescription.split('\n')" :key="lineIndex">
+                  <span v-for="word, wordIndex in line.split(' ')" :key="lineIndex + '-' + wordIndex"
+                        :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
                     {{ word }}&nbsp;
-                  </span>                 
-                </div>
-              </v-card-text>
-          </v-card>
+                  </span>
+                    </div>
+                </v-card-text>
+            </v-card>
         </v-menu>
         <v-spacer/>
         <v-switch v-if="devMode" v-model="debug" label="Debug Mode" hide-details class="d-none d-sm-flex px-4"/>
@@ -146,6 +147,7 @@ import { axiosInst, baseUrl } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import AboutDialog from "@/components/AboutDialog.vue";
 import DocumentationWindow from "@/components/DocumentationWindow.vue";
+import { swallowCancellation } from "@/lib/utils";
 
 export default {
   name: "AppBar",
@@ -162,24 +164,28 @@ export default {
   methods: {
     ...mapMutations(["setLastError"]),
     updateMyself() {
-      return this.$store.dispatch("api/getMyself").catch(e => {
-        console.error("Failed to update user info: " + e.message + ".", e);
-        this.setLastError(e);
-      });
+      return this.$store.dispatch("api/getMyself")
+        .catch(swallowCancellation)
+        .catch(e => {
+          console.error("Failed to update user info: " + e.message + ".", e);
+          this.setLastError(e);
+        });
     },
     updateWhatsNew() {
       return axiosInst.get(baseUrl + "/whatsnew/generateCache.html")
-        .then(() => {
-          window.location.reload();
-        }).catch(e => {
-          console.error("Failed to update \"What's New\".", e);
+        .then(() => window.location.reload())
+        .catch(swallowCancellation)
+        .catch(e => {
+          console.error(`Failed to update "What's New": ${e.message}`, e);
           this.setLastError(e);
         });
     },
     logout() {
       return axiosInst.get(baseUrl + "/j_spring_security_logout")
-        .then(this.updateMyself).catch(e => {
-          console.error("Failed to logout.", e);
+        .then(this.updateMyself)
+        .catch(swallowCancellation)
+        .catch(e => {
+          console.error(`Failed to logout: ${e.message}`, e);
           this.setLastError(e);
         });
     }
@@ -218,13 +224,13 @@ export default {
 }
 
 .scroll {
-  overflow-y: scroll;
-  max-height: calc(100vh - 100px);
+    overflow-y: scroll;
+    max-height: calc(100vh - 100px);
 }
 
 .andOrStyle {
-  font-weight: bold;
-  font-style: italic;
-  color: rgb(42, 42, 223);
+    font-weight: bold;
+    font-style: italic;
+    color: rgb(42, 42, 223);
 }
 </style>

@@ -162,7 +162,8 @@ import {
   formatNumber,
   formatPercent,
   getCategoryId,
-  getTermId
+  getTermId,
+  swallowCancellation
 } from "@/lib/utils";
 import { generateFilter, generateFilterDescription, generateFilterSummary } from "@/lib/filter";
 import Error from "@/components/Error.vue";
@@ -380,11 +381,12 @@ export default {
         if (location !== this.$router.currentRoute.fullPath) {
           return this.$router.push(location);
         }
-      }).catch(err => {
-        // because the function is debounced, the caller might never get resulting promise and ability to handle the error
-        console.error("Error while searching: " + err.message + ".", err);
-        this.setLastError(err);
-      });
+      }).catch(swallowCancellation)
+        .catch(err => {
+          // because the function is debounced, the caller might never get resulting promise and ability to handle the error
+          console.error("Error while searching: " + err.message + ".", err);
+          this.setLastError(err);
+        });
     }, 1000),
     browse(browsingOptions, updateEverything) {
       // update available annotations and number of datasets
@@ -455,15 +457,21 @@ export default {
         }
         // proactively query categories we already know about, otherwise we have to wait until the
         // getDatasetsCategories() endpoint finishes
+        // because those promise can fail by the time we start retrieving dataset categories, we have to handle possible
+        // cancellation/errors right away
         let categories = this.datasetsAnnotations.map(getCategoryId);
-        for (let categoryId of categories) {
-          this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
-        }
+        let proactivePromises = categories
+          .map(categoryId => this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms)
+            .catch(swallowCancellation)
+            .catch(this.setLastError));
         return this.$store.dispatch("api/getDatasetsCategories", { params: payload })
           .then(data => {
             return Promise.all([...categories, ...data.data.data.map(category => {
               let categoryId = getCategoryId(category);
-              if (!categories.includes(categoryId)) {
+              if (categories.includes(categoryId)) {
+                // wait on the proactive promise
+                return proactivePromises[categories.indexOf(categoryId)];
+              } else {
                 return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
               }
             })]);
@@ -617,6 +625,7 @@ export default {
           this.updateAvailablePlatforms(query, filter),
           this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
           this.browse(this.browsingOptions)])
+          .catch(swallowCancellation)
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
       });
   },
@@ -663,15 +672,19 @@ export default {
         // filter and query are unchanged, we don't need to update everything
         promise = this.browse(newVal, false);
       }
-      promise.catch(err => {
-        console.error("Error while updating datasets after browsing options changed: " + err.message + ".", err);
-      });
+      promise
+        .catch(swallowCancellation)
+        .catch(err => {
+          console.error(`Error while updating datasets after browsing options changed: ${err.message}.`, err);
+          this.setLastError(err);
+        });
     },
     myself: function(newVal, oldVal) {
       if (!isEqual(newVal, oldVal)) {
         this.browse(this.browsingOptions, true)
+          .catch(swallowCancellation)
           .catch(err => {
-            console.error("Error while updating datasets after logged user changed: " + err.message + ".", err);
+            console.error(`Error while updating datasets after logged user changed: ${err.message}.`, err);
             this.setLastError(err);
           });
       }

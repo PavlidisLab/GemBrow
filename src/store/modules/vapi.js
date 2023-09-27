@@ -2,6 +2,7 @@ import Vapi from "vuex-rest-api";
 import { axiosInst, baseUrl } from "@/config/gemma";
 import { merge } from "lodash";
 import Vue from "vue";
+import axios from "axios";
 
 const vapi = new Vapi({
   baseURL: baseUrl, // assigned in store.js
@@ -59,6 +60,13 @@ vapi.endpoint = function(action, property, path, config = {}) {
       } else {
         state[property] = payload.data;
       }
+    },
+    onError(state, error) {
+      if (axios.isCancel(error)) {
+        console.warn("Request was cancelled, will retain current state for '" + property + "'.");
+      } else {
+        state.error[property] = error;
+      }
     }
   }, config));
 };
@@ -82,7 +90,7 @@ export default vapi
       }
       Vue.set(state.pending["datasetsAnnotationsByCategory"], params.category, false);
     },
-    onError(state, error, axios, {params}) {
+    onError(state, error, axios, { params }) {
       Vue.set(state.error["datasetsAnnotationsByCategory"], params.category, error);
       Vue.set(state.pending["datasetsAnnotationsByCategory"], params.category, false);
     }
@@ -100,6 +108,13 @@ export default vapi
         }
       } else {
         state["myself"] = payload.data;
+      }
+    },
+    onError(state, error) {
+      if (axios.isCancel(error)) {
+        console.warn("Request was cancelled, will retain current state for 'myself'.");
+      } else {
+        state.error["myself"] = error;
       }
     }
   })

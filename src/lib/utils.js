@@ -1,3 +1,5 @@
+import axios from "axios";
+
 /**
  * Download a given data blob, file or media source.
  *
@@ -91,4 +93,16 @@ export function getCategoryId(term) {
  */
 export function getTermId(term) {
   return term.termUri || term.termName?.toLowerCase();
+}
+
+/**
+ * Swallow a cancelled request error.
+ * @throws Error the passed error if it is not a cancelled request error
+ */
+export function swallowCancellation(err) {
+  if (axios.isCancel(err)) {
+    console.warn("Request was cancelled, swallowing the error...", err);
+  } else {
+    throw err;
+  }
 }

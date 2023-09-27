@@ -71,6 +71,7 @@
 <script>
 import { mapMutations, mapState } from "vuex";
 import { baseUrl, marked } from "@/config/gemma";
+import { swallowCancellation } from "@/lib/utils";
 
 export default {
   props: {
@@ -91,10 +92,12 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch("api/getRoot").catch(e => {
-      console.error("Failed to retrieve the root endpoint: " + e.message + ".", e);
-      this.setLastError(e);
-    });
+    this.$store.dispatch("api/getRoot")
+      .catch(swallowCancellation)
+      .catch(e => {
+        console.error("Failed to retrieve the root endpoint: " + e.message + ".", e);
+        this.setLastError(e);
+      });
   }
 };
 </script>

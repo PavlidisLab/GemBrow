@@ -18,7 +18,7 @@
 import { highlight } from "@/lib/highlight";
 import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
-import { getCategoryId, getTermId } from "@/lib/utils";
+import { getCategoryId, getTermId, swallowCancellation } from "@/lib/utils";
 import { chain } from "lodash";
 
 
@@ -98,14 +98,15 @@ export default {
       return axiosInst.request({
         method: "GET",
         url: baseUrl + `/rest/v2/datasets/${dataset}/annotations`
-      }).then(response => {
-        return response.data.data;
-      }).catch(error => {
-        this.setLastError(error);
-      });
+      }).then(response => response.data.data)
+        .catch(swallowCancellation)
+        .catch((err) => {
+          console.error(`Failed to retrieve annotations for ${dataset}: ${err.message}`, err);
+          this.setLastError(err);
+        });
     },
     getClickEventName(term) {
-      return (this.isSelectable(term) || this.isUnselectable(term)) ? 'click' : null;
+      return (this.isSelectable(term) || this.isUnselectable(term)) ? "click" : null;
     },
     getId(term) {
       return getCategoryId(term) + SEPARATOR + getTermId(term);
@@ -113,9 +114,9 @@ export default {
     getTitle(term) {
       let n = this.getNumberOfExpressionExperiments(term);
       if (term.termUri !== null) { // if the term is not free text
-        if (n > 0) { 
+        if (n > 0) {
           return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}; click to add terms to filter (associated with ${n} datasets)`;
-        } else { 
+        } else {
           return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}`;
         }
       } else {
@@ -166,7 +167,7 @@ export default {
           .values()
           .value();
 
-        this.includedTerms = uniqueTerms
+        this.includedTerms = uniqueTerms;
       });
     }
   },
