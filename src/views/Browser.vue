@@ -170,8 +170,8 @@ import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 import CodeSnippet from "@/components/CodeSnippet.vue";
 
-const MAX_TERMS_PER_CATEGORY = process.env.NODE_ENV !== "production" ? 20 : 200;
-const MAX_PLATFORMS = process.env.NODE_ENV !== "production" ? 50 : 200;
+const MAX_TERMS_PER_CATEGORY = 200;
+const MAX_PLATFORMS = 200;
 
 export default {
   name: "Browser",
