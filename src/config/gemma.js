@@ -65,6 +65,7 @@ export let excludedTerms = [
   "http://gemma.msl.ubc.ca/ont/TGEMO_00003", // heterozygous
   "http://gemma.msl.ubc.ca/ont/TGEMO_00004", // over-expression
   "http://gemma.msl.ubc.ca/ont/TGEMO_00007", // knockdown
+  "http://gemma.msl.ubc.ca/ont/TGEMO_00122", // unspecified factor value
   "http://purl.obolibrary.org/obo/OBI_0000025", // reference substance role
   "http://purl.obolibrary.org/obo/OBI_0000220", // reference subject role
   "http://purl.obolibrary.org/obo/PATO_0000048", // hardness
