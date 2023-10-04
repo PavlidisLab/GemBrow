@@ -16,7 +16,7 @@
     "json2csv": "^5.0.7",
     "lodash": "^4.17.21",
     "marked": "^7.0.5",
-    "material-icons": "^1.13.11",
+    "material-icons": "^1.13.12",
     "qs": "^6.11.2",
     "vue": "^2.7.14",
     "vue-router": "^3.6.5",
