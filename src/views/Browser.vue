@@ -400,7 +400,7 @@ export default {
           updateDatasetsAnnotationsPromise = this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter);
         } else {
           updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, true, excludedTerms));
         }
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
@@ -426,7 +426,7 @@ export default {
     /**
      * Update available categories.
      */
-    updateAvailableCategories(query, filter, excludedCategories, excludedTerms) {
+    updateAvailableCategories(query, filter, excludedCategories, excludeFreeTextCategories, excludedTerms) {
       let disallowedPrefixes = [
         "allCharacteristics.",
         "characteristics.",
@@ -448,6 +448,9 @@ export default {
         }
         if (excludedCategories !== undefined) {
           payload["excludedCategories"] = excludedCategories;
+        }
+        if (excludeFreeTextCategories) {
+          payload["excludeFreeTextCategories"] = excludeFreeTextCategories;
         }
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
@@ -623,7 +626,7 @@ export default {
           this.updateOpenApiSpecification(),
           this.updateAvailableTaxa(query, filter),
           this.updateAvailablePlatforms(query, filter),
-          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
+          this.updateAvailableCategories(query, filter, excludedCategories, true, excludedTerms),
           this.browse(this.browsingOptions)])
           .catch(swallowCancellation)
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
@@ -663,7 +666,7 @@ export default {
             promise = this.updateAvailableCategories(newVal.query, newVal.filter);
           } else {
             promise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-              .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(newVal.query, newVal.filter, excludedCategories, excludedTerms));
+              .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(newVal.query, newVal.filter, excludedCategories, true, excludedTerms));
           }
         } else {
           promise = Promise.resolve();
