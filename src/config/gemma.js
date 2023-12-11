@@ -35,9 +35,13 @@ marked.use({
 export { marked };
 
 export let excludedCategories = [
+  "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#BioSourceType", // BioSourceType
+  "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#MaterialType", // MaterialType
   "http://purl.obolibrary.org/obo/CHEBI_23367", // molecular entity
   "http://purl.obolibrary.org/obo/GO_0007610", // behavior
   "http://purl.obolibrary.org/obo/GO_0008150", // biological process
+  "http://purl.obolibrary.org/obo/OBI_0302893", // storage
+  "http://purl.obolibrary.org/obo/UO_0000003", // time units
   "http://www.ebi.ac.uk/efo/EFO_0000352", // clinical history
   "http://www.ebi.ac.uk/efo/EFO_0000410", // disease staging
   "http://www.ebi.ac.uk/efo/EFO_0000428", // dose
@@ -47,11 +51,10 @@ export let excludedCategories = [
   "http://www.ebi.ac.uk/efo/EFO_0000651", // phenotype
   "http://www.ebi.ac.uk/efo/EFO_0000724", // time point
   "http://www.ebi.ac.uk/efo/EFO_0001426", // study design
-  "http://purl.obolibrary.org/obo/OBI_0302893", // storage
+  "http://www.ebi.ac.uk/efo/EFO_0004425", // initial time points
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
   "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
-  "http://www.ebi.ac.uk/efo/EFO_0005067", // block
-  "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#MaterialType" // MaterialType
+  "http://www.ebi.ac.uk/efo/EFO_0005067"  // block
 ];
 
 /**
