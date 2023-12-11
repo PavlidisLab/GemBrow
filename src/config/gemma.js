@@ -215,7 +215,7 @@ export let ontologySources = [
  * Use pattern to match a term URI and getExternalUrl() to produce a link to the external ontology browser.
  */
 let PUBLICATION_FIELDS = {
-  "name": "name",  
+  "name": "name",
   "abstractText": "abstract text",
   "authorList": "author lists",
   "chemicals.name": "chemicals name",
@@ -228,25 +228,25 @@ let PUBLICATION_FIELDS = {
 };
 
 export let HIGHLIGHT_LABELS = {
-  "shortName": "short name", 
-  "bioAssays.name": "sample name", 
-  "bioAssays.description": "sample description", 
+  "shortName": "short name",
+  "bioAssays.name": "sample name",
+  "bioAssays.description": "sample description",
   "bioAssays.accession.accession": "sample accession",
-  "bioAssays.sampleUsed.name": "sample name", 
+  "bioAssays.sampleUsed.name": "sample name",
   "bioAssays.sampleUsed.characteristics.value": "sample annotation",
-  "bioAssays.sampleUsed.characteristics.valueUri": "sample annotation URI", 
-  "characteristics.value": "annotation", 
+  "bioAssays.sampleUsed.characteristics.valueUri": "sample annotation URI",
+  "characteristics.value": "annotation",
   "characteristics.valueUri": "annotation URI",
-  "experimentalDesign.name": "experimental design name", 
-  "experimentalDesign.description": "experimental design description", 
+  "experimentalDesign.name": "experimental design name",
+  "experimentalDesign.description": "experimental design description",
   "experimentalDesign.experimentalFactors.name": "experimental factors name",
   "experimentalDesign.experimentalFactors.description": "experimental factors description",
   "experimentalDesign.experimentalFactors.category.categoryUri": "experimental factors category URI",
   "experimentalDesign.experimentalFactors.category.category": "experimental factors category",
   "experimentalDesign.experimentalFactors.factorValues.characteristics.value": "experimental factors annotation",
   "experimentalDesign.experimentalFactors.factorValues.characteristics.valueUri": "experimental factors annotation URI",
-  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["primaryPublication." + k, "primary publication "+v])),
-  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["otherRelevantPublications." + k,"other publication "+ v]))
-}
+  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["primaryPublication." + k, "primary publication " + v])),
+  ...Object.fromEntries(Object.entries(PUBLICATION_FIELDS).map(([k, v]) => ["otherRelevantPublications." + k, "other publication " + v]))
+};
 
 
