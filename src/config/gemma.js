@@ -50,7 +50,8 @@ export let excludedCategories = [
   "http://purl.obolibrary.org/obo/OBI_0302893", // storage
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
   "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
-  "http://www.ebi.ac.uk/efo/EFO_0005067" // block
+  "http://www.ebi.ac.uk/efo/EFO_0005067", // block
+  "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#MaterialType" // MaterialType
 ];
 
 /**
