@@ -449,7 +449,7 @@ export default {
         if (excludedCategories !== undefined) {
           payload["excludedCategories"] = excludedCategories;
         }
-        payload["excludeFreeTextCategories"] = "";
+        payload["excludeFreeTextCategories"] = "true";
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
         }
