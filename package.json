@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^1.0.2",
-    "@mdi/font": "^7.3.67",
+    "@mdi/font": "^7.4.47",
     "axios": "^0.27.2",
     "highlight.js": "^10.7.3",
     "json2csv": "^5.0.7",
@@ -19,12 +19,12 @@
     "marked": "^7.0.5",
     "material-icons": "^1.13.12",
     "qs": "^6.11.2",
-    "vue": "^2.7.15",
+    "vue": "^2.7.16",
     "vue-router": "^3.6.5",
     "vuetify": "^2.7.1",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^4.1.0",
-    "vuex-rest-api": "^2.15.0"
+    "vuex-rest-api": "^2.16.0"
   },
   "devDependencies": {
     "@vue/cli": "^5.0.8",
@@ -32,14 +32,14 @@
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-prettier": "^8.0.0",
-    "eslint": "^8.55.0",
-    "eslint-plugin-vue": "^9.19.2",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.21.1",
     "eslint-plugin-vuetify": "^1.1.0",
     "lint-staged": "^14.0.1",
-    "sass": "^1.69.5",
-    "sass-loader": "^13.3.2",
-    "vue-template-compiler": "^2.7.15",
-    "webpack": "^5.89.0"
+    "sass": "^1.70.0",
+    "sass-loader": "^13.3.3",
+    "vue-template-compiler": "^2.7.16",
+    "webpack": "^5.90.1"
   },
   "babel": {
     "presets": [
