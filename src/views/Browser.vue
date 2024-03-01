@@ -400,7 +400,7 @@ export default {
           updateDatasetsAnnotationsPromise = this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter);
         } else {
           updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms));
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, excludedTerms, true));
         }
         let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
         let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
@@ -426,7 +426,7 @@ export default {
     /**
      * Update available categories.
      */
-    updateAvailableCategories(query, filter, excludedCategories, excludedTerms) {
+    updateAvailableCategories(query, filter, excludedCategories, excludedTerms, excludeUncategorizedTerms) {
       let disallowedPrefixes = [
         "allCharacteristics.",
         "characteristics.",
@@ -449,7 +449,11 @@ export default {
         if (excludedCategories !== undefined) {
           payload["excludedCategories"] = excludedCategories;
         }
+        // this is just too costly, even for development purposes
         payload["excludeFreeTextCategories"] = "true";
+        if (excludeUncategorizedTerms) {
+          payload["excludeUncategorizedTerms"] = "true";
+        }
         if (excludedTerms !== undefined) {
           payload["excludedTerms"] = excludedTerms;
         }
@@ -624,7 +628,7 @@ export default {
           this.updateOpenApiSpecification(),
           this.updateAvailableTaxa(query, filter),
           this.updateAvailablePlatforms(query, filter),
-          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms),
+          this.updateAvailableCategories(query, filter, excludedCategories, excludedTerms, true),
           this.browse(this.browsingOptions)])
           .catch(swallowCancellation)
           .catch(err => console.error(`Error while loading initial data: ${err.message}.`, err));
