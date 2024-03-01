@@ -36,25 +36,36 @@ export { marked };
 
 export let excludedCategories = [
   "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#BioSourceType", // BioSourceType
+  "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#LabelCompound", // LabelCompound
   "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#MaterialType", // MaterialType
   "http://purl.obolibrary.org/obo/CHEBI_23367", // molecular entity
   "http://purl.obolibrary.org/obo/GO_0007610", // behavior
   "http://purl.obolibrary.org/obo/GO_0008150", // biological process
+  "http://purl.obolibrary.org/obo/OBI_0000272", // protocol
+  "http://purl.obolibrary.org/obo/OBI_0100051", // specimen
   "http://purl.obolibrary.org/obo/OBI_0302893", // storage
+  "http://purl.obolibrary.org/obo/SO_0001024", // haplotypes
   "http://purl.obolibrary.org/obo/UO_0000003", // time units
+  "http://www.ebi.ac.uk/efo/EFO_0000246", // Ages (generally useless because it is continuous)
+  "http://www.ebi.ac.uk/efo/EFO_0000322", // cell line (we use CLO and not EFO)
   "http://www.ebi.ac.uk/efo/EFO_0000352", // clinical history
   "http://www.ebi.ac.uk/efo/EFO_0000410", // disease staging
   "http://www.ebi.ac.uk/efo/EFO_0000428", // dose
+  "http://www.ebi.ac.uk/efo/EFO_0000470", // environment stress
   "http://www.ebi.ac.uk/efo/EFO_0000507", // generation
   "http://www.ebi.ac.uk/efo/EFO_0000523", // growth condition (should be excluded by role)
   "http://www.ebi.ac.uk/efo/EFO_0000542", // individual
+  "http://www.ebi.ac.uk/efo/EFO_0000562", // labelling
   "http://www.ebi.ac.uk/efo/EFO_0000651", // phenotype
   "http://www.ebi.ac.uk/efo/EFO_0000724", // time point
   "http://www.ebi.ac.uk/efo/EFO_0001426", // study design
+  "http://www.ebi.ac.uk/efo/EFO_0001444", // measurement
+  "http://www.ebi.ac.uk/efo/EFO_0001702", // temperature
   "http://www.ebi.ac.uk/efo/EFO_0004425", // initial time points
   "http://www.ebi.ac.uk/efo/EFO_0004444", // environmental history
   "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
-  "http://www.ebi.ac.uk/efo/EFO_0005067"  // block
+  "http://www.ebi.ac.uk/efo/EFO_0005067", // block
+  "http://www.ebi.ac.uk/efo/EFO_0005136"  // strains
 ];
 
 /**
