@@ -25,9 +25,9 @@
             <template v-slot:label="{item}">
                 <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
                 <span v-else
-                      :title="getTitle(item).length > 30 && getTitle(item)"> 
-                    <span v-html="getTitle(item)" class="text-capitalize text-truncate"></span>
-                    </span>
+                      class="text-capitalize text-truncate"
+                      :title="getTitle(item).length > 30 && getTitle(item)"
+                      v-html="getTitle(item)"></span>
                 <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
                                                            class="mdi mdi-open-in-new"></a></span>
                 <div v-if="debug && getUri(item)">
@@ -203,9 +203,9 @@ export default {
         return this.highlightSearchTerm(item.termName, this.search);
       }
       if (this.search && item.isCategory) {
-        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri);
+        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri || '');
       }
-      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri) : (item.termName || item.termUri);
+      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri || '') : (item.termName || item.termUri || '');
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
