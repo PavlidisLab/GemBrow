@@ -69,6 +69,40 @@ export let excludedCategories = [
 ];
 
 /**
+ * Pre-category configuration.
+ */
+export let categoriesConfiguration = {
+  // biological sex
+  "http://purl.obolibrary.org/obo/PATO_0000047": {
+    excludeFreeTextTerms: true
+  },
+  // development stage
+  "http://www.ebi.ac.uk/efo/EFO_0000399": {
+    excludeFreeTextTerms: true
+  },
+  // diet
+  "http://www.ebi.ac.uk/efo/EFO_0002755": {
+    excludeFreeTextTerms: true
+  },
+  // population
+  "http://purl.obolibrary.org/obo/OBI_0000181": {
+    excludeFreeTextTerms: true
+  },
+  // cell lines
+  "http://purl.obolibrary.org/obo/CLO_0000031": {
+    excludeFreeTextTerms: true
+  },
+  // strains
+  "http://www.ebi.ac.uk/efo/EFO_0005135": {
+    excludeFreeTextTerms: true
+  },
+  // treatments
+  "http://www.ebi.ac.uk/efo/EFO_0000727": {
+    excludeFreeTextTerms:true
+  }
+};
+
+/**
  * Excluded terms.
  *
  * Inference is applied in the backend to include all the subclasses of the following terms. Thus, one must be careful

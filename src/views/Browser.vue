@@ -150,7 +150,14 @@
 <script>
 import SearchSettings from "@/components/SearchSettings";
 import { ExpressionExperimentType, SearchSettings as SearchSettingsModel } from "@/lib/models";
-import { baseUrl, excludedCategories, excludedTerms, HIGHLIGHT_LABELS, marked } from "@/config/gemma";
+import {
+  baseUrl,
+  categoriesConfiguration,
+  excludedCategories,
+  excludedTerms,
+  HIGHLIGHT_LABELS,
+  marked
+} from "@/config/gemma";
 import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
 import { highlight } from "@/lib/highlight";
@@ -502,6 +509,7 @@ export default {
           .map(clause => clause.filter(subClause => !annotationsToExcludeR.test(subClause)))
           .filter(clause => clause.length > 0);
       }
+      let categoryConfig = categoriesConfiguration[category] || {};
       // exclude filters for the category
       return compressFilter(filter)
         .then(compressedFilter => {
@@ -518,6 +526,10 @@ export default {
           }
           if (excludedTerms !== undefined) {
             payload["excludedTerms"] = excludedTerms;
+            // FIXME: have a parameter to apply category exclusions, having this here is a proxy for ignoreExcludedTerms
+            if (categoryConfig.excludeFreeTextTerms) {
+              payload["excludeFreeTextTerms"] = "true";
+            }
           }
           if (this.myself) {
             payload["gid"] = this.myself.group;
