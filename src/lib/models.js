@@ -4,11 +4,13 @@
 
 /**
  * Represents a Taxon.
+ * @param id
  * @param commonName
  * @param scientificName
  * @constructor
  */
-export function Taxon(commonName, scientificName) {
+export function Taxon(id, commonName, scientificName) {
+  this.id = id;
   this.commonName = commonName;
   this.scientificName = scientificName;
   this.numberOfExpressionExperiments = 0;
@@ -66,11 +68,11 @@ export function QualityRange(low, high) {
  * @property categories {} Selected categories
  * @constructor
  */
-export function SearchSettings(query, resultTypes) {
+export function SearchSettings(taxon, query, resultTypes) {
   this.query = query;
   this.resultTypes = resultTypes || [];
   this.platforms = [];
-  this.taxon = [];
+  this.taxon = taxon;
   this.quality = [0, 3];
   this.technologyTypes = [];
   this.annotations = [];

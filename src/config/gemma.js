@@ -3,6 +3,7 @@
 import axios from "axios";
 import qs from "qs";
 import { marked } from "marked";
+import { Taxon } from "@/lib/models";
 
 /**
  * Base URL for Gemma
@@ -298,3 +299,12 @@ export let HIGHLIGHT_LABELS = {
 };
 
 
+/**
+ * Hardcoded taxa in Gemma.
+ * TODO: use the /rest/v2/taxa endpoint instead
+ */
+export let taxa = [
+  new Taxon(1, "human", "Homo sapiens"),
+  new Taxon(2, "mouse", "Mus musculus"),
+  new Taxon(3, "rat", "Rattus norvegicus")
+];

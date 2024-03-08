@@ -156,7 +156,8 @@ import {
   excludedCategories,
   excludedTerms,
   HIGHLIGHT_LABELS,
-  marked
+  marked,
+  taxa
 } from "@/config/gemma";
 import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
@@ -185,14 +186,24 @@ export default {
   components: { Error, DownloadButton, SearchSettings, DatasetPreview, CodeSnippet },
   props: {
     /**
+     * Initial taxon.
+     */
+    initialTaxon: String,
+    /**
      * Initial query
      */
     query: String
   },
   data() {
+    let taxon = [];
+    for (let t of taxa) {
+      if ((t.id + "" === this.initialTaxon) || t.commonName.toLowerCase() === this.initialTaxon.toLowerCase() || t.scientificName.toLowerCase() === this.initialTaxon.toLowerCase()) {
+        taxon.push(t);
+      }
+    }
     return {
       drawer: true,
-      searchSettings: new SearchSettingsModel(this.query, [ExpressionExperimentType]),
+      searchSettings: new SearchSettingsModel(taxon, this.query, [ExpressionExperimentType]),
       options: {
         page: 1,
         itemsPerPage: 25,

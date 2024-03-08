@@ -9,17 +9,24 @@ export default new Router({
   routes: [
     {
       path: "*",
-      name: "not found",
       component: NotFound
     },
     {
       path: "/",
-      name: "browser",
       component: Browser
     },
     {
+      path: "/t/:initialTaxon",
+      component: Browser,
+      props: true
+    },
+    {
+      path: "/t/:initialTaxon/q/:query",
+      component: Browser,
+      props: true
+    },
+    {
       path: "/q/:query",
-      name: "query",
       component: Browser,
       props: true
     }
