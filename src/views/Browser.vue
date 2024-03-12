@@ -196,9 +196,11 @@ export default {
   },
   data() {
     let taxon = [];
-    for (let t of taxa) {
-      if ((t.id + "" === this.initialTaxon) || t.commonName.toLowerCase() === this.initialTaxon.toLowerCase() || t.scientificName.toLowerCase() === this.initialTaxon.toLowerCase()) {
-        taxon.push(t);
+    if (this.initialTaxon) {
+      for (let t of taxa) {
+        if ((t.id + "" === this.initialTaxon) || t.commonName.toLowerCase() === this.initialTaxon.toLowerCase() || t.scientificName.toLowerCase() === this.initialTaxon.toLowerCase()) {
+          taxon.push(t);
+        }
       }
     }
     return {
