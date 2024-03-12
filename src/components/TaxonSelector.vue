@@ -73,24 +73,17 @@ export default {
       ];
 
       for (const taxon of this.rankedTaxa) {
-        const isSelected = this.selectedTaxa.some((t) => t.id === taxon.id);
-
         const taxonItem = {
           ...taxon,
           id: taxon.id,
           label: this.labelWithCommonName(taxon),
           type: "taxon",
           number: this.numberOfExperimentsLabel(taxon),
-          selected: isSelected
+          selected: this.selectedTaxaIds.includes(taxon.id)
         };
-
         items[0].children.push(taxonItem);
       }
       return items[0].children;
-    },
-    selectedTaxa() {
-      if (!this.selectedTaxaIds) return [];
-      return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
     }
   },
   methods: {
@@ -106,12 +99,12 @@ export default {
     }
   },
   watch: {
-    value(newVal){
-      this.selectedTaxaIds = newVal && newVal.map(t => t.id) || []
+    value(newVal) {
+      this.selectedTaxaIds = newVal && newVal.map(t => t.id) || [];
     },
-    selectedTaxa(newVal, oldVal) {
+    selectedTaxaIds(newVal, oldVal) {
       if (!isEqual(newVal, oldVal)) {
-        this.$emit("input", newVal);
+        this.$emit("input", this.taxon.filter(taxon => newVal.includes(taxon.id)));
       }
     }
   }
