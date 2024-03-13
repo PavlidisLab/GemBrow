@@ -149,19 +149,24 @@ export function generateFilterSummary(searchSettings) {
   }
 }
 
+function formatTerm(uri) {
+  return new URL(uri).pathname.split("/").pop().replace("_", ":");
+}
+
 /**
  * Generate a human-readable description for a search settings.
  * @param {SearchSettings} searchSettings
+ * @param {Map<String,Array<String>>} inferredTermsByCategory
  * @returns {String}
  */
-export function generateFilterDescription(searchSettings) {
+export function generateFilterDescription(searchSettings, inferredTermsByCategory) {
   const filter = [];
   if (searchSettings.query) {
-    filter.push({ key: "Query ", value: `"${searchSettings.query}"` });
+    filter.push({ key: "Query", value: `"${searchSettings.query}"` });
   }
   if (searchSettings.taxon.length > 0) {
     const taxaValues = searchSettings.taxon.map(taxon => taxon.commonName);
-    filter.push({ key: "Taxa ", value: taxaValues.join(" OR ") });
+    filter.push({ key: "Taxa", value: taxaValues.join(" OR ") });
   }
   if (searchSettings.platforms.length > 0 || searchSettings.technologyTypes.length > 0) {
     const platformValues = searchSettings.platforms.map(platforms => platforms.name);
@@ -171,7 +176,7 @@ export function generateFilterDescription(searchSettings) {
     if (searchSettings.technologyTypes && searchSettings.technologyTypes.length >= 3 && searchSettings.platforms.length === 0) {
       platformValues.unshift("Microarray");
     }
-    filter.push({ key: "Platforms ", value: platformValues });
+    filter.push({ key: "Platforms", value: platformValues });
   }
   if (searchSettings.categories.length > 0) {
     for (let cat of searchSettings.categories) {
@@ -186,39 +191,60 @@ export function generateFilterDescription(searchSettings) {
   }
   if (searchSettings.annotations.length > 0) {
     const annotationGroups = searchSettings.annotations.reduce((acc, annotation) => {
-      let { classUri, className, termName } = annotation;
+      let { classUri, className, termName, termUri } = annotation;
       if (className) {
-        className = pluralize(className);
+        className = capitalizeFirstLetter(pluralize(className));
       } else if (classUri) {
-        className = classUri;
+        className = formatTerm(classUri);
       } else {
         className = "Uncategorized";
       }
       if (!acc[className]) {
-        acc[className + " "] = [termName];
+        acc[className] = [capitalizeFirstLetter(termName)];
       } else {
-        acc[className].push(termName);
+        acc[className].push(capitalizeFirstLetter(termName));
+      }
+      // drop the term from inferred annotations
+      let i;
+      if (inferredTermsByCategory[classUri] && (i = inferredTermsByCategory[classUri].indexOf(termUri)) !== -1) {
+        inferredTermsByCategory[classUri].splice(i, 1);
       }
       return acc;
     }, {});
+    for (let classUri in inferredTermsByCategory) {
+      const inferredTerms = inferredTermsByCategory[classUri];
+      if (inferredTerms) {
+        let className = searchSettings.annotations.filter(a => a.classUri === classUri)[0]?.className;
+        if (className) {
+          className = capitalizeFirstLetter(pluralize(className));
+        } else if (classUri) {
+          className = formatTerm(classUri);
+        } else {
+          className = "Uncategorized";
+        }
+        if (annotationGroups[className] === undefined) {
+          annotationGroups[className] = [];
+        }
+        // include inferred terms
+        const annotations = annotationGroups[className];
+        const maxTermsToDisplay = 6 - annotations.length;
+        if (maxTermsToDisplay > 0) {
+          annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(formatTerm));
+        }
+        if (inferredTerms.length > maxTermsToDisplay) {
+          annotations.push((inferredTerms.length - maxTermsToDisplay) + " more terms...");
+        }
+      }
+    }
     for (const className in annotationGroups) {
       filter.push({ key: className, value: annotationGroups[className] });
     }
   }
-  if (filter.length > 0) {
-    return filter.map(filter => {
-      const { key, value } = filter;
-      const capitalizedKey = capitalizeFirstLetter(key);
-
-      if (Array.isArray(value)) {
-        const capitalizedValues = value.map(capitalizeFirstLetter);
-        return `${capitalizedKey}= ${capitalizedValues.join(" OR ")}`;
-      } else {
-        const capitalizedValue = capitalizeFirstLetter(value);
-        return `${capitalizedKey}= ${capitalizedValue}`;
-      }
-    }).join("\n AND \n");
-  } else {
-    return "";
-  }
+  return filter.map(({ key, value }) => {
+    if (Array.isArray(value)) {
+      return `${key}: ${value.join(" OR ")}`;
+    } else {
+      return `${key}: ${value}`;
+    }
+  }).join("\n AND \n");
 }

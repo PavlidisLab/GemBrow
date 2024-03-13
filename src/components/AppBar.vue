@@ -18,10 +18,9 @@
                 </v-btn>
             </template>
             <v-card flat max-width="650px" class="scroll">
-                <v-card-subtitle>Detailed query and filter selections:</v-card-subtitle>
                 <v-card-text>
-                    <div v-for="line, lineIndex in filterDescription.split('\n')" :key="lineIndex">
-                  <span v-for="word, wordIndex in line.split(' ')" :key="lineIndex + '-' + wordIndex"
+                    <div v-for="(line, lineIndex) in filterDescription.split('\n')" :key="lineIndex">
+                  <span v-for="(word, wordIndex) in line.split(' ')" :key="lineIndex + '-' + wordIndex"
                         :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
                     {{ word }}&nbsp;
                   </span>

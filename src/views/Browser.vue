@@ -312,6 +312,9 @@ export default {
       appliedQuery(state) {
         return state.api.datasets?.query;
       },
+      appliedFilter(state) {
+        return state.api.datasets?.filter;
+      },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
       footerProps: state => {
         if (state.api.datasets === undefined) {
@@ -377,17 +380,32 @@ export default {
       return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      return generateFilterDescription(this.searchSettings);
+      return generateFilterDescription(this.searchSettings, this.inferredTermsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
         return !this.expansionToggle.some(item => item.accession === dataset.accession);
       });
+    },
+    /**
+     * Inferred terms by category.
+     */
+    inferredTermsByCategory() {
+      if (this.appliedFilter) {
+        return [
+          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri in \\((.+?)\\)"),
+          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri = (\\S+)")]
+          .reduce((acc, [_, category, terms]) => {
+            acc[category] = terms.split(", ");
+            return acc;
+          }, {});
+      } else {
+        return {};
+      }
     }
   },
   methods: {
     formatDecimal,
-    formatNumber,
     formatPercent,
     /**
      * Basically a browse with a debounce when the user is actively typing a query.
