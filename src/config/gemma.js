@@ -73,6 +73,10 @@ export let excludedCategories = [
  * Pre-category configuration.
  */
 export let categoriesConfiguration = {
+  // genotype
+  "http://www.ebi.ac.uk/efo/EFO_0000513": {
+    excludeFreeTextTerms: true
+  },
   // biological sex
   "http://purl.obolibrary.org/obo/PATO_0000047": {
     excludeFreeTextTerms: true
@@ -99,7 +103,7 @@ export let categoriesConfiguration = {
   },
   // treatments
   "http://www.ebi.ac.uk/efo/EFO_0000727": {
-    excludeFreeTextTerms:true
+    excludeFreeTextTerms: true
   }
 };
 
@@ -135,19 +139,7 @@ export let excludedTerms = [
   "http://www.ebi.ac.uk/efo/EFO_0004952", // disease recurrence
   "http://www.ebi.ac.uk/efo/EFO_0004972", // somatic genotype
   "http://www.ebi.ac.uk/efo/EFO_0004973", // germ line genotype
-  "http://www.ebi.ac.uk/efo/EFO_0005168", // wild type genotype
-  // gemma does not have the NCBI taxon ontology loaded, so we have to do it one-by-one
-  "http://purl.obolibrary.org/obo/NCBITaxon_10090",
-  "http://purl.obolibrary.org/obo/NCBITaxon_10116",
-  "http://purl.obolibrary.org/obo/NCBITaxon_11082",
-  "http://purl.obolibrary.org/obo/NCBITaxon_11320",
-  "http://purl.obolibrary.org/obo/NCBITaxon_11623",
-  "http://purl.obolibrary.org/obo/NCBITaxon_1280",
-  "http://purl.obolibrary.org/obo/NCBITaxon_1639",
-  "http://purl.obolibrary.org/obo/NCBITaxon_227859", // SARS coronavirus (appears under disease, but we already have COVID 19)
-  "http://purl.obolibrary.org/obo/NCBITaxon_562",
-  "http://purl.obolibrary.org/obo/NCBITaxon_5811",
-  "http://purl.obolibrary.org/obo/NCBITaxon_6239"
+  "http://www.ebi.ac.uk/efo/EFO_0005168" // wild type genotype
 ];
 
 export let annotationSelectorOrderArray = [
