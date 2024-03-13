@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { chain, isEqual, max } from "lodash";
+import { chain, isEqual } from "lodash";
 import { formatNumber, getCategoryId, getTermId, pluralize } from "@/lib/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
@@ -119,11 +119,7 @@ export default {
      * @returns {(*&{isCategory: boolean, children: *, id: *})[]}
      */
     rankedAnnotations() {
-      let byNumberOfExpressionExperiments = (a, b) => {
-        return this.getNumberOfExpressionExperiments(b) - this.getNumberOfExpressionExperiments(a);
-      };
       return this.annotations
-      
         .map(a => {
           let that = this;
 
@@ -138,7 +134,9 @@ export default {
                 isCategory: false,
                 children: c.children && getChildren(c)
               };
-            }).sort(byNumberOfExpressionExperiments);
+            }).sort((a, b) => {
+              return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+            });
           }
 
           return {
@@ -158,12 +156,18 @@ export default {
               return -1;
             } else if (bI !== -1) {
               return 1;
-            } else {
-              return 0;
             }
-          } else if (a.classUri) {
+          } else if (a.classUri && annotationSelectorOrderArray.includes(a.classUri)) {
             return -1;
-          } else if (b.classUri) {
+          } else if (b.classUri && annotationSelectorOrderArray.includes(b.classUri)) {
+            return 1;
+          }
+          if (a.className && b.className) {
+            return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+            // return a.className.localeCompare(b.className);
+          } else if (a.className) {
+            return -1;
+          } else if (b.className) {
             return 1;
           } else {
             return 0;
@@ -183,14 +187,6 @@ export default {
     getId(term) {
       return getCategoryId(term) + SEPARATOR + getTermId(term);
     },
-    getNumberOfExpressionExperiments(item) {
-      if (item.isCategory) {
-        // FIXME: because terms are not independent, we cannot sum their number of expression experiments
-        return max(item.children.map(c => this.getNumberOfExpressionExperiments(c))) || 0;
-      } else {
-        return item.numberOfExpressionExperiments;
-      }
-    },
     isExcluded(item) {
       return excludedTerms.includes(item.classUri) || excludedTerms.includes(item.termUri);
     },
@@ -203,9 +199,9 @@ export default {
         return this.highlightSearchTerm(item.termName, this.search);
       }
       if (this.search && item.isCategory) {
-        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri || '');
+        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri || "");
       }
-      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri || '') : (item.termName || item.termUri || '');
+      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri || "") : (item.termName || item.termUri || "");
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
@@ -230,7 +226,7 @@ export default {
     },
     getNumberCategorySelections(item) {
       let classUri = item.classUri;
-      let selectedValuesClassUris = this.selectedValues.map(Values => Values.split('|')[0]);
+      let selectedValuesClassUris = this.selectedValues.map(Values => Values.split("|")[0]);
       return selectedValuesClassUris.filter(value => value.includes(classUri)).length;
     },
     /**
@@ -242,13 +238,13 @@ export default {
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
         .map(a => this.annotationById[a]);
-        selectedAnnotations.forEach(a => {
-          if (!a) {
-            console.warn('Term is not selectable');
-          }
-        });
+      selectedAnnotations.forEach(a => {
+        if (!a) {
+          console.warn("Term is not selectable");
+        }
+      });
 
-        return selectedAnnotations.filter(a => a)
+      return selectedAnnotations.filter(a => a);
     },
     /**
      * Selected categories.
@@ -266,15 +262,15 @@ export default {
         .map(a => ({ classUri: a.classUri, className: a.className }));
     },
     highlightSearchTerm(text, query) {
-      const words = text.split(' ');
+      const words = text.split(" ");
       const highlightedWords = words.map(word => {
         if (word.toLowerCase().includes(query.toLowerCase())) {
-          const regex = new RegExp(`\\b.*${query}.*\\b`, 'gi');
+          const regex = new RegExp(`\\b.*${query}.*\\b`, "gi");
           return word.replace(regex, match => `<strong>${match}</strong>`);
         }
         return word;
       });
-      return highlightedWords.join(' ');
+      return highlightedWords.join(" ");
     }
   },
   watch: {
@@ -290,7 +286,7 @@ export default {
         this.previouslyOpen = null;
       }
     },
-    value(newVal){
+    value(newVal) {
       // make sure that newVal is an option
       this.selectedValues = newVal.map(term => this.getId(term));
     },
