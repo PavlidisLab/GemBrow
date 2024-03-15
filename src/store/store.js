@@ -12,7 +12,7 @@ api.namespaced = true;
 
 export default new Vuex.Store({
   state() {
-    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null};
+    return { title: null, filterSummary: null, filterDescription: null, debug: debug, lastError: null };
   },
   mutations: {
     setDebug(state, newVal) {
@@ -34,13 +34,14 @@ export default new Vuex.Store({
   plugins: [
     CreatePersistedState({
       reducer: (persistedState) => {
-        const stateFilter = JSON.parse(JSON.stringify(persistedState));
-        // Remove stuff we do not want to persist for any reason
-        delete stateFilter.api["pending"]; // Pending is only valid at runtime
+        // copy objects to avoid modifying the original state
+        const stateFilter = { ...persistedState, api: { ...persistedState.api } };
+        // pending requests and errors is only valid at runtime
+        delete stateFilter.api["pending"];
         delete stateFilter.api["error"];
         delete stateFilter["title"];
-        delete stateFilter["filterSummary"]
-        delete stateFilter["filterDescription"]
+        delete stateFilter["filterSummary"];
+        delete stateFilter["filterDescription"];
         delete stateFilter["lastError"];
         return stateFilter;
       }
