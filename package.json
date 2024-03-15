@@ -18,10 +18,10 @@
     "lodash": "^4.17.21",
     "marked": "^7.0.5",
     "material-icons": "^1.13.12",
-    "qs": "^6.11.2",
+    "qs": "^6.12.0",
     "vue": "^2.7.16",
     "vue-router": "^3.6.5",
-    "vuetify": "^2.7.1",
+    "vuetify": "^2.7.2",
     "vuex": "^3.6.2",
     "vuex-rest-api": "^2.16.0"
   },
@@ -31,14 +31,14 @@
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-prettier": "^8.0.0",
-    "eslint": "^8.56.0",
-    "eslint-plugin-vue": "^9.21.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.23.0",
     "eslint-plugin-vuetify": "^1.1.0",
     "lint-staged": "^14.0.1",
-    "sass": "^1.70.0",
+    "sass": "^1.72.0",
     "sass-loader": "^13.3.3",
     "vue-template-compiler": "^2.7.16",
-    "webpack": "^5.90.1"
+    "webpack": "^5.90.3"
   },
   "babel": {
     "presets": [
