@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import CreatePersistedState from "vuex-persistedstate";
 import api from "./modules/vapi";
 
 Vue.use(Vuex);
@@ -31,22 +30,6 @@ export default new Vuex.Store({
       state.lastError = newVal;
     }
   },
-  plugins: [
-    CreatePersistedState({
-      reducer: (persistedState) => {
-        // copy objects to avoid modifying the original state
-        const stateFilter = { ...persistedState, api: { ...persistedState.api } };
-        // pending requests and errors is only valid at runtime
-        delete stateFilter.api["pending"];
-        delete stateFilter.api["error"];
-        delete stateFilter["title"];
-        delete stateFilter["filterSummary"];
-        delete stateFilter["filterDescription"];
-        delete stateFilter["lastError"];
-        return stateFilter;
-      }
-    })
-  ],
   modules: {
     api: api
   },

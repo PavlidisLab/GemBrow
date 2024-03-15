@@ -23,7 +23,6 @@
     "vue-router": "^3.6.5",
     "vuetify": "^2.7.1",
     "vuex": "^3.6.2",
-    "vuex-persistedstate": "^4.1.0",
     "vuex-rest-api": "^2.16.0"
   },
   "devDependencies": {
