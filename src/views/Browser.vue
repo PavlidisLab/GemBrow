@@ -505,22 +505,33 @@ export default {
         // getDatasetsCategories() endpoint finishes
         // because those promise can fail by the time we start retrieving dataset categories, we have to handle possible
         // cancellation/errors right away
-        let categories = this.datasetsAnnotations.map(getCategoryId);
-        let proactivePromises = categories
+        let proactiveCategories = this.datasetsAnnotations.map(getCategoryId);
+        let proactivePromises = proactiveCategories
           .map(categoryId => this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms)
             .catch(swallowCancellation)
             .catch(this.setLastError));
         return this.$store.dispatch("api/getDatasetsCategories", { params: payload })
           .then(data => {
-            return Promise.all([...categories, ...data.data.data.map(category => {
-              let categoryId = getCategoryId(category);
-              if (categories.includes(categoryId)) {
+            if (data.data.error) {
+              console.error("Retrieving datasets categories failed.", data.data.error);
+              return;
+            }
+            let finalCategories = data.data.data.map(category => getCategoryId(category));
+            // TODO: cancel promises we don't need
+            // for (let categoryId of proactiveCategories) {
+            //   if (!finalCategories.includes(categoryId)) {
+            //     proactivePromises[proactiveCategories.indexOf(categoryId)].cancel();
+            //   }
+            // }
+            // wait on proactive promise or dispatched one if missing
+            return Promise.all(finalCategories.map(categoryId => {
+              if (proactiveCategories.includes(categoryId)) {
                 // wait on the proactive promise
-                return proactivePromises[categories.indexOf(categoryId)];
+                return proactivePromises[proactiveCategories.indexOf(categoryId)];
               } else {
                 return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
               }
-            })]);
+            }));
           });
       });
     },
