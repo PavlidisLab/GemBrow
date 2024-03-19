@@ -34,8 +34,8 @@
 </template>
 
 <script>
-import { isEqual } from "lodash";
 import { formatNumber } from "@/lib/utils";
+import { isEqual } from "lodash";
 
 export default {
   name: "TaxonSelector",
@@ -84,6 +84,9 @@ export default {
         items[0].children.push(taxonItem);
       }
       return items[0].children;
+    },
+    selectedTaxa() {
+      return this.taxon.filter(taxon => this.selectedTaxaIds.includes(taxon.id));
     }
   },
   methods: {
@@ -102,9 +105,9 @@ export default {
     value(newVal) {
       this.selectedTaxaIds = newVal && newVal.map(t => t.id) || [];
     },
-    selectedTaxaIds(newVal, oldVal) {
-      if (!isEqual(newVal, oldVal)) {
-        this.$emit("input", this.taxon.filter(taxon => newVal.includes(taxon.id)));
+    selectedTaxa(newVal, oldVal) {
+      if (!isEqual(newVal.map(t => t.id), oldVal.map(t => t.id))) {
+        this.$emit("input", newVal);
       }
     }
   }

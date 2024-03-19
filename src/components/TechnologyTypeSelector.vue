@@ -103,7 +103,7 @@ export default {
   },
   watch: {
     value(newVal) {
-      this.selectedValues = newVal.map(t => t.id)
+      this.selectedValues = newVal.map(t => t.id);
     },
     selectedValues(newVal, oldVal) {
       let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
@@ -112,7 +112,7 @@ export default {
       let oldIds = new Set(oldVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
       let oldSelectedTechnologyTypes = this.computeSelectedTechnologyTypes(oldIds);
       let oldSelectedPlatforms = this.computeSelectedPlatforms(oldIds, oldSelectedTechnologyTypes);
-      if (!isEqual(selectedPlatforms, oldSelectedPlatforms)) {
+      if (!isEqual(selectedPlatforms.map(p => p.id), oldSelectedPlatforms.map(p => p.id))) {
         this.$emit("input", selectedPlatforms);
       }
       if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {

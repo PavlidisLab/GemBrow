@@ -234,17 +234,17 @@ export default {
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
       let sc = new Set(selectedCategories.map(sc => getCategoryId(sc)));
-      let selectedAnnotations = newVal
+      return newVal
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
-        .map(a => this.annotationById[a]);
-      selectedAnnotations.forEach(a => {
-        if (!a) {
-          console.warn("Term is not selectable");
-        }
-      });
-
-      return selectedAnnotations.filter(a => a);
+        .map(id => {
+          let a = this.annotationById[id];
+          if (!a) {
+            console.warn(`Term ${id} is not selectable`);
+          }
+          return a;
+        })
+        .filter(a => a !== null);
     },
     /**
      * Selected categories.
@@ -295,10 +295,10 @@ export default {
       let sa = this.computeSelectedAnnotations(newVal, sc);
       let scOld = this.computeSelectedCategories(oldVal);
       let saOld = this.computeSelectedAnnotations(oldVal, scOld);
-      if (!isEqual(sa, saOld)) {
+      if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
         this.$emit("input", sa);
       }
-      if (!isEqual(sc, scOld)) {
+      if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
         this.$emit("update:selectedCategories", sc);
       }
     }
