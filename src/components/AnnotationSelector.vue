@@ -230,7 +230,7 @@ export default {
       return selectedValuesClassUris.filter(value => value.includes(classUri)).length;
     },
     /**
-     * Selected annotations, grouped by category and excluding selected categories.
+     * Selected annotations, excluding those in selected categories.
      */
     computeSelectedAnnotations(newVal, selectedCategories) {
       let sc = new Set(selectedCategories.map(sc => getCategoryId(sc)));
@@ -244,7 +244,7 @@ export default {
           }
           return a;
         })
-        .filter(a => a !== null);
+        .filter(a => a);
     },
     /**
      * Selected categories.
