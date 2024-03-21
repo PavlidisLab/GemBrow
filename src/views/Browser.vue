@@ -58,8 +58,8 @@
                 </template>
                 <template v-slot:item.name="{item}">
                     <span v-html="getName(item)"/>
-                    <br v-if="hasHighlight(item)"/>
-                    <small v-if="hasHighlight(item)"
+                    <br v-if="debug && hasHighlight(item)"/>
+                    <small v-if="debug && hasHighlight(item)"
                            v-html="getHighlight(item)">
                     </small>
                 </template>
@@ -625,15 +625,14 @@ export default {
     },
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
-        .filter(h => h[0] !== "name") // the name is highlighted in the table
         .map(h => marked.parseInline("Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ": " + h[1]))
         .join("<br/>");
     },
     getName(item) {
       if (this.hasHighlight(item) && "name" in item.searchResult.highlights) {
-        return highlight(item.name, item.searchResult.highlights.name);
+        return marked.parseInline(highlight(item.name, item.searchResult.highlights.name));
       } else {
-        return item.name;
+        return marked.parseInline(item.name);
       }
     },
     getUrl(item) {
