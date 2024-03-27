@@ -37,8 +37,12 @@ import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
 
 const MICROARRAY_TECHNOLOGY_TYPES = ["ONECOLOR", "TWOCOLOR", "DUALMODE"];
-const OTHER_TECHNOLOGY_TYPES = ["SEQUENCING", "GENELIST", "OTHER"];
-const TECHNOLOGY_TYPES = ["MICROARRAY", "RNA_SEQ"] + MICROARRAY_TECHNOLOGY_TYPES + OTHER_TECHNOLOGY_TYPES;
+const RNA_SEQ_TECHNOLOGY_TYPES = ["SEQUENCING"];
+const OTHER_TECHNOLOGY_TYPES = ["GENELIST", "OTHER"];
+const TECHNOLOGY_TYPES = MICROARRAY_TECHNOLOGY_TYPES + RNA_SEQ_TECHNOLOGY_TYPES + OTHER_TECHNOLOGY_TYPES;
+const TOP_TECHNOLOGY_TYPES = [
+  ["RNA_SEQ", "RNA-Seq", RNA_SEQ_TECHNOLOGY_TYPES],
+  ["MICROARRAY", "Microarray", MICROARRAY_TECHNOLOGY_TYPES]];
 
 export default {
   name: "TechnologyTypeSelector",
@@ -59,26 +63,20 @@ export default {
   },
   computed: {
     technologyTypes() {
-      let microarrayPlatforms = this.platforms.filter(p => MICROARRAY_TECHNOLOGY_TYPES.includes(p.technologyType));
-      let rnaseqPlatforms = this.platforms.filter(p => p.technologyType === "SEQUENCING");
-      return [
-        {
-          id: "RNASEQ",
-          name: "RNA-Seq",
-          numberOfExpressionExperiments: rnaseqPlatforms[0]?.numberOfExpressionExperimentsForTechnologyType || 0
-        },
-        {
-          id: "MICROARRAY",
-          name: "Microarray",
-          children: microarrayPlatforms,
-          numberOfExpressionExperiments: chain(microarrayPlatforms)
+      return TOP_TECHNOLOGY_TYPES.map(([id, name, tts]) => {
+        let platforms = this.platforms.filter(p => tts.includes(p.technologyType));
+        return {
+          id: id,
+          name: name,
+          children: (id !== "RNA_SEQ" || this.debug) ? platforms : [],
+          numberOfExpressionExperiments: chain(platforms)
             .groupBy("technologyType")
             .mapValues(v => v[0].numberOfExpressionExperimentsForTechnologyType)
             .values()
             .sum()
             .value()
-        }
-      ].filter(tt => tt.numberOfExpressionExperiments > 0);
+        };
+      }).filter(tt => tt.numberOfExpressionExperiments > 0);
     },
     ...mapState(["debug"])
   },
@@ -91,13 +89,14 @@ export default {
     },
     computeSelectedTechnologyTypes(sv) {
       return this.technologyTypes
-        .filter(v => sv.has(v.id) || (v.children && v.children.every(c => sv.has(c.id))))
+        .filter(v => sv.has(v.id) || (v.children.length > 0 && v.children.every(c => sv.has(c.id))))
         .flatMap(v => {
-          if (v.id === "MICROARRAY") {
-            return MICROARRAY_TECHNOLOGY_TYPES;
-          } else {
-            return [v.id];
+          for (let [id, _, tts] of TOP_TECHNOLOGY_TYPES) {
+            if (v.id === id) {
+              return tts;
+            }
           }
+          return [v.id];
         });
     }
   },

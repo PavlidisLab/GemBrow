@@ -39,19 +39,8 @@ export function generateFilter(searchSettings) {
       clause.push("bioAssays.originalPlatform.id in (" + platformIds.join(",") + ")");
     }
     if (searchSettings.technologyTypes.length > 0) {
-      let technologyTypes = searchSettings.technologyTypes.filter(t => t !== "RNASEQ");
-      // special case if searching exclusively for RNA-Seq
-      if (searchSettings.technologyTypes.includes("RNASEQ")) {
-        // if searching exclusively for RNA-Seq data, we can add an extra filter for correctness
-        // only microarray platforms can be selected individually
-        if (searchSettings.technologyTypes.length === 1 && searchSettings.platforms.length === 0) {
-          filter.push(["bioAssays.originalPlatform.technologyType = SEQUENCING"]);
-        }
-        technologyTypes.push("GENELIST");
-      }
-      clause.push(
-        "bioAssays.arrayDesignUsed.technologyType in (" + technologyTypes.join(",") + ")"
-      );
+      clause.push("bioAssays.originalPlatform.technologyType in (" + searchSettings.technologyTypes.join(",") + ")");
+      clause.push("bioAssays.arrayDesignUsed.technologyType in (" + searchSettings.technologyTypes.join(",") + ")");
     }
     filter.push(clause);
   }
