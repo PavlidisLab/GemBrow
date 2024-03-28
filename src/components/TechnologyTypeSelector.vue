@@ -42,7 +42,8 @@ const OTHER_TECHNOLOGY_TYPES = ["GENELIST", "OTHER"];
 const TECHNOLOGY_TYPES = MICROARRAY_TECHNOLOGY_TYPES + RNA_SEQ_TECHNOLOGY_TYPES + OTHER_TECHNOLOGY_TYPES;
 const TOP_TECHNOLOGY_TYPES = [
   ["RNA_SEQ", "RNA-Seq", RNA_SEQ_TECHNOLOGY_TYPES],
-  ["MICROARRAY", "Microarray", MICROARRAY_TECHNOLOGY_TYPES]];
+  ["MICROARRAY", "Microarray", MICROARRAY_TECHNOLOGY_TYPES],
+  ["OTHER", "Other", OTHER_TECHNOLOGY_TYPES]];
 
 export default {
   name: "TechnologyTypeSelector",
@@ -63,20 +64,22 @@ export default {
   },
   computed: {
     technologyTypes() {
-      return TOP_TECHNOLOGY_TYPES.map(([id, name, tts]) => {
-        let platforms = this.platforms.filter(p => tts.includes(p.technologyType));
-        return {
-          id: id,
-          name: name,
-          children: (id !== "RNA_SEQ" || this.debug) ? platforms : [],
-          numberOfExpressionExperiments: chain(platforms)
-            .groupBy("technologyType")
-            .mapValues(v => v[0].numberOfExpressionExperimentsForTechnologyType)
-            .values()
-            .sum()
-            .value()
-        };
-      }).filter(tt => tt.numberOfExpressionExperiments > 0);
+      return TOP_TECHNOLOGY_TYPES
+        .filter(([id]) => id !== "OTHER" || this.debug)
+        .map(([id, name, tts]) => {
+          let platforms = this.platforms.filter(p => tts.includes(p.technologyType));
+          return {
+            id: id,
+            name: name,
+            children: (id !== "RNA_SEQ" || this.debug) ? platforms : [],
+            numberOfExpressionExperiments: chain(platforms)
+              .groupBy("technologyType")
+              .mapValues(v => v[0].numberOfExpressionExperimentsForTechnologyType)
+              .values()
+              .sum()
+              .value()
+          };
+        }).filter(tt => tt.numberOfExpressionExperiments > 0);
     },
     ...mapState(["debug"])
   },
