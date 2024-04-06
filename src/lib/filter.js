@@ -148,7 +148,7 @@ function formatTerm(uri) {
  * @param {Map<String,Array<String>>} inferredTermsByCategory
  * @returns {String}
  */
-export function generateFilterDescription(searchSettings, inferredTermsByCategory) {
+export function generateFilterDescription(searchSettings,inferredTermsLabelsByCategory) {
   const filter = [];
   if (searchSettings.query) {
     filter.push({ key: "Query", value: `"${searchSettings.query}"` });
@@ -194,15 +194,14 @@ export function generateFilterDescription(searchSettings, inferredTermsByCategor
         acc[className].push(capitalizeFirstLetter(termName));
       }
       // drop the term from inferred annotations
-      let i;
-      if (inferredTermsByCategory[classUri] && (i = inferredTermsByCategory[classUri].indexOf(termUri)) !== -1) {
-        inferredTermsByCategory[classUri].splice(i, 1);
+      if (inferredTermsLabelsByCategory[classUri]){
+        delete inferredTermsLabelsByCategory[classUri][termUri]
       }
       return acc;
     }, {});
-    for (let classUri in inferredTermsByCategory) {
-      const inferredTerms = inferredTermsByCategory[classUri];
-      if (inferredTerms) {
+    for (let classUri in inferredTermsLabelsByCategory) {
+      const inferredTermsLabels = inferredTermsLabelsByCategory[classUri];
+      if (inferredTermsLabels) {
         let className = searchSettings.annotations.filter(a => a.classUri === classUri)[0]?.className;
         if (className) {
           className = capitalizeFirstLetter(pluralize(className));
@@ -217,11 +216,24 @@ export function generateFilterDescription(searchSettings, inferredTermsByCategor
         // include inferred terms
         const annotations = annotationGroups[className];
         const maxTermsToDisplay = 6 - annotations.length;
+
+        // inferredTermsLabels may have undefined URIs. If there aren't enough
+        // ones with labesl to show, use URIs for now
+        let with_labels = Object.entries(inferredTermsLabels)
+        .filter(([key,value])=> value != undefined)
+        .map(([key,value])=>{return capitalizeFirstLetter(value)})
+        let no_labels =  Object.entries(inferredTermsLabels)
+        .filter(([key,value])=> value == undefined)
+        .map(([key,value])=>{return key})
+
         if (maxTermsToDisplay > 0) {
-          annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(formatTerm));
+          annotations.push(
+            ...with_labels.slice(0,maxTermsToDisplay),
+            ...no_labels.slice(0,Math.max(maxTermsToDisplay-with_labels.length,0)).map(formatTerm));
         }
-        if (inferredTerms.length > maxTermsToDisplay) {
-          annotations.push((inferredTerms.length - maxTermsToDisplay) + " more terms...");
+        let l = Object.keys(inferredTermsLabels).length
+        if (l > maxTermsToDisplay) {
+          annotations.push((l - maxTermsToDisplay) + " more terms...");
         }
       }
     }

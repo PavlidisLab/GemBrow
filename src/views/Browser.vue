@@ -379,8 +379,28 @@ export default {
     filterSummary() {
       return generateFilterSummary(this.searchSettings);
     },
+    uriLabelsInDatasets(){
+      let labels = {}
+      for (let annotClass of this.datasetsAnnotations) {
+        for (let annotation of annotClass.children) {
+          labels[annotation.termUri] = annotation.termName
+        }
+      }
+      return labels
+    },
+    inferredTermsLabelsByCategory(){
+      // incomplete list of labels for inferred terms using the already existing datasetsAnnotations
+      // for any term that is closer to the roots of the top 200 we collect
+      // this will be unpopulated
+      return Object.fromEntries(Object.entries(this.inferredTermsByCategory).map(([key,value])=> {
+        let labels = Object.fromEntries(value.map(uri => {
+          return [uri , this.uriLabelsInDatasets[uri]]
+        }))
+        return [key,labels]
+      }))
+    },
     filterDescription() {
-      return generateFilterDescription(this.searchSettings, this.inferredTermsByCategory);
+      return generateFilterDescription(this.searchSettings, this.inferredTermsLabelsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
