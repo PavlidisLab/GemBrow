@@ -1,10 +1,10 @@
 <template>
-    <v-alert type="error" dismissible>
-        <div v-if="error.code === 400">
-            {{ error.message }}
-        </div>
-        <div v-else-if="debug">
+    <v-alert :type="errorType" dismissible>
+        <div v-if="debug">
             <pre style="white-space: pre-wrap;">{{ JSON.stringify(error) }}</pre>
+        </div>
+        <div v-else-if="error.code === 'ERR_NETWORK'">
+            It seems that your Internet connection is not available at this time.
         </div>
         <div v-else>
             <div class="d-flex">
@@ -57,6 +57,12 @@ export default {
   },
   computed: {
     ...mapState(["debug"]),
+    errorType() {
+      if (this.error.code === "ERR_NETWORK") {
+        return "warning";
+      }
+      return "error";
+    },
     mail() {
       return {
         to: "pavlab-support@msl.ubc.ca",
