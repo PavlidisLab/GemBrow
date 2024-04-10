@@ -148,7 +148,7 @@ function formatTerm(uri) {
  * @param {Map<String,Array<String>>} inferredTermsByCategory
  * @returns {String}
  */
-export function generateFilterDescription(searchSettings,inferredTermsLabelsByCategory) {
+export function generateFilterDescription(searchSettings,inferredTermsLabelsByCategory,missingLabelsByCategory) {
   const filter = [];
   if (searchSettings.query) {
     filter.push({ key: "Query", value: `"${searchSettings.query}"` });
@@ -201,6 +201,7 @@ export function generateFilterDescription(searchSettings,inferredTermsLabelsByCa
     }, {});
     for (let classUri in inferredTermsLabelsByCategory) {
       const inferredTermsLabels = inferredTermsLabelsByCategory[classUri];
+      const missingLabels = missingLabelsByCategory[classUri]
       if (inferredTermsLabels) {
         let className = searchSettings.annotations.filter(a => a.classUri === classUri)[0]?.className;
         if (className) {
@@ -222,19 +223,34 @@ export function generateFilterDescription(searchSettings,inferredTermsLabelsByCa
         let with_labels = Object.entries(inferredTermsLabels)
         .filter(([key,value])=> value != undefined)
         .map(([key,value])=>{return capitalizeFirstLetter(value)})
+        let retrieved_uris = []
+        let retrieved_labels = []
+        if (missingLabels != undefined){
+          [retrieved_uris ,retrieved_labels] = Object.entries(missingLabels)
+          .filter(([key,value])=> value != undefined)
+          .reduce((acc, [key,value])=> {
+            acc[0] = acc[0].concat(key)
+            acc[1] = acc[1].concat(capitalizeFirstLetter(value))
+            return acc
+          },[[],[]])
+        }  
+        
         let no_labels =  Object.entries(inferredTermsLabels)
-        .filter(([key,value])=> value == undefined)
+        .filter(([key,value])=> value == undefined && retrieved_uris.indexOf(key) == -1) 
         .map(([key,value])=>{return key})
+
 
         if (maxTermsToDisplay > 0) {
           annotations.push(
             ...with_labels.slice(0,maxTermsToDisplay),
-            ...no_labels.slice(0,Math.max(maxTermsToDisplay-with_labels.length,0)).map(formatTerm));
+            ...retrieved_labels.slice(0,Math.max(maxTermsToDisplay-with_labels.length,0)),
+            ...no_labels.slice(0,Math.max(maxTermsToDisplay-with_labels.length -retrieved_labels.length ,0)).map(formatTerm));
         }
         let l = Object.keys(inferredTermsLabels).length
         if (l > maxTermsToDisplay) {
           annotations.push((l - maxTermsToDisplay) + " more terms...");
         }
+
       }
     }
     for (const className in annotationGroups) {

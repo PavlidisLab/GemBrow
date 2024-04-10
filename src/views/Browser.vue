@@ -177,6 +177,7 @@ import { generateFilter, generateFilterDescription, generateFilterSummary } from
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 import CodeSnippet from "@/components/CodeSnippet.vue";
+import axios from "axios";
 
 const MAX_CATEGORIES = 20;
 const MAX_TERMS_PER_CATEGORY = 200;
@@ -215,7 +216,8 @@ export default {
       },
       downloadProgress: null,
       expansionToggle: [],
-      tableWidth: ""
+      tableWidth: "",
+      missingLabelsByCategory:{}
     };
   },
   computed: {
@@ -400,7 +402,7 @@ export default {
       }))
     },
     filterDescription() {
-      return generateFilterDescription(this.searchSettings, this.inferredTermsLabelsByCategory);
+      return generateFilterDescription(this.searchSettings, this.inferredTermsLabelsByCategory,this.missingLabelsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
@@ -768,6 +770,63 @@ export default {
             console.error(`Error while updating datasets after logged user changed: ${err.message}.`, err);
             this.setLastError(err);
           });
+      }
+    },
+    inferredTermsLabelsByCategory: function(newVal,oldVal) {
+      // watches labels we got for the categories and
+      // tries filling in the gaps by populating missingLabelsByCategory
+
+      
+      if (!isEqual(newVal, oldVal)) {
+        this.missingLabelsByCategory = {}
+        for (let classUri in this.inferredTermsLabelsByCategory){
+          this.missingLabelsByCategory[classUri] = {}
+          let inferredTermsLabels = this.inferredTermsLabelsByCategory[classUri];
+
+          let with_labels = Object.entries(inferredTermsLabels)
+          .filter(([key,value])=> value != undefined)
+           let no_labels =  Object.entries(inferredTermsLabels)
+          .filter(([key,value])=> value == undefined)
+          .map(([key,value])=>{return key})
+
+          // if we don't already know the labels for 6 URIs we fetch from the
+          // endpoint. 6 is hardcoded here since it was also hardcoded in filter.js
+          // filter.js currently falls back to use URIs if there aren't enough 
+          let dispNum = 6
+          if (with_labels.length<dispNum && no_labels.length>0){
+            let numToFetch = dispNum- with_labels.length
+            let urisToFetch = no_labels.slice(0,numToFetch)
+
+            let url = baseUrl + "/rest/v2/annotations/search"
+            
+            let processMissingUri = function(res,missing){
+              if (res.data.data.length == 0){
+                missing[classUri][res.config.params.query] = undefined
+              }
+
+              if (res.data.data.length != 0 &&  missing[classUri][res.config.params.query] === undefined){
+                // if it returns something, just take the first one. they should be 
+                // interchangable
+                missing[classUri][res.config.params.query] = res.data.data[0].value
+              } else {
+                let alternatives = no_labels.slice(numToFetch,no_labels.length)
+                // pick one of the alternatives that has not been tried yet
+                let altToTry = alternatives.filter(x=> ! Object.keys(missing[classUri]).includes(x))
+                if (altToTry.length>0){
+                  axios.get(url,{
+                    params: {query: altToTry[0]}
+                  }).then(res => processMissingUri(res,missing))
+                }
+              }
+            }
+            urisToFetch.forEach(uri => {
+              axios.get(url,{
+                params: {query: uri}
+              }).then(res => processMissingUri(res,this.missingLabelsByCategory))
+            })
+          }
+
+        }
       }
     }
   }
