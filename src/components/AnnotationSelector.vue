@@ -4,6 +4,12 @@
             <div class="text--secondary">
                 Annotations
             </div>
+            <v-tooltip bottom>
+                <template v-slot:activator="{on, attrs}">
+                    <v-icon v-bind="attrs" v-on="on" small class="ml-1">mdi-help-circle-outline</v-icon>
+                </template>
+                Counts in this section may be approximate. For more explanation see the help.
+            </v-tooltip>
             <v-spacer></v-spacer>
             <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary"
                    :disabled="disabled">
@@ -36,7 +42,7 @@
             </template>
             <template v-slot:append="{item}">
                 <span v-if="!item.isCategory || debug"
-                      class="text-right">{{ formatNumber(item.numberOfExpressionExperiments) }}</span>
+                      class="text-right"><span v-if="!item.isCategory">≥</span>{{ formatNumber(item.numberOfExpressionExperiments) }}</span>
                 <span v-if="item.isCategory && !debug && getNumberCategorySelections(item) > 0"
                       class="text-right text--secondary text-body-2">{{
                         getNumberCategorySelections(item)
