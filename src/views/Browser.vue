@@ -448,24 +448,23 @@ export default {
         return updateDatasetsPromise;
       }
     },
-    updateDatasets(query, filter, offset, limit, sort) {
-      return compressFilter(filter).then((compressedFilter) => {
-        let payload = { query: query, filter: compressedFilter, offset: offset, limit: limit, sort: sort };
-        if (query !== undefined) {
-          payload["query"] = query;
-        }
-        if (this.myself) {
-          payload["gid"] = this.myself.group;
-        }
-        return this.$store.dispatch("api/getDatasets", {
-          params: payload
-        });
+    async updateDatasets(query, filter, offset, limit, sort) {
+      let compressedFilter = await compressFilter(filter);
+      let payload = { filter: compressedFilter, offset: offset, limit: limit, sort: sort };
+      if (query !== undefined) {
+        payload["query"] = query;
+      }
+      if (this.myself) {
+        payload["gid"] = this.myself.group;
+      }
+      return this.$store.dispatch("api/getDatasets", {
+        params: payload
       });
     },
     /**
      * Update available categories.
      */
-    updateAvailableCategories(query, filter, excludedCategories, excludeFreeTextCategories, excludedTerms, excludeUncategorizedTerms) {
+    async updateAvailableCategories(query, filter, excludedCategories, excludeFreeTextCategories, excludedTerms, excludeUncategorizedTerms) {
       let disallowedPrefixes = [
         "allCharacteristics.",
         "characteristics.",
@@ -478,62 +477,59 @@ export default {
           .filter(subClause => !disallowedPrefixes.some(p => subClause.startsWith(p))))
           .filter(clause => clause.length > 0);
       }
-      return compressFilter(mFilter).then(compressedFilter => {
-        let payload = {
-          filter: compressedFilter,
-          limit: MAX_CATEGORIES
-        };
-        if (query !== undefined) {
-          payload["query"] = query;
+      let compressedFilter = await compressFilter(mFilter);
+      let payload = {
+        filter: compressedFilter,
+        limit: MAX_CATEGORIES
+      };
+      if (query !== undefined) {
+        payload["query"] = query;
+      }
+      if (excludedCategories !== undefined) {
+        payload["excludedCategories"] = excludedCategories;
+      }
+      if (excludeFreeTextCategories) {
+        payload["excludeFreeTextCategories"] = "true";
+      }
+      if (excludeUncategorizedTerms) {
+        payload["excludeUncategorizedTerms"] = "true";
+      }
+      if (excludedTerms !== undefined) {
+        payload["excludedTerms"] = excludedTerms;
+      }
+      if (this.myself) {
+        payload["gid"] = this.myself.group;
+      }
+      // proactively query categories we already know about, otherwise we have to wait until the
+      // getDatasetsCategories() endpoint finishes
+      // because those promise can fail by the time we start retrieving dataset categories, we have to handle possible
+      // cancellation/errors right away
+      let proactiveCategories = this.datasetsAnnotations.map(getCategoryId);
+      let proactivePromises = proactiveCategories
+        .map(categoryId => this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms)
+          .catch(swallowCancellation)
+          .catch(this.setLastError));
+      let data = await this.$store.dispatch("api/getDatasetsCategories", { params: payload });
+      if (data.data.error) {
+        console.error("Retrieving datasets categories failed.", data.data.error);
+        return;
+      }
+      let finalCategories = data.data.data.map(category => getCategoryId(category));
+      // TODO: cancel promises we don't need
+      // for (let categoryId of proactiveCategories) {
+      //   if (!finalCategories.includes(categoryId)) {
+      //     proactivePromises[proactiveCategories.indexOf(categoryId)].cancel();
+      //   }
+      // }
+      // wait on proactive promise or dispatched one if missing
+      return Promise.all(finalCategories.map(categoryId => {
+        if (proactiveCategories.includes(categoryId)) {
+          // wait on the proactive promise
+          return proactivePromises[proactiveCategories.indexOf(categoryId)];
+        } else {
+          return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
         }
-        if (excludedCategories !== undefined) {
-          payload["excludedCategories"] = excludedCategories;
-        }
-        if (excludeFreeTextCategories) {
-          payload["excludeFreeTextCategories"] = "true";
-        }
-        if (excludeUncategorizedTerms) {
-          payload["excludeUncategorizedTerms"] = "true";
-        }
-        if (excludedTerms !== undefined) {
-          payload["excludedTerms"] = excludedTerms;
-        }
-        if (this.myself) {
-          payload["gid"] = this.myself.group;
-        }
-        // proactively query categories we already know about, otherwise we have to wait until the
-        // getDatasetsCategories() endpoint finishes
-        // because those promise can fail by the time we start retrieving dataset categories, we have to handle possible
-        // cancellation/errors right away
-        let proactiveCategories = this.datasetsAnnotations.map(getCategoryId);
-        let proactivePromises = proactiveCategories
-          .map(categoryId => this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms)
-            .catch(swallowCancellation)
-            .catch(this.setLastError));
-        return this.$store.dispatch("api/getDatasetsCategories", { params: payload })
-          .then(data => {
-            if (data.data.error) {
-              console.error("Retrieving datasets categories failed.", data.data.error);
-              return;
-            }
-            let finalCategories = data.data.data.map(category => getCategoryId(category));
-            // TODO: cancel promises we don't need
-            // for (let categoryId of proactiveCategories) {
-            //   if (!finalCategories.includes(categoryId)) {
-            //     proactivePromises[proactiveCategories.indexOf(categoryId)].cancel();
-            //   }
-            // }
-            // wait on proactive promise or dispatched one if missing
-            return Promise.all(finalCategories.map(categoryId => {
-              if (proactiveCategories.includes(categoryId)) {
-                // wait on the proactive promise
-                return proactivePromises[proactiveCategories.indexOf(categoryId)];
-              } else {
-                return this.updateAvailableAnnotationsByCategory(categoryId, query, filter, excludedTerms);
-              }
-            }));
-          });
-      });
+      }));
     },
     /**
      * Update available annotations for a specific category.
@@ -542,7 +538,7 @@ export default {
      * tricky because at this point the filter is already generated, so we remove clauses matching a regex constructed
      * by concatenating all the terms in the category.
      */
-    updateAvailableAnnotationsByCategory(category, query, filter, excludedTerms) {
+    async updateAvailableAnnotationsByCategory(category, query, filter, excludedTerms) {
       // generate a regex to match clauses we want to exclude
       let annotationsToExclude = this.datasetsAnnotations
         .filter(t => getCategoryId(t) === category)
@@ -556,69 +552,65 @@ export default {
       }
       let categoryConfig = categoriesConfiguration[category] || {};
       // exclude filters for the category
-      return compressFilter(filter)
-        .then(compressedFilter => {
-          let payload = {
-            category: category,
-            filter: compressedFilter,
-            limit: MAX_TERMS_PER_CATEGORY,
-            exclude: ["parentTerms"],
-            // ensures that the terms appearing in filter are always returned
-            retainMentionedTerms: true
-          };
-          if (query) {
-            payload["query"] = query;
-          }
-          if (excludedTerms !== undefined) {
-            payload["excludedTerms"] = excludedTerms;
-            // FIXME: have a parameter to apply category exclusions, having this here is a proxy for ignoreExcludedTerms
-            if (categoryConfig.excludeFreeTextTerms) {
-              payload["excludeFreeTextTerms"] = "true";
-            }
-          }
-          if (this.myself) {
-            payload["gid"] = this.myself.group;
-          }
-          return this.$store.dispatch("api/getDatasetsAnnotationsByCategory", { params: payload });
-        });
+      let compressedFilter = await compressFilter(filter);
+      let payload = {
+        category: category,
+        filter: compressedFilter,
+        limit: MAX_TERMS_PER_CATEGORY,
+        exclude: ["parentTerms"],
+        // ensures that the terms appearing in filter are always returned
+        retainMentionedTerms: true
+      };
+      if (query) {
+        payload["query"] = query;
+      }
+      if (excludedTerms !== undefined) {
+        payload["excludedTerms"] = excludedTerms;
+        // FIXME: have a parameter to apply category exclusions, having this here is a proxy for ignoreExcludedTerms
+        if (categoryConfig.excludeFreeTextTerms) {
+          payload["excludeFreeTextTerms"] = "true";
+        }
+      }
+      if (this.myself) {
+        payload["gid"] = this.myself.group;
+      }
+      return this.$store.dispatch("api/getDatasetsAnnotationsByCategory", { params: payload });
     },
     updateOpenApiSpecification() {
       return this.$store.dispatch("api/getOpenApiSpecification");
     },
-    updateAvailableTaxa(query, filter) {
+    async updateAvailableTaxa(query, filter) {
       // remove any clauses involving taxon
       if (filter) {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("taxon."))).filter(clause => clause.length > 0);
       }
-      return compressFilter(filter).then(compressedFilter => {
-        let payload = { filter: compressedFilter };
-        if (query) {
-          payload["query"] = query;
-        }
-        if (this.myself) {
-          payload["gid"] = this.myself.group;
-        }
-        return this.$store.dispatch("api/getDatasetsTaxa", { params: payload });
-      });
+      let compressedFilter = await compressFilter(filter);
+      let payload = { filter: compressedFilter };
+      if (query) {
+        payload["query"] = query;
+      }
+      if (this.myself) {
+        payload["gid"] = this.myself.group;
+      }
+      return this.$store.dispatch("api/getDatasetsTaxa", { params: payload });
     },
-    updateAvailablePlatforms(query, filter) {
+    async updateAvailablePlatforms(query, filter) {
       // remove any clauses involving platforms
       if (filter) {
         filter = filter.map(clause => clause.filter(subClause => !subClause.startsWith("bioAssays.arrayDesignUsed.") && !subClause.startsWith("bioAssays.originalPlatform."))).filter(clause => clause.length > 0);
       }
-      return compressFilter(filter).then(compressedFilter => {
-        let payload = {
-          filter: compressedFilter,
-          limit: MAX_PLATFORMS
-        };
-        if (query) {
-          payload["query"] = query;
-        }
-        if (this.myself) {
-          payload["gid"] = this.myself.group;
-        }
-        return this.$store.dispatch("api/getDatasetsPlatforms", { params: payload });
-      });
+      let compressedFilter = await compressFilter(filter);
+      let payload = {
+        filter: compressedFilter,
+        limit: MAX_PLATFORMS
+      };
+      if (query) {
+        payload["query"] = query;
+      }
+      if (this.myself) {
+        payload["gid"] = this.myself.group;
+      }
+      return this.$store.dispatch("api/getDatasetsPlatforms", { params: payload });
     },
     hasHighlight(item) {
       return item.searchResult !== undefined && item.searchResult.highlights !== null;
