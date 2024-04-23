@@ -36,6 +36,9 @@ export function formatDecimal(d) {
 }
 
 export function pluralize(s) {
+  if (s.endsWith("y")) {
+    return s.slice(0, -1) + "ies";
+  }
   return s.endsWith("x") || s.endsWith("s") ? s + "es" : s + "s";
 }
 
