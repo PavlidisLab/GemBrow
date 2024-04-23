@@ -64,7 +64,7 @@
             >
                 <v-switch v-if="debug"
                           v-model="searchSettings.ignoreExcludedTerms"
-                          label="Ignore Excluded Terms (dev only)"
+                          label="Show All Terms (dev only)"
                           hide-details
                           class="mt-0"/>
                 <v-spacer/>
