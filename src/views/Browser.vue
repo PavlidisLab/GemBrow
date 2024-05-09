@@ -177,6 +177,7 @@ import { generateFilter, generateFilterDescription, generateFilterSummary } from
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 import CodeSnippet from "@/components/CodeSnippet.vue";
+import axios from "axios";
 
 const MAX_CATEGORIES = 20;
 const MAX_TERMS_PER_CATEGORY = 200;
@@ -215,7 +216,8 @@ export default {
       },
       downloadProgress: null,
       expansionToggle: [],
-      tableWidth: ""
+      tableWidth: "",
+      inferredTemsLabelsByCategory:{}
     };
   },
   computed: {
@@ -376,6 +378,9 @@ export default {
         return state.api.myself.code === 401 ? null : state.api.myself.data;
       }
     }),
+    annotations(){
+      return this.searchSettings.annotations
+    },
     filterSummary() {
       return generateFilterSummary(this.searchSettings);
     },
@@ -741,6 +746,9 @@ export default {
             this.setLastError(err);
           });
       }
+    },
+    annotations: function(newVal){
+      console.log('annotations updated')
     }
   }
 };
