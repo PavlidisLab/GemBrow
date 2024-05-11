@@ -217,7 +217,7 @@ export default {
       downloadProgress: null,
       expansionToggle: [],
       tableWidth: "",
-      inferredTemsLabelsByCategory:{}
+      inferredTermLabelsByCategory:{}
     };
   },
   computed: {
@@ -385,7 +385,8 @@ export default {
       return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      return generateFilterDescription(this.searchSettings, this.inferredTermsByCategory);
+      this.inferredTermsByCategory
+      return generateFilterDescription(this.searchSettings,this.inferredTermLabelsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
@@ -748,7 +749,33 @@ export default {
       }
     },
     annotations: function(newVal){
-      console.log('annotations updated')
+      // clear inferred terms of the previous call
+      this.inferredTermLabelsByCategory = {}
+
+      // updates inferredTemsLabelsByCategory
+      let url = baseUrl + "/rest/v2/annotations/children/"
+
+      let addInferredTerms = function(res,category,inferredTermLabelsByCategory){
+        let inferredTerms = Object.fromEntries(res.data.map(value=>{
+          return [value.valueUri,value.value]
+        }))
+
+        if (category in inferredTermLabelsByCategory){
+          Object.assign(inferredTermLabelsByCategory[category],inferredTerms)
+        } else {
+          inferredTermLabelsByCategory[category] = inferredTerms
+        }
+      }
+      newVal.forEach(value => {
+        let hede = axios.get(url,{
+          params: {uri:value.termUri, direct:false}
+        }).then(res => addInferredTerms(res,value.classUri,this.inferredTermLabelsByCategory))
+        .catch(swallowCancellation)
+        .catch(err => {
+          console.error(`Error when requesting child terms: ${err.message}.`, err);
+          this.setLastError(err)
+        })
+      })
     }
   }
 };
