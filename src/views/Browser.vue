@@ -385,29 +385,12 @@ export default {
       return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      this.inferredTermsByCategory
       return generateFilterDescription(this.searchSettings,this.inferredTermLabelsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
         return !this.expansionToggle.some(item => item.accession === dataset.accession);
       });
-    },
-    /**
-     * Inferred terms by category.
-     */
-    inferredTermsByCategory() {
-      if (this.appliedFilter) {
-        return [
-          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri in \\((.+?)\\)"),
-          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri = (\\S+)")]
-          .reduce((acc, [_, category, terms]) => {
-            acc[category] = terms.split(", ");
-            return acc;
-          }, {});
-      } else {
-        return {};
-      }
     }
   },
   methods: {
@@ -755,25 +738,22 @@ export default {
       // updates inferredTemsLabelsByCategory
       let url = baseUrl + "/rest/v2/annotations/children/"
 
-      let addInferredTerms = function(res,category,inferredTermLabelsByCategory){
-        let inferredTerms = Object.fromEntries(res.data.map(value=>{
-          return [value.valueUri,value.value]
-        }))
-
-        if (category in inferredTermLabelsByCategory){
-          Object.assign(inferredTermLabelsByCategory[category],inferredTerms)
-        } else {
-          inferredTermLabelsByCategory[category] = inferredTerms
-        }
-      }
       newVal.forEach(value => {
         let hede = axios.get(url,{
           params: {uri:value.termUri, direct:false}
-        }).then(res => addInferredTerms(res,value.classUri,this.inferredTermLabelsByCategory))
+        }).then(res => {
+          let inferredTerms = Object.fromEntries(res.data.map(value=>{
+            return [value.valueUri,value.value]
+          }))
+          this.$set(this.inferredTermLabelsByCategory,value.classUri, Object.assign({},this.inferredTermLabelsByCategory[value.classUri], inferredTerms))
+          //this.inferredTermLabelsByCategory[value.classUri] = Object.assign({},this.inferredTermLabelsByCategory[value.classUri], inferredTerms)
+        })
         .catch(swallowCancellation)
         .catch(err => {
-          console.error(`Error when requesting child terms: ${err.message}.`, err);
-          this.setLastError(err)
+          if(err.message != 'Request failed with status code 404'){
+            console.error(`Error when requesting child terms: ${err.message}.`, err);
+            this.setLastError(err)
+          }
         })
       })
     }
