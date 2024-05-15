@@ -57,11 +57,13 @@
                     <span>{{ item }}</span>
                 </template>
                 <template v-slot:item.name="{item}">
-                    <span v-html="getName(item)"/>
-                    <br v-if="debug && hasHighlight(item)"/>
-                    <small v-if="debug && hasHighlight(item)"
-                           v-html="getHighlight(item)">
-                    </small>
+                    <td style="width: 100%">
+                        <span v-html="getName(item)"/>
+                        <br v-if="debug && hasHighlight(item)"/>
+                        <small v-if="debug && hasHighlight(item)"
+                               v-html="getHighlight(item)">
+                        </small>
+                    </td>
                 </template>
                 <template v-slot:item.geeq.publicQualityScore="{ item }">
                     <v-tooltip v-if="item.geeq" left>
