@@ -1,6 +1,6 @@
 <template>
     <div class="py-3">
-        <h3>{{ dataset.name }}</h3>
+        <h3> <a v-bind:href="datasetUrl">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" :key="getId(term)"
                 @[getClickEventName(term)]="handleChipClick(term)"
                 small :color="getChipColor(term.objectClass)"
@@ -70,6 +70,9 @@ export default {
         ExperimentTag: "green lighten-3",
         BioMaterial: "blue lighten-3"
       };
+    },
+    datasetUrl(){
+      return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + this.dataset.id
     },
     /**
      * IDs of selected categories.
