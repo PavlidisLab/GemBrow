@@ -56,7 +56,13 @@ export default {
       if (this.dataset.searchResult !== undefined && this.dataset.searchResult.highlights !== null && "description" in this.dataset.searchResult.highlights) {
         return marked.parseInline(highlight(this.dataset.description, this.dataset.searchResult.highlights.description));
       }
-      return marked.parseInline(this.dataset.description);
+      let ds = this.dataset.description
+      let words = ds.split(" ")
+      if(words.length>150){
+        words.splice(0,150)
+        ds = words.join(" ") + "..."
+      }
+      return marked.parseInline(ds);
     },
     chipColorMap() {
       return {
