@@ -59,7 +59,7 @@ export default {
       let ds = this.dataset.description
       let words = ds.split(" ")
       if(words.length>150){
-        words.splice(0,150)
+        words.slice(0,150)
         ds = words.join(" ") + "..."
       }
       return marked.parseInline(ds);
