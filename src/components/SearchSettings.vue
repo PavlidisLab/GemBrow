@@ -38,8 +38,9 @@
         <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="searchSettings.platforms"
+                ref="technologyTypeSelector"
                 :platforms="platforms"
-                :selected-technology-types.sync="searchSettings.technologyTypes"
+                :selectedTechnologyTypes.sync="searchSettings.technologyTypes"
                 :disabled="platformDisabled"
                 :loading="platformLoading"
                 class="mb-1"/>
@@ -134,10 +135,9 @@ export default {
   },
   methods: {
     clearAllSelections() {
+      this.$refs.technologyTypeSelector.clear()
       this.searchSettings.annotations = [];
-      this.searchSettings.platforms = [];
       this.searchSettings.taxon = []; 
-      this.searchSettings.technologyTypes = [];
       this.searchSettings.query = undefined;
     }
   },

@@ -101,6 +101,9 @@ export default {
           }
           return [v.id];
         });
+    },
+    clear() {
+      this.selectedValues = []
     }
   },
   watch: {
