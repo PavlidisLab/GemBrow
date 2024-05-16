@@ -60,7 +60,7 @@ export default {
       let words = ds.split(" ")
       if(words.length>150){
         words = words.slice(0,150)
-        ds = words.join(" ") + "..."
+        ds = words.join(" ") + "…"
       }
       return marked.parseInline(ds);
     },
