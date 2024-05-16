@@ -104,9 +104,6 @@ export default {
     }
   },
   watch: {
-    value(newVal) {
-      this.selectedValues = newVal.map(t => t.id);
-    },
     selectedValues(newVal, oldVal) {
       let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
       let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
