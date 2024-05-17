@@ -59,10 +59,18 @@ export default {
   events: ["input"],
   data() {
     return {
-      selectedValues: this.value.map(t => t.id)
     };
   },
   computed: {
+    selectedValues:
+    {
+      get(){
+        return this.value
+      },
+      set(val){
+        this.$emit('input',val)
+      }
+    },
     technologyTypes() {
       return TOP_TECHNOLOGY_TYPES
         .filter(([id]) => id !== "OTHER" || this.debug)
@@ -101,9 +109,6 @@ export default {
           }
           return [v.id];
         });
-    },
-    clear() {
-      this.selectedValues = []
     }
   },
   watch: {
@@ -115,7 +120,7 @@ export default {
       let oldSelectedTechnologyTypes = this.computeSelectedTechnologyTypes(oldIds);
       let oldSelectedPlatforms = this.computeSelectedPlatforms(oldIds, oldSelectedTechnologyTypes);
       if (!isEqual(selectedPlatforms.map(p => p.id), oldSelectedPlatforms.map(p => p.id))) {
-        this.$emit("input", selectedPlatforms);
+        this.$emit("update:selectedPlatforms", selectedPlatforms);
       }
       if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
         this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);
