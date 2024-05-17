@@ -145,7 +145,6 @@ export default {
   watch: {
     searchSettings: {
       handler: function(newValue) {
-        console.log(newValue)
         this.$emit("input", newValue);
       },
       deep: true
