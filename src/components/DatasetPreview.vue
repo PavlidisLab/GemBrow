@@ -1,6 +1,6 @@
 <template>
     <div class="py-3">
-        <h3>{{ dataset.name }}</h3>
+        <h3> <a v-bind:href="datasetUrl">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" :key="getId(term)"
                 @[getClickEventName(term)]="handleChipClick(term)"
                 small :color="getChipColor(term.objectClass)"
@@ -56,7 +56,13 @@ export default {
       if (this.dataset.searchResult !== undefined && this.dataset.searchResult.highlights !== null && "description" in this.dataset.searchResult.highlights) {
         return marked.parseInline(highlight(this.dataset.description, this.dataset.searchResult.highlights.description));
       }
-      return marked.parseInline(this.dataset.description);
+      let ds = this.dataset.description
+      let words = ds.split(" ")
+      if(words.length>150){
+        words = words.slice(0,150)
+        ds = words.join(" ") + "…"
+      }
+      return marked.parseInline(ds);
     },
     chipColorMap() {
       return {
@@ -64,6 +70,9 @@ export default {
         ExperimentTag: "green lighten-3",
         BioMaterial: "blue lighten-3"
       };
+    },
+    datasetUrl(){
+      return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + this.dataset.id
     },
     /**
      * IDs of selected categories.
