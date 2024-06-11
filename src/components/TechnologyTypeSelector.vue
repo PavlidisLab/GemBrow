@@ -35,15 +35,8 @@
 import { chain, isEqual } from "lodash";
 import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
+import { TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES} from "@/lib/platformConstants";
 
-const MICROARRAY_TECHNOLOGY_TYPES = ["ONECOLOR", "TWOCOLOR", "DUALMODE"];
-const RNA_SEQ_TECHNOLOGY_TYPES = ["SEQUENCING"];
-const OTHER_TECHNOLOGY_TYPES = ["GENELIST", "OTHER"];
-const TECHNOLOGY_TYPES = MICROARRAY_TECHNOLOGY_TYPES + RNA_SEQ_TECHNOLOGY_TYPES + OTHER_TECHNOLOGY_TYPES;
-const TOP_TECHNOLOGY_TYPES = [
-  ["RNA_SEQ", "RNA-Seq", RNA_SEQ_TECHNOLOGY_TYPES],
-  ["MICROARRAY", "Microarray", MICROARRAY_TECHNOLOGY_TYPES],
-  ["OTHER", "Other", OTHER_TECHNOLOGY_TYPES]];
 
 export default {
   name: "TechnologyTypeSelector",
@@ -59,10 +52,18 @@ export default {
   events: ["input"],
   data() {
     return {
-      selectedValues: this.value.map(t => t.id)
     };
   },
   computed: {
+    selectedValues:
+    {
+      get(){
+        return this.value
+      },
+      set(val){
+        this.$emit('input',val)
+      }
+    },
     technologyTypes() {
       return TOP_TECHNOLOGY_TYPES
         .filter(([id]) => id !== "OTHER" || this.debug)
@@ -104,9 +105,6 @@ export default {
     }
   },
   watch: {
-    value(newVal) {
-      this.selectedValues = newVal.map(t => t.id);
-    },
     selectedValues(newVal, oldVal) {
       let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
       let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
@@ -115,7 +113,7 @@ export default {
       let oldSelectedTechnologyTypes = this.computeSelectedTechnologyTypes(oldIds);
       let oldSelectedPlatforms = this.computeSelectedPlatforms(oldIds, oldSelectedTechnologyTypes);
       if (!isEqual(selectedPlatforms.map(p => p.id), oldSelectedPlatforms.map(p => p.id))) {
-        this.$emit("input", selectedPlatforms);
+        this.$emit("update:selectedPlatforms", selectedPlatforms);
       }
       if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
         this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);

@@ -1,6 +1,10 @@
 import { SearchSettings } from "@/lib/models";
 import { chain, sumBy } from "lodash";
 import { getCategoryId, pluralize } from "@/lib/utils";
+import { MICROARRAY_TECHNOLOGY_TYPES, RNA_SEQ_TECHNOLOGY_TYPES, OTHER_TECHNOLOGY_TYPES} from "@/lib/platformConstants";
+
+
+
 
 const MAX_URIS_IN_CLAUSE = 200;
 
@@ -159,10 +163,10 @@ export function generateFilterDescription(searchSettings, inferredTermsByCategor
   }
   if (searchSettings.platforms.length > 0 || searchSettings.technologyTypes.length > 0) {
     const platformValues = searchSettings.platforms.map(platforms => platforms.name);
-    if (searchSettings.technologyTypes && searchSettings.technologyTypes.includes("RNASEQ")) {
+    if (searchSettings.technologyTypes && RNA_SEQ_TECHNOLOGY_TYPES.every(tech=>searchSettings.technologyTypes.includes(tech))) {
       platformValues.unshift("RNA-Seq");
     }
-    if (searchSettings.technologyTypes && searchSettings.technologyTypes.length >= 3 && searchSettings.platforms.length === 0) {
+    if (searchSettings.technologyTypes && MICROARRAY_TECHNOLOGY_TYPES.every(tech=>searchSettings.technologyTypes.includes(tech))) {
       platformValues.unshift("Microarray");
     }
     filter.push({ key: "Platforms", value: platformValues });
