@@ -157,7 +157,7 @@ export default {
       showAboutDialog: false,
       showDocumentationWindow: false,
       query: null,
-      devMode: process.env.NODE_ENV !== "production"
+      devMode: this.$store.state.debug
     };
   },
   methods: {
