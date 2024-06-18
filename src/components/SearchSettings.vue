@@ -37,9 +37,10 @@
                 class="mb-1"/>
         <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
-                v-model="searchSettings.platforms"
+                v-model="selectedTech"
                 :platforms="platforms"
-                :selected-technology-types.sync="searchSettings.technologyTypes"
+                :selectedPlatforms.sync="searchSettings.platforms"
+                :selectedTechnologyTypes.sync="searchSettings.technologyTypes"
                 :disabled="platformDisabled"
                 :loading="platformLoading"
                 class="mb-1"/>
@@ -108,6 +109,7 @@ export default {
   emits: ["input"],
   data() {
     return {
+      selectedTech: [],
       searchSettings: this.value,
       platformResultType: ArrayDesignType,
       selectedTaxa: this.value ? [this.value] : []
@@ -134,10 +136,9 @@ export default {
   },
   methods: {
     clearAllSelections() {
+      this.selectedTech = []
       this.searchSettings.annotations = [];
-      this.searchSettings.platforms = [];
       this.searchSettings.taxon = []; 
-      this.searchSettings.technologyTypes = [];
       this.searchSettings.query = undefined;
     },
     isMobile() {
