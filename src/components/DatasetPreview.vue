@@ -1,6 +1,6 @@
 <template>
     <div class="py-3">
-        <h3> <a v-bind:href="datasetUrl">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
+        <h3> <a v-bind:href="datasetUrl" target="_blank">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" :key="getId(term)"
                 @[getClickEventName(term)]="handleChipClick(term)"
                 small :color="getChipColor(term.objectClass)"
