@@ -49,7 +49,7 @@
                     <span v-else :key="h.value">{{ h.text }}</span>
                 </template>
                 <template v-slot:item.shortName="{item}">
-                    <a :href="getUrl(item)">
+                    <a :href="getUrl(item)" target="_blank">
                         {{ item.shortName }}
                     </a>
                 </template>

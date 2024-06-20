@@ -96,7 +96,7 @@ export default {
         {
           label: "gemma.R",
           language: "r",
-          instructions: `Install the [gemma.R](https://github.com/PavlidisLab/gemma.R) package from GitHub and run the following code in an R console:`
+          instructions: `Install the [gemma.R](https://bioconductor.org/packages/release/bioc/html/gemma.R.html) package from GitHub and run the following code in an R console:`
         },
         {
           label: "curl",
@@ -142,19 +142,11 @@ export default {
         if (sort !== undefined) {
           queryGemmapy.push(`, sort=${this.escapePythonString(sort)}`);
         }
-        queryGemmapy.push(", offset=offset, limit=limit)");
 
         queryGemmapy.unshift(`import gemmapy\n` +
-          `api_instance = gemmapy.GemmaPy()\n` +
-          `all_datasets = []\n` +
-          `limit = ${MAX_DATASETS}\n` +
-          `for offset in range(0, ${this.totalNumberOfExpressionExperiments}, limit):\n` +
-          `\tapi_response = api_instance.get_datasets_by_ids([], `);
-        queryGemmapy.push(`)\n` +
-          `\tif api_response.data:\n` +
-          `\t\tall_datasets.extend(api_response.data)\n` +
-          `\telse:\n` +
-          `\t\tbreak`);
+          `api = gemmapy.GemmaPy()\n` +
+          `data = api.get_all_pages(api.get_datasets,`);
+        queryGemmapy.push(`)\n`)
       }
       tabs[0].content = queryGemmapy.join("");
 
@@ -173,7 +165,7 @@ export default {
         if (sort !== undefined) {
           queryGemmaR.push(`, sort = ${this.escapeRString(sort)}`);
         }
-        queryGemmaR.unshift(`devtools::install_github("PavlidisLab/gemma.R")\n` +
+        queryGemmaR.unshift(`BiocManager::install("gemma.R")\n` +
           `library(gemma.R)\n` +
           `library(dplyr)\n` +
           `data <- get_datasets(`);

@@ -1,6 +1,6 @@
 <template>
     <div class="py-3">
-        <h3> <a v-bind:href="datasetUrl">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
+        <h3> <a v-bind:href="datasetUrl" target="_blank">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" :key="getId(term)"
                 @[getClickEventName(term)]="handleChipClick(term)"
                 small :color="getChipColor(term.objectClass)"
@@ -123,8 +123,10 @@ export default {
     getTitle(term) {
       let n = this.getNumberOfExpressionExperiments(term);
       if (term.termUri !== null) { // if the term is not free text
-        if (n > 0) {
+        if (n > 0 && this.isSelectable(term)) {
           return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}; click to add terms to filter (associated with ${n} datasets)`;
+        } else if (n > 0 && this.isUnselectable(term)){
+          return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}; click to remove terms from filter (associated with ${n} datasets)`;
         } else {
           return `${term.className.charAt(0).toUpperCase() + term.className.slice(1)}: ${term.termUri} via ${term.objectClass}`;
         }
