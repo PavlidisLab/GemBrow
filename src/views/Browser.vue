@@ -179,6 +179,7 @@ import { generateFilter, generateFilterDescription, generateFilterSummary } from
 import Error from "@/components/Error.vue";
 import { mapMutations, mapState } from "vuex";
 import CodeSnippet from "@/components/CodeSnippet.vue";
+import axios from "axios";
 
 const MAX_CATEGORIES = 20;
 const MAX_TERMS_PER_CATEGORY = 200;
@@ -217,7 +218,8 @@ export default {
       },
       downloadProgress: null,
       expansionToggle: [],
-      tableWidth: ""
+      tableWidth: "",
+      inferredTermLabelsByCategory:{}
     };
   },
   computed: {
@@ -378,32 +380,19 @@ export default {
         return state.api.myself.code === 401 ? null : state.api.myself.data;
       }
     }),
+    annotations(){
+      return this.searchSettings.annotations
+    },
     filterSummary() {
       return generateFilterSummary(this.searchSettings);
     },
     filterDescription() {
-      return generateFilterDescription(this.searchSettings, this.inferredTermsByCategory);
+      return generateFilterDescription(this.searchSettings,this.inferredTermLabelsByCategory);
     },
     datasetsAllExpanded() {
       return this.datasets.every(dataset => {
         return !this.expansionToggle.some(item => item.accession === dataset.accession);
       });
-    },
-    /**
-     * Inferred terms by category.
-     */
-    inferredTermsByCategory() {
-      if (this.appliedFilter) {
-        return [
-          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri in \\((.+?)\\)"),
-          ...this.appliedFilter.matchAll("allCharacteristics\\.categoryUri = (.+?) and allCharacteristics\\.valueUri = (\\S+)")]
-          .reduce((acc, [_, category, terms]) => {
-            acc[category] = terms.split(", ");
-            return acc;
-          }, {});
-      } else {
-        return {};
-      }
     }
   },
   methods: {
@@ -743,6 +732,32 @@ export default {
             this.setLastError(err);
           });
       }
+    },
+    annotations: function(newVal){
+      // clear inferred terms of the previous call
+      this.inferredTermLabelsByCategory = {}
+
+      // updates inferredTemsLabelsByCategory
+      let url = baseUrl + "/rest/v2/annotations/children/"
+
+      newVal.forEach(value => {
+        let hede = axios.get(url,{
+          params: {uri:value.termUri, direct:false}
+        }).then(res => {
+          let inferredTerms = Object.fromEntries(res.data.map(value=>{
+            return [value.valueUri,value.value]
+          }))
+          this.$set(this.inferredTermLabelsByCategory,value.classUri, Object.assign({},this.inferredTermLabelsByCategory[value.classUri], inferredTerms))
+          //this.inferredTermLabelsByCategory[value.classUri] = Object.assign({},this.inferredTermLabelsByCategory[value.classUri], inferredTerms)
+        })
+        .catch(swallowCancellation)
+        .catch(err => {
+          if(err.message != 'Request failed with status code 404'){
+            console.error(`Error when requesting child terms: ${err.message}.`, err);
+            this.setLastError(err)
+          }
+        })
+      })
     }
   }
 };
