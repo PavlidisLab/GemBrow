@@ -149,10 +149,10 @@ function formatTerm(uri) {
 /**
  * Generate a human-readable description for a search settings.
  * @param {SearchSettings} searchSettings
- * @param {Map<String,Array<String>>} inferredTermsByCategory
+ * @param {Map<String,Map<String,String>>} inferredTermLabelsByCategory
  * @returns {String}
  */
-export function generateFilterDescription(searchSettings, inferredTermsByCategory) {
+export function generateFilterDescription(searchSettings,inferredTermLabelsByCategory) {
   const filter = [];
   if (searchSettings.query) {
     filter.push({ key: "Query", value: `"${searchSettings.query}"` });
@@ -198,14 +198,15 @@ export function generateFilterDescription(searchSettings, inferredTermsByCategor
         acc[className].push(capitalizeFirstLetter(termName));
       }
       // drop the term from inferred annotations
-      let i;
-      if (inferredTermsByCategory[classUri] && (i = inferredTermsByCategory[classUri].indexOf(termUri)) !== -1) {
-        inferredTermsByCategory[classUri].splice(i, 1);
+      // annotations/children endpoint does not return itself so this part isn't really needed
+      // here in case that behaviour changes
+      if(inferredTermLabelsByCategory[classUri] && termUri in inferredTermLabelsByCategory[classUri]){
+        delete inferredTermLabelsByCategory[classUri][termUri]
       }
       return acc;
     }, {});
-    for (let classUri in inferredTermsByCategory) {
-      const inferredTerms = inferredTermsByCategory[classUri];
+    for (let classUri in inferredTermLabelsByCategory) {
+      const inferredTerms = Object.values(inferredTermLabelsByCategory[classUri]);
       if (inferredTerms) {
         let className = searchSettings.annotations.filter(a => a.classUri === classUri)[0]?.className;
         if (className) {
@@ -222,7 +223,7 @@ export function generateFilterDescription(searchSettings, inferredTermsByCategor
         const annotations = annotationGroups[className];
         const maxTermsToDisplay = 6 - annotations.length;
         if (maxTermsToDisplay > 0) {
-          annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(formatTerm));
+          annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(capitalizeFirstLetter));
         }
         if (inferredTerms.length > maxTermsToDisplay) {
           annotations.push((inferredTerms.length - maxTermsToDisplay) + " more terms...");
