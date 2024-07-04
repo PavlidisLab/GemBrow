@@ -685,6 +685,10 @@ export default {
       });
   },
   mounted() {
+    if (Object.keys(this.$route.query).length>0){
+      this.$router.replace({ 'query': null })
+    }
+
     let observer = new ResizeObserver((entries) => {
       let newWidth = entries[0].contentRect.width;
       //this.$refs.dataTableRef.footer.$el.width = newWidth;
