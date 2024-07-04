@@ -61,7 +61,7 @@
         <div :class="debug ? '' : 'd-lg-none'">
             <div style="margin-bottom: 59px;"></div>
             <div class="d-flex align-center"
-                 style="position: fixed; left: 0; bottom: 0; background: white; height: 59px; width: 100%; border-top: thin solid rgba(0, 0, 0, 0.12); padding: 0 8px;"
+            :style = "{position: 'fixed',left:'0px',bottom: 56*isMobile() + 'px' ,background: 'white',height: '59px',width: '100%',  borderTop: 'thin solid rgba(0, 0, 0, 0.12)',padding:'0 8px'}"
             >
                 <v-switch v-if="debug"
                           v-model="searchSettings.ignoreExcludedTerms"
@@ -140,7 +140,15 @@ export default {
       this.searchSettings.annotations = [];
       this.searchSettings.taxon = []; 
       this.searchSettings.query = undefined;
-    }
+    },
+    isMobile() {
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        return true
+      } else {
+        return false
+   }
+ }
+    
   },
   watch: {
     searchSettings: {
