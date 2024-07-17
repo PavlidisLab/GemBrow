@@ -740,7 +740,8 @@ export default {
       // updates inferredTemsLabelsByCategory
       let url = baseUrl + "/rest/v2/annotations/children/"
 
-      newVal.forEach(value => {
+      newVal.filter(val => val.termUri != null)
+        .forEach(value => {
         let hede = axios.get(url,{
           params: {uri:value.termUri, direct:false}
         }).then(res => {
