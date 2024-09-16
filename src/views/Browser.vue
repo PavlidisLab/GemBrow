@@ -420,20 +420,25 @@ export default {
     }, 1000),
     browse(browsingOptions, updateEverything) {
       // update available annotations and number of datasets
-      let updateDatasetsPromise = this.updateDatasets(browsingOptions.query, browsingOptions.filter, browsingOptions.offset, browsingOptions.limit, browsingOptions.sort);
+      
+      // encode queries before calling API
+      let query =  browsingOptions.query ? encodeURIComponent(browsingOptions.query) : browsingOptions.query
+      
+      let updateDatasetsPromise = this.updateDatasets(query, browsingOptions.filter, browsingOptions.offset, browsingOptions.limit, browsingOptions.sort);
+
       if (updateEverything) {
         // since the query or filters have changed, reset the browsing offset to the beginning
         browsingOptions.offset = 0;
         this.options.page = 1;
         let updateDatasetsAnnotationsPromise;
         if (browsingOptions.ignoreExcludedTerms) {
-          updateDatasetsAnnotationsPromise = this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter);
+          updateDatasetsAnnotationsPromise = this.updateAvailableCategories(query, browsingOptions.filter);
         } else {
           updateDatasetsAnnotationsPromise = Promise.all([compressArg(excludedCategories.join(",")), compressArg(excludedTerms.join(","))])
-            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(browsingOptions.query, browsingOptions.filter, excludedCategories, true, excludedTerms, true));
+            .then(([excludedCategories, excludedTerms]) => this.updateAvailableCategories(query, browsingOptions.filter, excludedCategories, true, excludedTerms, true));
         }
-        let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(browsingOptions.query, browsingOptions.filter);
-        let updateDatasetsTaxaPromise = this.updateAvailableTaxa(browsingOptions.query, browsingOptions.filter);
+        let updateDatasetsPlatformsPromise = this.updateAvailablePlatforms(query, browsingOptions.filter);
+        let updateDatasetsTaxaPromise = this.updateAvailableTaxa(query, browsingOptions.filter);
         return Promise.all([updateDatasetsPromise, updateDatasetsAnnotationsPromise, updateDatasetsPlatformsPromise, updateDatasetsTaxaPromise]);
       } else {
         return updateDatasetsPromise;
