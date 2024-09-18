@@ -83,7 +83,7 @@
                     <span v-else></span>
                 </template>
                 <template v-slot:item.lastUpdated="{item}">
-                    {{ new Date(item.lastUpdated).toLocaleDateString() }}
+                    {{ item.lastUpdated ? new Date(item.lastUpdated).toLocaleDateString() : "" }}
                 </template>
                 <template v-slot:item.taxon="{item}">
                     <span v-text="item.taxon.commonName" class="text-capitalize"/>
