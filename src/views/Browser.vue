@@ -104,6 +104,18 @@
                                         @annotation-unselected="unselectTerm"/>
                     </td>
                 </template>
+                <template v-slot:item.curationNote="{ item }">
+                  <v-tooltip v-if="item.curationNote" left>
+                    <template v-slot:activator="{ on }">
+                      <v-icon v-if="item" color="orange" v-on="on">
+                        mdi-alert-octagon-outline
+                      </v-icon>
+                    </template>
+                    <div>
+                      {{ item.curationNote }}
+                    </div>
+                  </v-tooltip>
+                </template>
                 <template v-slot:footer.prepend>
                     <v-btn v-show="!drawer" icon @click="drawer = true">
                         <v-icon>mdi-chevron-right</v-icon>
@@ -261,6 +273,14 @@ export default {
           value: "lastUpdated"
         }
       );
+      if (this.myself && this.myself.group === 'Administrators'){
+        h.push({
+          text: "Curation",
+          value: "curationNote",
+          align: "center",
+          sortable: false
+        });
+      }
       if (this.debug && this.appliedQuery) {
         h.push({
           text: "Score (dev only)",
