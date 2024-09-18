@@ -80,7 +80,7 @@
                             Quality: {{ formatDecimal(item.geeq.publicQualityScore) }}
                         </div>
                     </v-tooltip>
-                    <span v-else>N/A</span>
+                    <span v-else></span>
                 </template>
                 <template v-slot:item.lastUpdated="{item}">
                     {{ new Date(item.lastUpdated).toLocaleDateString() }}
