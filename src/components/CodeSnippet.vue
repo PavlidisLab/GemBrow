@@ -147,31 +147,40 @@ export default {
           `api = gemmapy.GemmaPy()\n` +
           `data = api.get_all_pages(api.get_datasets,`);
         queryGemmapy.push(`)\n`)
+      } else {
+        queryGemmapy.push(`import gemmapy\n` + 
+        `api = gemmapy.GemmaPy()\n` + 
+        `data = api.get_all_pages(api.get_datasets)`
+        )
       }
       tabs[0].content = queryGemmapy.join("");
 
       // Gemma.R snippet
       let queryGemmaR = [];
-      if (query !== undefined) {
+      queryGemmaR.push(`BiocManager::install("gemma.R")\n` + 
+      `library(gemma.R)\n`+ 
+      `library(dplyr)\n` + 
+      `data <- get_datasets(`);
+
+      if (query !== undefined){
         queryGemmaR.push(`query = ${this.escapeRString(query)}`);
       }
       if (filter !== undefined && filter.length > 0) {
-        if (queryGemmaR.length > 0) {
+        if (queryGemmaR.length > 1){
           queryGemmaR.push(`, `);
         }
         queryGemmaR.push(`filter = ${this.escapeRString(filter)}`);
       }
-      if (queryGemmaR.length > 0) {
-        if (sort !== undefined) {
-          queryGemmaR.push(`, sort = ${this.escapeRString(sort)}`);
+      if (sort !== undefined){
+        if (queryGemmaR.length > 1){
+          queryGemmaR.push(`, `);
         }
-        queryGemmaR.unshift(`BiocManager::install("gemma.R")\n` +
-          `library(gemma.R)\n` +
-          `library(dplyr)\n` +
-          `data <- get_datasets(`);
-        queryGemmaR.push(`) %>% \n` +
-          `\tgemma.R:::get_all_pages()`);
+        queryGemmaR.push(`sort = ${this.escapeRString(sort)}`)
       }
+
+      queryGemmaR.push(`) %>% \n` +
+          `\tgemma.R:::get_all_pages()`);
+
       tabs[1].content = queryGemmaR.join("");
 
       // curl snippet
@@ -180,6 +189,7 @@ export default {
       // HTTP/1.1 snippet
       const parsedBaseUrl = new URL(this.compressedUrl);
       tabs[3].content = `GET ${parsedBaseUrl.pathname}${parsedBaseUrl.search} HTTP/1.1\nHost: ${parsedBaseUrl.hostname}\nAccept: application/json`;
+
 
       return tabs;
     }

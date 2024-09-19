@@ -131,8 +131,7 @@
                         Collapse all datasets
                     </v-btn>
                     <v-spacer/>
-                    <v-menu v-if="browsingOptions.filter.length > 0 || searchSettings.query !== undefined && searchSettings.query !== ''"
-                            ref="codeSnippetMenu">
+                    <v-menu ref="codeSnippetMenu">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn plain v-on="on" v-bind="attrs">
                                 <span style="text-transform: none;">Dataset download code</span>
