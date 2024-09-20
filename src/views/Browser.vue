@@ -40,7 +40,7 @@
                     dense class="browser-data-table"
             >
                 <template v-for="h in headers" v-slot:[`header.${h.value}`]>
-                    <v-tooltip :key="h.value" bottom v-if="h.value === 'geeq.publicQualityScore'" max-width="300px">
+                    <v-tooltip :key="h.value" bottom v-if="h.tip" max-width="300px">
                         <template v-slot:activator="{ on }">
                             <span v-on="on">{{ h.text }}</span>
                         </template>
