@@ -277,7 +277,8 @@ export default {
           text: "Curation",
           value: "curationNote",
           align: "center",
-          sortable: false
+          tip: "Sorting sorts by needsAttention field",
+          sortable: true
         });
       }
       if (this.debug && this.appliedQuery) {
@@ -294,12 +295,16 @@ export default {
       return generateFilter(this.searchSettings);
     },
     browsingOptions() {
+      let sort = this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0]
+      if (this.options.sortBy[0] == "curationNote") {
+        sort = "curationDetails.needsAttention" && (this.options.sortDesc[0] ? "-" : "+") + "curationDetails.needsAttention"
+      }
       // query can be null if reset
       if (this.searchSettings.query && this.searchSettings.query.length > 0) {
         return {
           query: this.searchSettings.query,
           filter: this.filter,
-          sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
+          sort: sort,
           offset: (this.options.page - 1) * this.options.itemsPerPage,
           limit: this.options.itemsPerPage,
           ignoreExcludedTerms: !!this.searchSettings.ignoreExcludedTerms
@@ -307,7 +312,7 @@ export default {
       } else {
         return {
           filter: this.filter,
-          sort: this.options.sortBy[0] && (this.options.sortDesc[0] ? "-" : "+") + this.options.sortBy[0],
+          sort: sort,
           offset: (this.options.page - 1) * this.options.itemsPerPage,
           limit: this.options.itemsPerPage,
           ignoreExcludedTerms: !!this.searchSettings.ignoreExcludedTerms
