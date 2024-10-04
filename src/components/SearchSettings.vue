@@ -22,6 +22,7 @@
         </div>
         <v-text-field
                 v-model="searchSettings.query"
+                :disabled="queryDisabled"
                 label="Search"
                 prepend-inner-icon="mdi-magnify"
                 outlined
@@ -98,6 +99,7 @@ export default {
     taxon: Array,
     annotations: Array,
     technologyTypes: Array,
+    queryDisabled: Boolean,
     platformDisabled: Boolean,
     taxonDisabled: Boolean,
     annotationDisabled: Boolean,

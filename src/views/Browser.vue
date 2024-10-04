@@ -4,6 +4,7 @@
             <SearchSettings v-model="searchSettings"
                             class="py-3 px-3"
                             :taxon-disabled="loadingTaxa"
+                            :query-disabled="loadingDatasets"
                             :annotation-disabled="loadingAnnotation"
                             :annotation-loading="loadingAnnotation"
                             :taxa-disabled="loadingTaxa"
