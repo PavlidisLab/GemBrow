@@ -3,6 +3,7 @@
         <v-navigation-drawer v-model="drawer" app width="400">
             <SearchSettings v-model="searchSettings"
                             class="py-3 px-3"
+                            @flush="flush"
                             :taxon-disabled="loadingTaxa"
                             :query-disabled="loadingDatasets"
                             :annotation-disabled="loadingAnnotation"
@@ -231,7 +232,29 @@ export default {
       downloadProgress: null,
       expansionToggle: [],
       tableWidth: "",
-      inferredTermLabelsByCategory:{}
+      inferredTermLabelsByCategory:{},
+      /**
+     * Basically a browse with a debounce when the user is actively typing a query.
+     * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
+     */
+    search: debounce(function(browsingOptions) {
+      // had to move search into data to be able to flush debounce
+      // https://stackoverflow.com/questions/52987115/using-vue-js-how-to-you-flush-a-method-that-is-debounced-with-lodash
+      return this.browse(browsingOptions, true).then(() => {
+        let location = browsingOptions.query ? "/q/" + encodeURIComponent(browsingOptions.query) : "/";
+        // because this is debounced, it's possible that two consecutive searches are performed with the same query
+        // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
+        // in less than 1s
+        if (location !== this.$router.currentRoute.fullPath) {
+          return this.$router.push(location);
+        }
+      }).catch(swallowCancellation)
+        .catch(err => {
+          // because the function is debounced, the caller might never get resulting promise and ability to handle the error
+          console.error("Error while searching: " + err.message + ".", err);
+          this.setLastError(err);
+        });
+    }, 1000)
     };
   },
   computed: {
@@ -421,28 +444,11 @@ export default {
     }
   },
   methods: {
+    flush: function(){
+      this.search.flush()
+    },
     formatDecimal,
     formatPercent,
-    /**
-     * Basically a browse with a debounce when the user is actively typing a query.
-     * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
-     */
-    search: debounce(function(browsingOptions) {
-      return this.browse(browsingOptions, true).then(() => {
-        let location = browsingOptions.query ? "/q/" + encodeURIComponent(browsingOptions.query) : "/";
-        // because this is debounced, it's possible that two consecutive searches are performed with the same query
-        // i.e. user types "brain" and obtain results, then deletes one char "brai" and add one char back to "brain"
-        // in less than 1s
-        if (location !== this.$router.currentRoute.fullPath) {
-          return this.$router.push(location);
-        }
-      }).catch(swallowCancellation)
-        .catch(err => {
-          // because the function is debounced, the caller might never get resulting promise and ability to handle the error
-          console.error("Error while searching: " + err.message + ".", err);
-          this.setLastError(err);
-        });
-    }, 1000),
     browse(browsingOptions, updateEverything) {
       // update available annotations and number of datasets
       let updateDatasetsPromise = this.updateDatasets(browsingOptions.query, browsingOptions.filter, browsingOptions.offset, browsingOptions.limit, browsingOptions.sort);

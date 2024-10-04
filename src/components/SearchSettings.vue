@@ -23,6 +23,7 @@
         <v-text-field
                 v-model="searchSettings.query"
                 :disabled="queryDisabled"
+                v-on:keyup.enter="flush"
                 label="Search"
                 prepend-inner-icon="mdi-magnify"
                 outlined
@@ -137,6 +138,9 @@ export default {
     })
   },
   methods: {
+    flush(){
+      this.$emit('flush')
+    },
     clearAllSelections() {
       this.selectedTech = []
       this.searchSettings.annotations = [];
