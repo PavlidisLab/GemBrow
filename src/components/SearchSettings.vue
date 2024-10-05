@@ -24,8 +24,10 @@
                 v-model="searchSettings.query"
                 :disabled="queryDisabled"
                 v-on:keyup.enter="flush"
+                @click:append="flush"
                 label="Search"
                 prepend-inner-icon="mdi-magnify"
+                append-icon="mdi-subdirectory-arrow-left"
                 outlined
                 clearable
                 hide-details
