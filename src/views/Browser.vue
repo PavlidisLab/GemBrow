@@ -304,7 +304,8 @@ export default {
       if ( this.datasets.some(dataset=>{return this.isSingleCell(dataset)}) ){
         h.push({
           text: "Single Cell",
-          value: "isSingleCell"
+          value: "isSingleCell",
+          sortable: false
         })
       }
       if (this.myself && this.myself.group === 'Administrators'){
