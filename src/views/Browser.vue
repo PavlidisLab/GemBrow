@@ -106,6 +106,11 @@
                                         @annotation-unselected="unselectTerm"/>
                     </td>
                 </template>
+                <template v-slot:item.isSingleCell="{ item }">
+                  <v-icon v-if="isSingleCell(item)" color = "green">
+                    mdi-check-bold
+                  </v-icon>
+                </template>
                 <template v-slot:item.curationNote="{ item }">
                   <v-tooltip v-if="item.curationNote" left>
                     <template v-slot:activator="{ on }">
@@ -296,6 +301,12 @@ export default {
           value: "lastUpdated"
         }
       );
+      if ( this.datasets.some(dataset=>{return this.isSingleCell(dataset)}) ){
+        h.push({
+          text: "Single Cell",
+          value: "isSingleCell"
+        })
+      }
       if (this.myself && this.myself.group === 'Administrators'){
         h.push({
           text: "Curation",
@@ -644,6 +655,7 @@ export default {
         .join("<br/>");
     },
     getName(item) {
+      debugger
       if (this.hasHighlight(item) && "name" in item.searchResult.highlights) {
         return marked.parseInline(highlight(item.name, item.searchResult.highlights.name));
       } else {
@@ -652,6 +664,9 @@ export default {
     },
     getUrl(item) {
       return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
+    },
+    isSingleCell(item){
+      return item.characteristics.some((characteristic)=>characteristic.valueUri === "http://www.ebi.ac.uk/efo/EFO_0008913")
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
     selectTerm(previewTerm) {
