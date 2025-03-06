@@ -399,8 +399,8 @@ export default {
           pagination: {
             page: Math.ceil(state.api.datasets.offset / state.api.datasets.limit),
             itemsPerPage: state.api.datasets.limit,
-            pageStart: state.api.datasets.offset,
-            pageStop: state.api.datasets.offset + state.api.datasets.limit,
+            pageStart: formatNumber(state.api.datasets.offset),
+            pageStop: formatNumber(state.api.datasets.offset + state.api.datasets.limit),
             pageCount: Math.ceil(state.api.datasets.totalElements / state.api.datasets.limit),
             itemsLength: formatNumber(state.api.datasets.totalElements)
           },
