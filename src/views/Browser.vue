@@ -111,6 +111,11 @@
                     mdi-check-bold
                   </v-icon>
                 </template>
+              <template v-slot:item.hasDiffExp = "{ item }">
+                <v-icon v-if="hasDifferentialExpression[item.id]" color = "green">
+                  mdi-check-bold
+                </v-icon>
+              </template>
                 <template v-slot:item.curationNote="{ item }">
                   <v-tooltip v-if="item.curationNote" left>
                     <template v-slot:activator="{ on }">
@@ -238,6 +243,7 @@ export default {
       expansionToggle: [],
       tableWidth: "",
       inferredTermLabelsByCategory:{},
+      hasDifferentialExpression:{},
       /**
      * Basically a browse with a debounce when the user is actively typing a query.
      * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
@@ -295,6 +301,11 @@ export default {
           value: "geeq.publicQualityScore",
           align: "center",
           tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
+        },
+        {
+          text: "Diff. Exp.",
+          value: "hasDiffExp",
+          sortable: false
         },
         {
           text: "Last Updated",
@@ -656,7 +667,6 @@ export default {
         .join("<br/>");
     },
     getName(item) {
-      debugger
       if (this.hasHighlight(item) && "name" in item.searchResult.highlights) {
         return marked.parseInline(highlight(item.name, item.searchResult.highlights.name));
       } else {
@@ -781,6 +791,24 @@ export default {
           });
       }
     },
+    datasets: function(newVal) {
+      let url_prefix = baseUrl + '/rest/v2/datasets/'
+      let url_suffix = "/analyses/differential"
+      newVal.filter(dataset => {
+        return !Object.keys(this.hasDifferentialExpression).includes(dataset.id)
+      }).forEach(dataset => {
+        axios.get(url_prefix + dataset.id + url_suffix).then(res => {
+          this.$set(this.hasDifferentialExpression, dataset.id, res.data.data.length > 0)
+        })
+        .catch(swallowCancellation)
+        .catch(err => {
+          if (err.message != 'Request failed with status code 404') {
+            console.error(`Error when requesting differential expressions: ${err.message}.`, err);
+            this.setLastError(err)
+          }
+        })
+      })
+    },
     annotations: function(newVal){
       // clear inferred terms of the previous call
       this.inferredTermLabelsByCategory = {}
@@ -790,7 +818,7 @@ export default {
 
       newVal.filter(val => val.termUri != null)
         .forEach(value => {
-        let hede = axios.get(url,{
+          axios.get(url,{
           params: {uri:value.termUri, direct:false}
         }).then(res => {
           let inferredTerms = Object.fromEntries(res.data.map(value=>{
