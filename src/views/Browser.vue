@@ -301,24 +301,32 @@ export default {
           value: "geeq.publicQualityScore",
           align: "center",
           tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
-        },
-        {
-          text: "Diff. Exp.",
-          value: "hasDiffExp",
-          sortable: false
-        },
-        {
-          text: "Last Updated",
-          value: "lastUpdated"
         }
       );
-      if ( this.datasets.some(dataset=>{return this.isSingleCell(dataset)}) ){
+      if (this.myself && this.myself.group === 'Administrators'){
+        h.push(
+            {
+              text: "Diff. Exp.",
+              value: "hasDiffExp",
+              sortable: false
+            }
+        )
+      }
+
+      if ( this.myself && this.myself.group === 'Administrators' && this.datasets.some(dataset=>{return this.isSingleCell(dataset)}) ){
         h.push({
           text: "Single Cell",
           value: "isSingleCell",
           sortable: false
         })
       }
+      
+      h.push(
+        {
+          text: "Last Updated",
+          value: "lastUpdated"
+        }
+      );
       if (this.myself && this.myself.group === 'Administrators'){
         h.push({
           text: "Curation",
@@ -792,22 +800,24 @@ export default {
       }
     },
     datasets: function(newVal) {
-      let url_prefix = baseUrl + '/rest/v2/datasets/'
-      let url_suffix = "/analyses/differential"
-      newVal.filter(dataset => {
-        return !Object.keys(this.hasDifferentialExpression).includes(dataset.id)
-      }).forEach(dataset => {
-        axios.get(url_prefix + dataset.id + url_suffix).then(res => {
-          this.$set(this.hasDifferentialExpression, dataset.id, res.data.data.length > 0)
+      if( this.myself && this.myself.group === 'Administrators'){
+        let url_prefix = baseUrl + '/rest/v2/datasets/'
+        let url_suffix = "/analyses/differential"
+        newVal.filter(dataset => {
+          return !Object.keys(this.hasDifferentialExpression).includes(dataset.id)
+        }).forEach(dataset => {
+          axios.get(url_prefix + dataset.id + url_suffix).then(res => {
+            this.$set(this.hasDifferentialExpression, dataset.id, res.data.data.length > 0)
+          })
+              .catch(swallowCancellation)
+              .catch(err => {
+                if (err.message != 'Request failed with status code 404') {
+                  console.error(`Error when requesting differential expressions: ${err.message}.`, err);
+                  this.setLastError(err)
+                }
+              })
         })
-        .catch(swallowCancellation)
-        .catch(err => {
-          if (err.message != 'Request failed with status code 404') {
-            console.error(`Error when requesting differential expressions: ${err.message}.`, err);
-            this.setLastError(err)
-          }
-        })
-      })
+      }
     },
     annotations: function(newVal){
       // clear inferred terms of the previous call
