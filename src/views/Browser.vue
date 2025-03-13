@@ -309,7 +309,8 @@ export default {
             {
               text: "Diff. Exp.",
               value: "hasDiffExp",
-              sortable: false
+              sortable: false,
+              align: "center"
             }
         )
       }
@@ -318,6 +319,7 @@ export default {
         h.push({
           text: "Single Cell",
           value: "isSingleCell",
+          align: "center",
           sortable: false
         })
       }
