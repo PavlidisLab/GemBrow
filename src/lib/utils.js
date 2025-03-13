@@ -1,5 +1,4 @@
 import axios from "axios";
-
 /**
  * Download a given data blob, file or media source.
  *
@@ -35,12 +34,6 @@ export function formatDecimal(d) {
   return decimalFormatter.format(d);
 }
 
-export function pluralize(s) {
-  if (s.endsWith("y")) {
-    return s.slice(0, -1) + "ies";
-  }
-  return s.endsWith("x") || s.endsWith("s") ? s + "es" : s + "s";
-}
 
 /**
  * Compress a given filter with gzip and encode it with base64. If the compressed filter is bigger, then the

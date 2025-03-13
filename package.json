@@ -23,7 +23,8 @@
     "vue-router": "^3.6.5",
     "vuetify": "^2.7.2",
     "vuex": "^3.6.2",
-    "vuex-rest-api": "^2.16.0"
+    "vuex-rest-api": "^2.16.0",
+    "pluralize": "8.0.0"
   },
   "devDependencies": {
     "@vue/cli": "^5.0.8",

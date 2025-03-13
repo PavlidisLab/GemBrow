@@ -57,9 +57,10 @@
 
 <script>
 import { chain, isEqual } from "lodash";
-import { formatNumber, getCategoryId, getTermId, pluralize } from "@/lib/utils";
+import { formatNumber, getCategoryId, getTermId } from "@/lib/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
+import pluralize from "pluralize";
 
 /**
  * Separator used to constructing keys of nested elements in the tree view.

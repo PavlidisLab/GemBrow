@@ -1,8 +1,8 @@
 import { SearchSettings } from "@/lib/models";
 import { chain, sumBy } from "lodash";
-import { getCategoryId, pluralize } from "@/lib/utils";
+import { getCategoryId } from "@/lib/utils";
 import { MICROARRAY_TECHNOLOGY_TYPES, RNA_SEQ_TECHNOLOGY_TYPES, OTHER_TECHNOLOGY_TYPES} from "@/lib/platformConstants";
-
+import  pluralize from "pluralize"
 
 
 
