@@ -182,7 +182,8 @@ import {
   excludedTerms,
   HIGHLIGHT_LABELS,
   marked,
-  taxa
+  taxa,
+  axiosInst
 } from "@/config/gemma";
 import { debounce, escapeRegExp, isEqual } from "lodash";
 import DatasetPreview from "@/components/DatasetPreview.vue";
@@ -806,7 +807,7 @@ export default {
         newVal.filter(dataset => {
           return !Object.keys(this.hasDifferentialExpression).includes(dataset.id)
         }).forEach(dataset => {
-          axios.get(url_prefix + dataset.id + url_suffix).then(res => {
+          axiosInst.get(url_prefix + dataset.id + url_suffix).then(res => {
             this.$set(this.hasDifferentialExpression, dataset.id, res.data.data.length > 0)
           })
               .catch(swallowCancellation)
