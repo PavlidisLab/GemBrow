@@ -92,7 +92,7 @@ export default {
   methods: {
     formatNumber,
     labelWithCommonName(item) {
-      return `${item.scientificName} (${item.commonName.charAt(0).toUpperCase() + item.commonName.slice(1)})`;
+      return `${item.scientificName} (${item.commonName?.charAt(0).toUpperCase() + item.commonName?.slice(1)})`;
     },
     numberOfExperimentsLabel(item) {
       return item.numberOfExpressionExperiments;
