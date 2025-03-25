@@ -31,7 +31,7 @@ Configurations are located in `.env.production`. Use `.env.production.local` to 
 
 ```bash
 npm run build # or devbuild for a development build
-rsync -av dist/ foo@bar:/deployment/destination/
+rsync -av --chmod=g+w dist/ foo@bar:/deployment/destination/
 ```
 
 When deploying to production, make sure that static assets are compressed. This is particularly important for the
