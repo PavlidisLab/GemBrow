@@ -67,7 +67,7 @@ export let excludedCategories = [
   "http://www.ebi.ac.uk/efo/EFO_0005066", // collection of material
   "http://www.ebi.ac.uk/efo/EFO_0005067", // block
   "http://www.ebi.ac.uk/efo/EFO_0005136"  // strains
-];
+  ];
 
 /**
  * Pre-category configuration.
@@ -104,6 +104,10 @@ export let categoriesConfiguration = {
   // treatments
   "http://www.ebi.ac.uk/efo/EFO_0000727": {
     excludeFreeTextTerms: true
+  },
+  // assay
+  "http://purl.obolibrary.org/obo/OBI_0000070":{
+    excludeFreeTextTerms:true
   }
 };
 
@@ -156,7 +160,8 @@ export let annotationSelectorOrderArray = [
   "http://www.ebi.ac.uk/efo/EFO_0002755", // diet 
   "http://www.ebi.ac.uk/efo/EFO_0000246", // age 
   "http://purl.obolibrary.org/obo/OBI_0000181", // population 
-  "http://www.ebi.ac.uk/efo/EFO_0002571" // medical procedure 
+  "http://www.ebi.ac.uk/efo/EFO_0002571", // medical procedure
+  "http://purl.obolibrary.org/obo/OBI_0000070" // assay
 ];
 
 /**
