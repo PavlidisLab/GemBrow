@@ -35,7 +35,7 @@
 import { chain, isEqual } from "lodash";
 import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
-import { TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES} from "@/lib/platformConstants";
+import { TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES,TECH_ADDITIONS } from "@/lib/platformConstants";
 
 
 export default {
@@ -46,9 +46,11 @@ export default {
      */
     value: Array,
     platforms: Array,
+    annotations: Array,
     disabled: Boolean,
     loading: Boolean
   },
+  techAdditions:Array,
   events: ["input"],
   data() {
     return {
@@ -64,15 +66,35 @@ export default {
         this.$emit('input',val)
       }
     },
+    techAdditions(){
+      return Object.keys(TECH_ADDITIONS).map(class_uri => {
+        return this.annotations.filter(category=>category.classUri === class_uri).map(category =>{
+          return Object.keys(TECH_ADDITIONS[class_uri]).map(term_uri => {
+            return category.children.filter(annotation=> annotation.termUri === term_uri)
+                .map(annotation => {
+                  return Object.assign({},
+                      annotation,
+                      {
+                        "id":annotation.termUri,
+                        "annotation":true,
+                        "technologyType": TECH_ADDITIONS[class_uri][term_uri].parent,
+                        "name":annotation.termName
+                      })
+                }).flat()
+          }).flat()
+        }).flat()
+      }).flat()
+    },
     technologyTypes() {
       return TOP_TECHNOLOGY_TYPES
         .filter(([id]) => id !== "OTHER" || this.debug)
         .map(([id, name, tts]) => {
           let platforms = this.platforms.filter(p => tts.includes(p.technologyType));
+          let added_platforms = this.techAdditions.filter(p => tts.includes(p.technologyType));
           return {
             id: id,
             name: name,
-            children: (id !== "RNA_SEQ" || this.debug) ? platforms : [],
+            children: (id !== "RNA_SEQ" || this.debug) ? added_platforms.concat(platforms) : added_platforms,
             numberOfExpressionExperiments: chain(platforms)
               .groupBy("technologyType")
               .mapValues(v => v[0].numberOfExpressionExperimentsForTechnologyType)
@@ -102,6 +124,9 @@ export default {
           }
           return [v.id];
         });
+    },
+    computeSelectedAdditionalAnnotations(ids){
+      return this.techAdditions.filter(v => ids.has(v.id))
     }
   },
   watch: {
@@ -117,6 +142,11 @@ export default {
       }
       if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
         this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);
+      }
+      let selectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(ids);
+      let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds);
+      if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)){
+        this.$emit("update:additionalAnnotations",selectedAdditionalAnnotations);
       }
     }
   }

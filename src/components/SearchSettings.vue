@@ -43,8 +43,10 @@
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
                 v-model="selectedTech"
                 :platforms="platforms"
+                :annotations="annotations"
                 :selectedPlatforms.sync="searchSettings.platforms"
                 :selectedTechnologyTypes.sync="searchSettings.technologyTypes"
+                :additionalAnnotations.sync="additionalAnnotations"
                 :disabled="platformDisabled"
                 :loading="platformLoading"
                 class="mb-1"/>
@@ -114,6 +116,7 @@ export default {
   emits: ["input"],
   data() {
     return {
+      additionalAnnotations:[],
       selectedTech: [],
       searchSettings: this.value,
       platformResultType: ArrayDesignType,
@@ -164,6 +167,14 @@ export default {
         this.$emit("input", newValue);
       },
       deep: true
+    },
+    additionalAnnotations: function(newVal,oldVal){
+      // remove annotations that are unselected
+      let newUris = newVal.map(annot=>annot.termUri)
+      let oldUris = oldVal.map(annot=>annot.termUri)
+      let removedUris = oldUris.filter(uri=>!newUris.includes(uri))
+      let annots = this.searchSettings.annotations.filter(annot =>!removedUris.includes(annot.termUri))
+      this.searchSettings.annotations = Object.assign([],annots,newVal)
     }
   }
 };
