@@ -10,7 +10,7 @@ const TOP_TECHNOLOGY_TYPES = [
 const TECH_ADDITIONS = {
   "http://purl.obolibrary.org/obo/OBI_0000070":{
     "http://www.ebi.ac.uk/efo/EFO_0008913":{ //single cell
-      "parent":"SEQUENCING" // only rna seq is supported so far
+      "parent":"SEQUENCING"
     },
     "http://www.ebi.ac.uk/efo/EFO_0009809":{ // single nucleus
       "parent":"SEQUENCING"
