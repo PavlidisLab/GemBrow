@@ -21,10 +21,11 @@
             </v-btn>
         </div>
         <v-text-field
-                v-model="searchSettings.query"
+                v-model="searchSettings.currentQuery"
                 :disabled="queryDisabled"
-                v-on:keyup.enter="flush"
-                @click:append="flush"
+                v-on:keyup.enter="setQuery"
+                @click:append="setQuery"
+                @click:clear="clearQuery"
                 label="Search"
                 prepend-inner-icon="mdi-magnify"
                 append-icon="mdi-subdirectory-arrow-left"
@@ -143,6 +144,13 @@ export default {
     })
   },
   methods: {
+    setQuery(){
+      this.searchSettings.query = this.searchSettings.currentQuery
+    },
+    clearQuery(){
+      this.currentQuery = undefined
+      this.searchSettings.query = undefined
+    },
     flush(){
       this.$emit('flush')
     },
@@ -151,6 +159,7 @@ export default {
       this.searchSettings.annotations = [];
       this.searchSettings.taxon = []; 
       this.searchSettings.query = undefined;
+      this.currentQuery = undefined;
     },
     isMobile() {
       if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {

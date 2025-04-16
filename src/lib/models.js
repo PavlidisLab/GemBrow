@@ -70,6 +70,7 @@ export function QualityRange(low, high) {
  */
 export function SearchSettings(taxon, query, resultTypes) {
   this.query = query;
+  this.currentQuery = query;
   this.resultTypes = resultTypes || [];
   this.platforms = [];
   this.taxon = taxon;
