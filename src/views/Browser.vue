@@ -249,7 +249,7 @@ export default {
      * Basically a browse with a debounce when the user is actively typing a query.
      * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
      */
-    search: debounce(function(browsingOptions) {
+    search: function(browsingOptions) {
       // had to move search into data to be able to flush debounce
       // https://stackoverflow.com/questions/52987115/using-vue-js-how-to-you-flush-a-method-that-is-debounced-with-lodash
       return this.browse(browsingOptions, true).then(() => {
@@ -266,7 +266,7 @@ export default {
           console.error("Error while searching: " + err.message + ".", err);
           this.setLastError(err);
         });
-    }, 1000)
+    }
     };
   },
   computed: {
