@@ -41,6 +41,11 @@
                     fixed-header
                     dense class="browser-data-table"
             >
+                <template v-slot:footer.page-text="{pageStart, pageStop, itemsLength}">
+                  <div>
+                    {{formatNumber(pageStart)}}, {{formatNumber(pageStop)}} of {{formatNumber(itemsLength)}}
+                  </div>
+                </template>>
                 <template v-for="h in headers" v-slot:[`header.${h.value}`]>
                     <v-tooltip :key="h.value" bottom v-if="h.tip" max-width="300px">
                         <template v-slot:activator="{ on }">
@@ -402,6 +407,9 @@ export default {
         return state.api.datasets?.filter;
       },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
+      footerPageText: state => {
+        return "dsadasdsa"
+      },
       footerProps: state => {
         if (state.api.datasets === undefined) {
           return {};
@@ -413,7 +421,7 @@ export default {
             pageStart: state.api.datasets.offset,
             pageStop: state.api.datasets.offset + state.api.datasets.limit,
             pageCount: Math.ceil(state.api.datasets.totalElements / state.api.datasets.limit),
-            itemsLength: formatNumber(state.api.datasets.totalElements)
+            itemsLength: state.api.datasets.totalElements
           },
           disablePagination: state.api.pending.datasets,
           disableItemsPerPage: state.api.pending.datasets,
@@ -483,6 +491,7 @@ export default {
     },
     formatDecimal,
     formatPercent,
+    formatNumber,
     browse(browsingOptions, updateEverything) {
       // update available annotations and number of datasets
       let updateDatasetsPromise = this.updateDatasets(browsingOptions.query, browsingOptions.filter, browsingOptions.offset, browsingOptions.limit, browsingOptions.sort);
