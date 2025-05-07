@@ -43,7 +43,7 @@
             >
                 <template v-slot:footer.page-text="{pageStart, pageStop, itemsLength}">
                   <div>
-                    {{formatNumber(pageStart)}}, {{formatNumber(pageStop)}} of {{formatNumber(itemsLength)}}
+                    {{formatNumber(pageStart)}} - {{formatNumber(pageStop)}} of {{formatNumber(itemsLength)}}
                   </div>
                 </template>>
                 <template v-for="h in headers" v-slot:[`header.${h.value}`]>
