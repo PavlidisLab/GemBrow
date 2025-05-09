@@ -125,8 +125,10 @@ export default {
           return [v.id];
         });
     },
-    computeSelectedAdditionalAnnotations(ids){
-      return this.techAdditions.filter(v => ids.has(v.id))
+    computeSelectedAdditionalAnnotations(ids,technologyTypes){
+      return this.techAdditions
+          .filter(v => ids.has(v.id))
+          .filter(v => !technologyTypes.includes(v.technologyType))
     }
   },
   watch: {
@@ -143,8 +145,8 @@ export default {
       if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
         this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);
       }
-      let selectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(ids);
-      let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds);
+      let selectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(ids,selectedTechnologyTypes);
+      let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds,oldSelectedTechnologyTypes);
       if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)){
         this.$emit("update:additionalAnnotations",selectedAdditionalAnnotations);
       }
