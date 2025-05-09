@@ -407,9 +407,6 @@ export default {
         return state.api.datasets?.filter;
       },
       totalNumberOfExpressionExperiments: state => state.api.datasets?.totalElements || 0,
-      footerPageText: state => {
-        return "dsadasdsa"
-      },
       footerProps: state => {
         if (state.api.datasets === undefined) {
           return {};

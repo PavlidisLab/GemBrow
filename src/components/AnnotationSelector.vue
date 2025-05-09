@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { chain, isEqual } from "lodash";
+import { chain, isEqual, debounce } from "lodash";
 import { formatNumber, getCategoryId, getTermId } from "@/lib/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
@@ -278,7 +278,19 @@ export default {
         return word;
       });
       return highlightedWords.join(" ");
-    }
+    },
+    dispatchValues:debounce(function(newVal,oldVal){
+      let sc = this.computeSelectedCategories(newVal);
+      let sa = this.computeSelectedAnnotations(newVal, sc);
+      let scOld = this.computeSelectedCategories(oldVal);
+      let saOld = this.computeSelectedAnnotations(oldVal, scOld);
+      if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
+        this.$emit("input", sa);
+      }
+      if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
+        this.$emit("update:selectedCategories", sc);
+      }
+    },1000)
   },
   watch: {
     search(newVal) {
@@ -297,16 +309,9 @@ export default {
       // make sure that newVal is an option
       this.selectedValues = newVal.map(term => this.getId(term));
     },
-    selectedValues(newVal, oldVal) {
-      let sc = this.computeSelectedCategories(newVal);
-      let sa = this.computeSelectedAnnotations(newVal, sc);
-      let scOld = this.computeSelectedCategories(oldVal);
-      let saOld = this.computeSelectedAnnotations(oldVal, scOld);
-      if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
-        this.$emit("input", sa);
-      }
-      if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
-        this.$emit("update:selectedCategories", sc);
+    selectedValues:function(newVal, oldVal) {
+      if(!isEqual(newVal,oldVal)){
+        this.dispatchValues(newVal,oldVal)
       }
     }
   }
