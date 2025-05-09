@@ -151,9 +151,6 @@ export default {
       this.currentQuery = undefined
       this.searchSettings.query = undefined
     },
-    flush(){
-      this.$emit('flush')
-    },
     clearAllSelections() {
       this.selectedTech = []
       this.searchSettings.annotations = [];
