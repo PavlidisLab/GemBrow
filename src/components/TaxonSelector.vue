@@ -35,7 +35,7 @@
 
 <script>
 import { formatNumber } from "@/lib/utils";
-import { isEqual } from "lodash";
+import { isEqual, debounce } from "lodash";
 
 export default {
   name: "TaxonSelector",
@@ -99,7 +99,10 @@ export default {
     },
     clearSelections() {
       this.selectedTaxaIds = [];
-    }
+    },
+    dispatchValues: debounce(function(newVal){
+      this.$emit("input", newVal);
+    },1000)
   },
   watch: {
     value(newVal) {
@@ -107,7 +110,7 @@ export default {
     },
     selectedTaxa(newVal, oldVal) {
       if (!isEqual(newVal.map(t => t.id), oldVal.map(t => t.id))) {
-        this.$emit("input", newVal);
+        this.dispatchValues(newVal);
       }
     }
   }

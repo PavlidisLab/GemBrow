@@ -32,7 +32,7 @@
 
 <script>
 
-import { chain, isEqual } from "lodash";
+import { chain, isEqual, debounce } from "lodash";
 import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
 import { TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES,TECH_ADDITIONS } from "@/lib/platformConstants";
@@ -129,10 +129,8 @@ export default {
       return this.techAdditions
           .filter(v => ids.has(v.id))
           .filter(v => !technologyTypes.includes(v.technologyType))
-    }
-  },
-  watch: {
-    selectedValues(newVal, oldVal) {
+    },
+    dispatchValues:debounce(function(newVal,oldVal){
       let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
       let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
       let selectedPlatforms = this.computeSelectedPlatforms(ids, selectedTechnologyTypes);
@@ -149,6 +147,13 @@ export default {
       let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds,oldSelectedTechnologyTypes);
       if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)){
         this.$emit("update:additionalAnnotations",selectedAdditionalAnnotations);
+      }
+    },1000)
+  },
+  watch: {
+    selectedValues(newVal, oldVal) {
+      if(!isEqual(newVal,oldVal)){
+        this.dispatchValues(newVal,oldVal)
       }
     }
   }
