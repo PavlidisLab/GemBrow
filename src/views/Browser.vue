@@ -224,7 +224,8 @@ export default {
     /**
      * Initial query
      */
-    query: String
+    query: String,
+    initialPlatform: String
   },
   data() {
     let taxon = [];
@@ -235,9 +236,13 @@ export default {
         }
       }
     }
+    let platform = [];
+    if(this.initialPlatform && this.initialPlatform ==="scrnaseq"){
+      platform = ['http://www.ebi.ac.uk/efo/EFO_0009809', 'http://www.ebi.ac.uk/efo/EFO_0008913']
+    }
     return {
       drawer: true,
-      searchSettings: new SearchSettingsModel(taxon, this.query, [ExpressionExperimentType]),
+      searchSettings: new SearchSettingsModel(taxon, this.query, [ExpressionExperimentType],platform),
       options: {
         page: 1,
         itemsPerPage: 25,

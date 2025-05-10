@@ -60,6 +60,7 @@ export function QualityRange(low, high) {
  *  - Gene
  *  - GeneSet
  *  - PhenotypeAssociation
+ * @param platforms
  * @property platform {?Platform} Filter results by platform (ArrayDesign) if applicable
  * @property taxon {?Taxon} Filter results by taxon if applicable
  * @property quality {QualityRange} Filter results by quality, if applicable
@@ -68,7 +69,7 @@ export function QualityRange(low, high) {
  * @property categories {} Selected categories
  * @constructor
  */
-export function SearchSettings(taxon, query, resultTypes) {
+export function SearchSettings(taxon, query, resultTypes, platforms) {
   this.query = query;
   this.currentQuery = query;
   this.resultTypes = resultTypes || [];
@@ -76,6 +77,7 @@ export function SearchSettings(taxon, query, resultTypes) {
   this.taxon = taxon;
   this.quality = [0, 3];
   this.technologyTypes = [];
+  this.selectedTech = platforms
   this.annotations = [];
   this.categories = [];
   this.ignoreExcludedTerms = false;
