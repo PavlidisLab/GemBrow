@@ -26,6 +26,11 @@ export default new Router({
       props: true
     },
     {
+      path: "/:preset",
+      component: Browser,
+      props: true
+    },
+    {
       path: "/q/:query",
       component: Browser,
       props: true

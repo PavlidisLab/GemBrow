@@ -12,6 +12,7 @@
         <v-treeview v-model="selectedValues"
                     :items="technologyTypes"
                     :disabled="disabled"
+                    selection-type="independent"
                     item-key="id"
                     item-text="name"
                     selectable dense>
@@ -115,7 +116,7 @@ export default {
     },
     computeSelectedTechnologyTypes(sv) {
       return this.technologyTypes
-        .filter(v => sv.has(v.id) || (v.children.length > 0 && v.children.every(c => sv.has(c.id))))
+        .filter(v => sv.has(v.id))
         .flatMap(v => {
           for (let [id, _, tts] of TOP_TECHNOLOGY_TYPES) {
             if (v.id === id) {
