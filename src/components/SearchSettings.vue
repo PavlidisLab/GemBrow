@@ -42,7 +42,7 @@
                 class="mb-1"/>
         <TechnologyTypeSelector
                 v-if="searchSettings.resultTypes.indexOf(platformResultType) === -1"
-                v-model="selectedTech"
+                v-model="searchSettings.selectedTech"
                 :platforms="platforms"
                 :annotations="annotations"
                 :selectedPlatforms.sync="searchSettings.platforms"
@@ -118,7 +118,6 @@ export default {
   data() {
     return {
       additionalAnnotations:[],
-      selectedTech: [],
       searchSettings: this.value,
       platformResultType: ArrayDesignType,
       selectedTaxa: this.value ? [this.value] : []
@@ -152,7 +151,7 @@ export default {
       this.searchSettings.query = undefined
     },
     clearAllSelections() {
-      this.selectedTech = []
+      this.searchSettings.selectedTech = [];
       this.searchSettings.annotations = [];
       this.searchSettings.taxon = []; 
       this.searchSettings.query = undefined;
