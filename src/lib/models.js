@@ -77,7 +77,7 @@ export function SearchSettings(taxon, query, resultTypes, platforms) {
   this.taxon = taxon;
   this.quality = [0, 3];
   this.technologyTypes = [];
-  this.selectedTech = platforms
+  this.selectedTech = platforms || [];
   this.annotations = [];
   this.categories = [];
   this.ignoreExcludedTerms = false;
