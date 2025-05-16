@@ -133,6 +133,7 @@ export default {
      */
     showClearAllSelections() {
       return (this.searchSettings.annotations.length > 0)
+        + (this.additionalAnnotations.length > 0)
         + (this.searchSettings.platforms.length > 0)
         + (this.searchSettings.taxon.length > 0)
         + (this.searchSettings.technologyTypes.length > 0)
