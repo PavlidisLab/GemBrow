@@ -57,6 +57,9 @@ export default {
     return {
     };
   },
+  mounted: function(){
+    this.dispatchValues(this.value,[])
+  },
   computed: {
     selectedValues:
     {
