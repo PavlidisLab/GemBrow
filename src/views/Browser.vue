@@ -238,7 +238,6 @@ export default {
     }
     let platform = [];
     if(this.preset && this.preset ==="scrnaseq"){
-      console.log('setting platform in SearchSettingsModel')
       platform = ['http://www.ebi.ac.uk/efo/EFO_0009809', 'http://www.ebi.ac.uk/efo/EFO_0008913']
     }
     console.log(platform)
