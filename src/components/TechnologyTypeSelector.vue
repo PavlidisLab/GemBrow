@@ -55,21 +55,10 @@ export default {
   events: ["input"],
   data() {
     return {
+      selectedValues: []
     };
   },
-  mounted: function(){
-    this.dispatchValues(this.value,[])
-  },
   computed: {
-    selectedValues:
-    {
-      get(){
-        return this.value
-      },
-      set(val){
-        this.$emit('input',val)
-      }
-    },
     techAdditions(){
       return Object.keys(TECH_ADDITIONS).map(class_uri => {
         return this.annotations.filter(category=>category.classUri === class_uri).map(category =>{
@@ -134,7 +123,8 @@ export default {
           .filter(v => ids.has(v.id))
           .filter(v => !technologyTypes.includes(v.technologyType))
     },
-    dispatchValues:debounce(function(newVal,oldVal){
+    dispatchValues:function(newVal,oldVal){
+      this.$emit("input", newVal)
       let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
       let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
       let selectedPlatforms = this.computeSelectedPlatforms(ids, selectedTechnologyTypes);
@@ -152,12 +142,24 @@ export default {
       if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)){
         this.$emit("update:additionalAnnotations",selectedAdditionalAnnotations);
       }
-    },1000)
+    }
   },
   watch: {
+    technologyTypes(newVal){
+      let ids = newVal.map(x=>x.id).concat(newVal.map(x=>x.children.map(y=>y.id)).flat())
+      // wait until the values are included in technology types
+      if (this.value.map(x=>ids.includes(x)).every(x=>x)){
+        this.selectedValues = this.value
+        this.dispatchValues(this.value,[])
+      }
+    },
+    value(newVal){
+      this.selectedValues = newVal;
+    },
     selectedValues(newVal, oldVal) {
       if(!isEqual(newVal,oldVal)){
         this.dispatchValues(newVal,oldVal)
+
       }
     }
   }

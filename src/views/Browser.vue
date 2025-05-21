@@ -240,7 +240,6 @@ export default {
     if(this.preset && this.preset ==="scrnaseq"){
       platform = ['http://www.ebi.ac.uk/efo/EFO_0009809', 'http://www.ebi.ac.uk/efo/EFO_0008913']
     }
-    console.log(platform)
     return {
       drawer: true,
       searchSettings: new SearchSettingsModel(taxon, this.query, [ExpressionExperimentType], platform),
