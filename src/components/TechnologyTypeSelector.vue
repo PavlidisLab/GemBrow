@@ -55,8 +55,28 @@ export default {
   events: ["input"],
   data() {
     return {
-      selectedValues: []
-    };
+      selectedValues: [],
+      dispatchValues: debounce(function(newVal,oldVal){
+        this.$emit("input", newVal)
+        let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
+        let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
+        let selectedPlatforms = this.computeSelectedPlatforms(ids, selectedTechnologyTypes);
+        let oldIds = new Set(oldVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
+        let oldSelectedTechnologyTypes = this.computeSelectedTechnologyTypes(oldIds);
+        let oldSelectedPlatforms = this.computeSelectedPlatforms(oldIds, oldSelectedTechnologyTypes);
+        if (!isEqual(selectedPlatforms.map(p => p.id), oldSelectedPlatforms.map(p => p.id))) {
+          this.$emit("update:selectedPlatforms", selectedPlatforms);
+        }
+        if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
+          this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);
+        }
+        let selectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(ids,selectedTechnologyTypes);
+        let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds,oldSelectedTechnologyTypes);
+        if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)) {
+          this.$emit("update:additionalAnnotations", selectedAdditionalAnnotations);
+        }
+        },1000)
+      }
   },
   computed: {
     techAdditions(){
@@ -123,25 +143,8 @@ export default {
           .filter(v => ids.has(v.id))
           .filter(v => !technologyTypes.includes(v.technologyType))
     },
-    dispatchValues:function(newVal,oldVal){
-      this.$emit("input", newVal)
-      let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
-      let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
-      let selectedPlatforms = this.computeSelectedPlatforms(ids, selectedTechnologyTypes);
-      let oldIds = new Set(oldVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
-      let oldSelectedTechnologyTypes = this.computeSelectedTechnologyTypes(oldIds);
-      let oldSelectedPlatforms = this.computeSelectedPlatforms(oldIds, oldSelectedTechnologyTypes);
-      if (!isEqual(selectedPlatforms.map(p => p.id), oldSelectedPlatforms.map(p => p.id))) {
-        this.$emit("update:selectedPlatforms", selectedPlatforms);
-      }
-      if (!isEqual(selectedTechnologyTypes, oldSelectedTechnologyTypes)) {
-        this.$emit("update:selectedTechnologyTypes", selectedTechnologyTypes);
-      }
-      let selectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(ids,selectedTechnologyTypes);
-      let oldSelectedAdditionalAnnotations = this.computeSelectedAdditionalAnnotations(oldIds,oldSelectedTechnologyTypes);
-      if(!isEqual(selectedAdditionalAnnotations,oldSelectedAdditionalAnnotations)){
-        this.$emit("update:additionalAnnotations",selectedAdditionalAnnotations);
-      }
+    flushDispatch: function(){
+      this.dispatchValues.flush()
     }
   },
   watch: {
@@ -151,6 +154,7 @@ export default {
       if (this.value.map(x=>ids.includes(x)).every(x=>x)){
         this.selectedValues = this.value
         this.dispatchValues(this.value,[])
+        this.flushDispatch()
       }
     },
     value(newVal){
