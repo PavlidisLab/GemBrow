@@ -57,6 +57,8 @@ export default {
     return {
       selectedValues: [],
       dispatchValues: debounce(function(newVal,oldVal){
+        // had to move search into data to be able to flush debounce
+        // https://stackoverflow.com/questions/52987115/using-vue-js-how-to-you-flush-a-method-that-is-debounced-with-lodash
         this.$emit("input", newVal)
         let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
         let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
