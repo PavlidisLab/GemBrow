@@ -238,7 +238,7 @@ export default {
     }
     let platform = [];
     if(this.preset && this.preset ==="scrnaseq"){
-      platform = ['http://www.ebi.ac.uk/efo/EFO_0009809', 'http://www.ebi.ac.uk/efo/EFO_0008913']
+      platform = ['http://www.ebi.ac.uk/efo/EFO_0009809', 'http://www.ebi.ac.uk/efo/EFO_0008913','http://purl.obolibrary.org/obo/OBI_0003109','http://purl.obolibrary.org/obo/OBI_0002631']
     }
     return {
       drawer: true,

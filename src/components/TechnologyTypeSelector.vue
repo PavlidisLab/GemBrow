@@ -153,7 +153,10 @@ export default {
     technologyTypes(newVal){
       let ids = newVal.map(x=>x.id).concat(newVal.map(x=>x.children.map(y=>y.id)).flat())
       // wait until the values are included in technology types
-      if (this.value.map(x=>ids.includes(x)).every(x=>x)){
+      // TODO this is a temporary fix between the changes in terms and should be reversed
+      // after terms are re-assigned
+      //if (this.value.map(x=>ids.includes(x)).every(x=>x)){
+      if( this.value.length > 0  && this.value.map(x=>ids.includes(x)).reduce((acc,x)=>acc=acc+x) >= 2){
         this.selectedValues = this.value
         this.dispatchValues(this.value,[])
         this.flushDispatch()
