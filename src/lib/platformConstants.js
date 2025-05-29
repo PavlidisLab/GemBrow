@@ -9,16 +9,13 @@ const TOP_TECHNOLOGY_TYPES = [
 
 const TECH_ADDITIONS = {
   "http://purl.obolibrary.org/obo/OBI_0000070":{
-    "http://www.ebi.ac.uk/efo/EFO_0008913":{ //single cell
-      "parent":"SEQUENCING"
-    },
-    "http://www.ebi.ac.uk/efo/EFO_0009809":{ // single nucleus
-      "parent":"SEQUENCING"
-    },
     "http://purl.obolibrary.org/obo/OBI_0003109":{ // single nucleus
       "parent":"SEQUENCING"
     },
     "http://purl.obolibrary.org/obo/OBI_0002631":{ // single cell
+      "parent":"SEQUENCING"
+    },
+    "http://purl.obolibrary.org/obo/OBI_0003090":{ // bulk rna-seq
       "parent":"SEQUENCING"
     }
   }

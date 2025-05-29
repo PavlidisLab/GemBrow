@@ -179,7 +179,7 @@ export default {
       }
 
       queryGemmaR.push(`) %>% \n` +
-          `\tgemma.R:::get_all_pages()`);
+          `\tgemma.R::get_all_pages()`);
 
       tabs[1].content = queryGemmaR.join("");
 

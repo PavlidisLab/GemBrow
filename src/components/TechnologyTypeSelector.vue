@@ -12,7 +12,6 @@
         <v-treeview v-model="selectedValues"
                     :items="technologyTypes"
                     :disabled="disabled"
-                    selection-type="independent"
                     item-key="id"
                     item-text="name"
                     selectable dense>
@@ -59,6 +58,7 @@ export default {
       dispatchValues: debounce(function(newVal,oldVal){
         // had to move search into data to be able to flush debounce
         // https://stackoverflow.com/questions/52987115/using-vue-js-how-to-you-flush-a-method-that-is-debounced-with-lodash
+        debugger
         this.$emit("input", newVal)
         let ids = new Set(newVal.filter(id => !TECHNOLOGY_TYPES.includes(id)));
         let selectedTechnologyTypes = this.computeSelectedTechnologyTypes(ids);
@@ -130,7 +130,7 @@ export default {
     },
     computeSelectedTechnologyTypes(sv) {
       return this.technologyTypes
-        .filter(v => sv.has(v.id))
+        .filter(v => sv.has(v.id) || (v.children.length > 0 && v.children.every(c => sv.has(c.id))))
         .flatMap(v => {
           for (let [id, _, tts] of TOP_TECHNOLOGY_TYPES) {
             if (v.id === id) {
@@ -150,16 +150,16 @@ export default {
     }
   },
   watch: {
-    technologyTypes(newVal){
-      let ids = newVal.map(x=>x.id).concat(newVal.map(x=>x.children.map(y=>y.id)).flat())
-      // wait until the values are included in technology types
-      // TODO this is a temporary fix between the changes in terms and should be reversed
-      // after terms are re-assigned
-      //if (this.value.map(x=>ids.includes(x)).every(x=>x)){
-      if( this.value.length > 0  && this.value.map(x=>ids.includes(x)).reduce((acc,x)=>acc=acc+x) >= 2){
-        this.selectedValues = this.value
-        this.dispatchValues(this.value,[])
-        this.flushDispatch()
+    technologyTypes(newVal,oldVal){
+      if(!isEqual(newVal,oldVal)) {
+        let ids = newVal.map(x => x.id).concat(newVal.map(x => x.children.map(y => y.id)).flat())
+        // wait until the values are included in technology types
+        // after terms are re-assigned
+        if (this.value.length > 0 && this.value.map(x => ids.includes(x)).every(x => x)) {
+          this.selectedValues = this.value
+          this.dispatchValues(this.value, [])
+          this.flushDispatch()
+        }
       }
     },
     value(newVal){
