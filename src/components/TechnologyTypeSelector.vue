@@ -16,7 +16,8 @@
                     item-text="name"
                     selectable dense>
             <template v-slot:label="{item}">
-                <span :title="item.name.length > 30 && item.name" class="text-capitalize">{{ item.name }}</span>
+                <span :title="item.name.length > 30 && item.name"
+                      :class="item.annotation ? 'text-capitalize': null">{{ item.name }}</span>
             </template>
             <template v-slot:append="{item}">
                 <div v-if="item.numberOfExpressionExperiments" class="text-right">
