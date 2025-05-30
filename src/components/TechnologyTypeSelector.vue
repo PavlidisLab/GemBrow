@@ -16,8 +16,7 @@
                     item-text="name"
                     selectable dense>
             <template v-slot:label="{item}">
-                <span :title="item.name.length > 30 && item.name"
-                      :class="item.annotation ? 'text-capitalize': null">{{ item.name }}</span>
+                <span :title="item.name.length > 30 && item.name">{{ item.name }}</span>
             </template>
             <template v-slot:append="{item}">
                 <div v-if="item.numberOfExpressionExperiments" class="text-right">
@@ -33,10 +32,11 @@
 
 <script>
 
-import { chain, isEqual, debounce } from "lodash";
+import { chain, debounce, isEqual } from "lodash";
 import { formatNumber } from "@/lib/utils";
 import { mapState } from "vuex";
-import { TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES,TECH_ADDITIONS } from "@/lib/platformConstants";
+import { TECH_ADDITIONS, TECHNOLOGY_TYPES, TOP_TECHNOLOGY_TYPES } from "@/lib/platformConstants";
+import { titleCase } from "title-case";
 
 
 export default {
@@ -81,24 +81,24 @@ export default {
       }
   },
   computed: {
-    techAdditions(){
+    techAdditions() {
       return Object.keys(TECH_ADDITIONS).map(class_uri => {
-        return this.annotations.filter(category=>category.classUri === class_uri).map(category =>{
+        return this.annotations.filter(category => category.classUri === class_uri).map(category => {
           return Object.keys(TECH_ADDITIONS[class_uri]).map(term_uri => {
-            return category.children.filter(annotation=> annotation.termUri === term_uri)
-                .map(annotation => {
-                  return Object.assign({},
-                      annotation,
-                      {
-                        "id":annotation.termUri,
-                        "annotation":true,
-                        "technologyType": TECH_ADDITIONS[class_uri][term_uri].parent,
-                        "name":annotation.termName
-                      })
-                }).flat()
-          }).flat()
-        }).flat()
-      }).flat()
+            return category.children.filter(annotation => annotation.termUri === term_uri)
+              .map(annotation => {
+                return Object.assign({},
+                  annotation,
+                  {
+                    "id": annotation.termUri,
+                    "annotation": true,
+                    "technologyType": TECH_ADDITIONS[class_uri][term_uri].parent,
+                    "name": titleCase(annotation.termName)
+                  });
+              }).flat();
+          }).flat();
+        }).flat();
+      }).flat();
     },
     technologyTypes() {
       return TOP_TECHNOLOGY_TYPES

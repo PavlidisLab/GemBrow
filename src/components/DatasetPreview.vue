@@ -1,12 +1,12 @@
 <template>
     <div class="py-3">
-        <h3> <a v-bind:href="datasetUrl" target="_blank">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
+        <h3><a v-bind:href="datasetUrl" target="_blank">{{ dataset.shortName }}</a>: {{ dataset.name }}</h3>
         <v-chip v-for="term in includedTerms" :key="getId(term)"
                 @[getClickEventName(term)]="handleChipClick(term)"
                 small :color="getChipColor(term.objectClass)"
                 :title="getTitle(term)"
-                class="text-capitalize mb-1 mr-1">
-            {{ term.termName }}
+                class="mb-1 mr-1">
+            {{ getTermName(term) }}
             <v-icon v-if="isSelectable(term)" right>mdi-plus</v-icon>
             <v-icon v-else-if="isUnselectable(term)" right>mdi-minus</v-icon>
         </v-chip>
@@ -20,6 +20,7 @@ import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import { getCategoryId, getTermId, swallowCancellation } from "@/lib/utils";
 import { chain } from "lodash";
+import { titleCase } from "title-case";
 
 
 /**
@@ -119,6 +120,9 @@ export default {
     },
     getId(term) {
       return getCategoryId(term) + SEPARATOR + getTermId(term);
+    },
+    getTermName(term) {
+      return titleCase(term.termName);
     },
     getTitle(term) {
       let n = this.getNumberOfExpressionExperiments(term);

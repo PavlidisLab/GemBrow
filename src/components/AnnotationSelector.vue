@@ -31,7 +31,7 @@
             <template v-slot:label="{item}">
                 <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
                 <span v-else
-                      class="text-capitalize text-truncate"
+                      class="text-truncate"
                       :title="getTitle(item).length > 30 && getTitle(item)"
                       v-html="getTitle(item)"></span>
                 <span v-if="isTermLinkable(item)">&nbsp;<a v-if="debug" :href="getExternalUrl(item)" target="_blank"
@@ -56,11 +56,12 @@
 </template>
 
 <script>
-import { chain, isEqual, debounce } from "lodash";
+import { chain, debounce, isEqual } from "lodash";
 import { formatNumber, getCategoryId, getTermId } from "@/lib/utils";
 import { annotationSelectorOrderArray, excludedTerms, ontologySources } from "@/config/gemma";
 import { mapState } from "vuex";
 import pluralize from "pluralize";
+import { titleCase } from "title-case";
 
 /**
  * Separator used to constructing keys of nested elements in the tree view.
@@ -203,12 +204,12 @@ export default {
     getTitle(item) {
       // TODO: handle
       if (this.search && item.termName) {
-        return this.highlightSearchTerm(item.termName, this.search);
+        return this.highlightSearchTerm(titleCase(item.termName), this.search);
       }
       if (this.search && item.isCategory) {
-        return ((item.className && this.highlightSearchTerm(item.className, this.search)) || item.classUri || "");
+        return ((item.className && this.highlightSearchTerm(titleCase(item.className), this.search)) || item.classUri || "");
       }
-      return item.isCategory ? ((item.className && pluralize(item.className)) || item.classUri || "") : (item.termName || item.termUri || "");
+      return item.isCategory ? ((item.className && titleCase(pluralize(item.className))) || item.classUri || "") : (titleCase(item.termName) || item.termUri || "");
     },
     getUri(item) {
       return (item.isCategory ? item.classUri : item.termUri);
