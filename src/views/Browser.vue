@@ -682,8 +682,10 @@ export default {
     },
     getHighlight(item) {
       return Object.entries(item.searchResult.highlights)
-        .map(h => marked.parseInline("Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ": " + h[1]))
-        .join("<br/>");
+          .map(h => ("Tagged " + (HIGHLIGHT_LABELS[h[0]] || h[0]) + ": " + h[1])
+              .replaceAll(/\*\*(?=[^\s\p{P}])/gu,'<mark>')
+              .replaceAll(/(?<=[^\s\p{P}])\*\*/gu,'</mark>'))
+          .join("<br/>")
     },
     getName(item) {
       if (this.hasHighlight(item) && "name" in item.searchResult.highlights) {
