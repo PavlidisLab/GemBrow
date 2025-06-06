@@ -757,6 +757,8 @@ export default {
       this.tableWidth = newWidth + "px";
     });
     observer.observe(this.$refs.dataTableRef.$el);
+    this.setFilterSummary(this.filterSummary)
+    this.setFilterDescription(this.filterDescription)
   },
   watch: {
     title(newVal) {
