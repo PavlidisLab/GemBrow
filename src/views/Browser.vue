@@ -846,7 +846,7 @@ export default {
           axios.get(url,{
           params: {uri:value.termUri, direct:false}
         }).then(res => {
-          let inferredTerms = Object.fromEntries(res.data.map(value=>{
+          let inferredTerms = Object.fromEntries(res.data.data.map(value=>{
             return [value.valueUri,value.value]
           }))
           this.$set(this.inferredTermLabelsByCategory,value.classUri, Object.assign({},this.inferredTermLabelsByCategory[value.classUri], inferredTerms))
