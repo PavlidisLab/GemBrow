@@ -132,7 +132,7 @@
            title="UBC home page"
            class="d-flex align-center pl-3">
             <img
-                    :src="require('@/assets/ubc-logo-current.png')"
+                    :src="require('@/assets/ubc-logo.png')"
                     height="40"
                     alt="UBC Logo"
             />
