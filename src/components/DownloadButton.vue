@@ -52,6 +52,8 @@ export default {
       }
       this.downloading = true;
       let filter = this.browsingOptions.filter;
+      let query = this.browsingOptions.query;
+      debugger
       let limit = 100;
       let sort = this.browsingOptions.sort;
       let total = this.total = this.totalNumberOfExpressionExperiments;
@@ -64,6 +66,7 @@ export default {
         let promises = [];
         for (let offset = 0; offset < total; offset += limit) {
           let payload = {
+            query: query,
             filter: compressedFilter,
             offset: offset,
             limit: limit,
