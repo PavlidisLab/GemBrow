@@ -95,6 +95,7 @@ export default {
        * @type Array
        */
       selectedValues: this.value.map(term => this.getId(term)),
+      dispatchedSelected:[],
       /**
        * Search for annotations.
        */
@@ -143,7 +144,14 @@ export default {
                 children: c.children && getChildren(c)
               };
             }).sort((a, b) => {
-              return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+              let a_select = that.dispatchedSelected.includes(a.termUri)
+              let b_select = that.dispatchedSelected.includes(b.termUri)
+              if (a_select === b_select){
+                return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
+              } else{
+                return b_select - a_select
+              }
+
             });
           }
 
@@ -291,6 +299,10 @@ export default {
       if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
         this.$emit("update:selectedCategories", sc);
       }
+      // eslint-disable-next-line vue/no-mutating-props
+      this.dispatchedSelected = this.selectedValues
+          .map(x=>{return x.split(SEPARATOR)})
+          .reduce((p,n)=>(p.concat(n)),[]);
     },1000)
   },
   watch: {
