@@ -197,7 +197,7 @@ export default {
   methods: {
     formatNumber,
     filter(item, search) {
-      let fragments = search.toLowerCase().split(" ");
+      let fragments = pluralize.singular(search.toLowerCase()).split(" ");
       return fragments.every(fragment => this.getTitle(item).toLowerCase().includes(fragment) || this.getUri(item)?.toLowerCase() === fragment);
     },
     getId(term) {
