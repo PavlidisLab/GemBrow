@@ -57,6 +57,14 @@ vapi.endpoint = function(action, property, path, config = {}) {
     onSuccess(state, payload) {
       if (payload.data.error) {
         state.error[property] = payload.data.error;
+      } else if(payload.data.warnings && payload.data.warnings.reduce((a,warning)=>{return a || warning.reason === "org.apache.lucene.queryParser.ParseException"},false)){
+        state.error[property] = {
+          message:  payload.data.warnings.reduce((a,warning)=>{
+            if(warning.reason === "org.apache.lucene.queryParser.ParseException") {
+              return a + warning.message
+            }},""),
+          code: "ERR_PARSING"
+        }
       } else {
         state[property] = payload.data;
       }

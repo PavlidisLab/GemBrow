@@ -6,6 +6,9 @@
         <div v-else-if="error.code === 'ERR_NETWORK'">
             It seems that your Internet connection is not available at this time.
         </div>
+        <div v-else-if="error.code === 'ERR_PARSING'">
+          {{ error.message }}
+        </div>
         <div v-else>
             <div class="d-flex">
                 An error has occurred. The Gemma Browser is still under development and we will greatly appreciate
@@ -58,7 +61,8 @@ export default {
   computed: {
     ...mapState(["debug"]),
     errorType() {
-      if (this.error.code === "ERR_NETWORK") {
+      debugger
+      if (this.error.code === "ERR_NETWORK" || this.error.code === "ERR_PARSING") {
         return "warning";
       }
       return "error";
