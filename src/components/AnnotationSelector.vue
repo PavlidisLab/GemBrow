@@ -279,10 +279,13 @@ export default {
     },
     highlightSearchTerm(text, query) {
       const words = text.split(" ");
+      const query_words = pluralize.singular(query).split(" ")
       const highlightedWords = words.map(word => {
-        if (word.toLowerCase().includes(query.toLowerCase())) {
-          const regex = new RegExp(`\\b.*${query}.*\\b`, "gi");
-          return word.replace(regex, match => `<strong>${match}</strong>`);
+        let query_contained = query_words.reduce((contains,q_word) => {
+          return contains || word.toLowerCase().includes(q_word.toLowerCase())
+        },false)
+        if (query_contained) {
+          return "<strong>"+ word + "</strong>"
         }
         return word;
       });
