@@ -119,14 +119,7 @@ export default {
       let query = this.browsingOptions.query;
       let filter = this.browsingOptions.filter?.map(subClauses => subClauses.join(" or "))?.join(" and ");
       let sort = this.browsingOptions.sort;
-      let filter_python = filter
 
-      // if the uncompressed URL is too long, always use the compressed filter
-      // TODO: remove this when gemma.R and gemmapy supports filter compression (see https://github.com/PavlidisLab/GemBrow/issues/78)
-      if (this.uncompressedUrl.length > MAX_URL_LENGTH) {
-        console.warn("The uncompressed URL is too long, the compressed filter will be displayed in the Python snippets.");
-        filter_python = this.compressedFilter;
-      }
 
       // Gemmapy snippet
       let queryGemmapy = [];
@@ -137,7 +130,7 @@ export default {
         if (queryGemmapy.length > 0) {
           queryGemmapy.push(", ");
         }
-        queryGemmapy.push(`filter=${this.escapePythonString(filter_python)}`);
+        queryGemmapy.push(`filter=${this.escapePythonString(filter)}`);
       }
       if (queryGemmapy.length > 0) {
         if (sort !== undefined) {
