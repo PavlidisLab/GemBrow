@@ -95,7 +95,7 @@ export default {
        * @type Array
        */
       selectedValues: this.value.map(term => this.getId(term)),
-      dispatchedSelected:[],
+      dispatchedSelectedAnnotations:[],
       /**
        * Search for annotations.
        */
@@ -129,23 +129,35 @@ export default {
      */
     rankedAnnotations() {
       return this.annotations
-        .map(a => {
+        .map((a,i) => {
           let that = this;
-
           /**
            * Recursively construct a tree of annotations for a given category.
            */
+          let relevantSelectedAnnots = that.dispatchedSelectedAnnotations
+              .filter(annot=> annot.classUri === that.annotations[i].classUri)
+          let selectedUris = relevantSelectedAnnots.map(annot => annot.termUri);
+
           function getChildren(a) {
-            return a.children.map(c => {
+            let unrankedAnnots = a.children.map(c => {
               return {
                 ...c,
                 id: that.getId(c),
                 isCategory: false,
                 children: c.children && getChildren(c)
               };
-            }).sort((a, b) => {
-              let a_select = that.dispatchedSelected.includes(a.termUri)
-              let b_select = that.dispatchedSelected.includes(b.termUri)
+            })
+            let unrankedUris = unrankedAnnots.map(annot => annot.termUri)
+            unrankedAnnots = unrankedAnnots.concat(
+                relevantSelectedAnnots
+                    .filter(annot=>!unrankedUris.includes(annot.termUri))
+            )
+            return unrankedAnnots
+                .sort((a, b) => {
+              let a_select = selectedUris
+                  .includes(a.termUri);
+              let b_select = selectedUris
+                  .includes(b.termUri);
               if (a_select === b_select){
                 return b.numberOfExpressionExperiments - a.numberOfExpressionExperiments;
               } else{
@@ -302,10 +314,14 @@ export default {
       if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
         this.$emit("update:selectedCategories", sc);
       }
-      // eslint-disable-next-line vue/no-mutating-props
-      this.dispatchedSelected = this.selectedValues
-          .map(x=>{return x.split(SEPARATOR)})
-          .reduce((p,n)=>(p.concat(n)),[]);
+
+      let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
+      let selectedURIs = this.selectedValues.map(x => x.split(SEPARATOR)[1])
+
+      this.dispatchedSelectedAnnotations = allAnnots
+          .filter(annot=>selectedURIs.includes(annot.termUri))
+
+
     },1000)
   },
   watch: {
