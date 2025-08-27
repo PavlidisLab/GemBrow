@@ -95,7 +95,7 @@ export default {
        * @type Array
        */
       selectedValues: this.value.map(term => this.getId(term)),
-      dispatchedSelectedAnnotations:[],
+      dispatchedSelectedAnnotations:{},
       /**
        * Search for annotations.
        */
@@ -134,7 +134,7 @@ export default {
           /**
            * Recursively construct a tree of annotations for a given category.
            */
-          let relevantSelectedAnnots = that.dispatchedSelectedAnnotations
+          let relevantSelectedAnnots = Object.values(that.dispatchedSelectedAnnotations)
               .filter(annot=> annot.classUri === that.annotations[i].classUri)
           let selectedUris = relevantSelectedAnnots.map(annot => annot.termUri);
 
@@ -266,7 +266,7 @@ export default {
         // exclude annotations from selected categories
         .filter(a => !sc.has(a.split(SEPARATOR, 2)[0]))
         .map(id => {
-          let a = this.annotationById[id];
+          let a = this.annotationById[id] ? this.annotationById[id] : this.dispatchedSelectedAnnotations[id];
           if (!a) {
             console.warn(`Term ${id} is not selectable`);
           }
@@ -318,10 +318,13 @@ export default {
       let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
       let selectedURIs = this.selectedValues.map(x => x.split(SEPARATOR)[1])
 
-      this.dispatchedSelectedAnnotations = allAnnots
+
+      this.dispatchedSelectedAnnotations =  allAnnots
           .filter(annot=>selectedURIs.includes(annot.termUri))
-
-
+          .reduce((acc,annot)=>{
+            acc[annot.classUri+"|"+annot.termUri] = annot
+            return acc
+          },{})
     },1000)
   },
   watch: {
