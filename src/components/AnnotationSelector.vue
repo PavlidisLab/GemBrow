@@ -30,7 +30,7 @@
         >
             <template v-slot:prepend="{item,leaf}">
               <v-icon
-                  v-if="leaf"
+                  v-if="leaf || debug"
                   :class="iconForState(selection[item.id]|| 0)"
                   @click.stop="toggleSelection(item.id)"
                   :color="selection[item.id]===-1 ? 'red darken-3' : ''"
@@ -110,6 +110,7 @@ export default {
        */
       search: null,
       selection:{},
+      oldSelection:{},
       /**
        * A list of opened categories.
        */
@@ -327,10 +328,18 @@ export default {
       return highlightedWords.join(" ");
     },
     dispatchValues:debounce(function(newVal,oldVal){
-      let sc = this.computeSelectedCategories(newVal);
-      let sa = this.computeSelectedAnnotations(newVal, sc);
-      let scOld = this.computeSelectedCategories(oldVal);
-      let saOld = this.computeSelectedAnnotations(oldVal, scOld);
+      let marked =   Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] !== 0  ))
+      let selected =  Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === 1  ))
+      let unselected = Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === -1  ))
+
+      // let oldMarked =   Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] !== 0  ))
+      let oldSelected =  Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === 1  ))
+      let oldUnselected = Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === -1  ))
+
+      let sc = this.computeSelectedCategories(selected);
+      let sa = this.computeSelectedAnnotations(selected, sc);
+      let scOld = this.computeSelectedCategories(oldSelected);
+      let saOld = this.computeSelectedAnnotations(oldSelected, scOld);
       if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
         this.$emit("input", sa);
       }
@@ -338,9 +347,20 @@ export default {
         this.$emit("update:selectedCategories", sc);
       }
 
-      let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
-      let selectedURIs = this.selectedValues.map(x => x.split(SEPARATOR)[1])
+      let unSc = this.computeSelectedCategories(unselected);
+      let unsa = this.computeSelectedAnnotations(unselected,unSc);
+      let unScOld = this.computeSelectedCategories(oldUnselected);
+      let unSaOld = this.computeSelectedAnnotations(oldUnselected,unScOld);
+      if (!isEqual(unsa.map(this.getId), unSaOld.map(this.getId))) {
+        this.$emit("update:negativeAnnotations", sa);
+      }
+      if (!isEqual(unSc.map(getCategoryId), unScOld.map(getCategoryId))) {
+        this.$emit("update:negativeCategories", sc);
+      }
 
+
+      let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
+      let selectedURIs = marked.map(x => x.split(SEPARATOR)[1])
 
       this.dispatchedSelectedAnnotations =  allAnnots
           .filter(annot=>selectedURIs.includes(annot.termUri))
@@ -367,9 +387,10 @@ export default {
       // make sure that newVal is an option
       this.selectedValues = newVal.map(term => this.getId(term));
     },
-    selectedValues:function(newVal, oldVal) {
-      if(!isEqual(newVal,oldVal)){
-        this.dispatchValues(newVal,oldVal)
+    selection(newVal) {
+      if (!isEqual(newVal, this.oldSelection)) {
+        this.dispatchValues(newVal, this.oldSelection)
+        this.$set(this.oldSelection, Object.assign({}, newVal))
       }
     }
   }
@@ -380,7 +401,7 @@ export default {
 .hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
     display: none !important;
 }
-.v-treeview-node__prepend {
+>>> .v-treeview-node__prepend {
   min-width: 0;
 }
 </style>
