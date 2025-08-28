@@ -28,6 +28,15 @@
                     :filter="filter"
                     :class="debug ? '' : 'hide-root-checkboxes'"
         >
+            <template v-slot:prepend="{item,leaf}">
+              <v-icon
+                  v-if="leaf"
+                  :class="iconForState(selection[item.id]|| 0)"
+                  @click.stop="toggleSelection(item.id)"
+                  :color="selection[item.id]===-1 ? 'red darken-3' : ''"
+              >
+              </v-icon>
+            </template>
             <template v-slot:label="{item}">
                 <i v-if="item.isCategory && isUncategorized(item)">Uncategorized</i>
                 <span v-else
@@ -100,6 +109,7 @@ export default {
        * Search for annotations.
        */
       search: null,
+      selection:{},
       /**
        * A list of opened categories.
        */
@@ -208,6 +218,19 @@ export default {
   },
   methods: {
     formatNumber,
+    toggleSelection(id){
+      let current = this.selection[id] || 0;
+      let next = current === 0 ? 1: current === 1 ? -1 : 0;
+      this.$set(this.selection, id, next);
+    },
+    iconForState(state){
+      let box_class = "v-icon notranslate v-treeview-node__checkbox v-icon--link theme--light mdi "
+      switch (state){
+        case 1: return box_class + 'accent--text mdi-checkbox-marked';   // positive
+        case -1: return box_class + 'mdi-minus-box';       // negative
+        default: return box_class + 'mdi-checkbox-blank-outline'; // unselected
+      }
+    },
     filter(item, search) {
       let fragments = pluralize.singular(search.toLowerCase()).split(" ");
       return fragments.every(fragment => this.getTitle(item).toLowerCase().includes(fragment) || this.getUri(item)?.toLowerCase() === fragment);
@@ -356,5 +379,8 @@ export default {
 <style scoped>
 .hide-root-checkboxes >>> .v-treeview-node__toggle + .v-treeview-node__checkbox {
     display: none !important;
+}
+.v-treeview-node__prepend {
+  min-width: 0;
 }
 </style>
