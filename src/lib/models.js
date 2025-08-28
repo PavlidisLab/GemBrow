@@ -66,7 +66,9 @@ export function QualityRange(low, high) {
  * @property quality {QualityRange} Filter results by quality, if applicable
  * @property technologyTypes  {} Selected technology types
  * @property annotations {} Selected terms
+ * @property negativeAnnotations {} Negatively selected terms
  * @property categories {} Selected categories
+ * @property negativeCategories {} Negatively selected categories
  * @constructor
  */
 export function SearchSettings(taxon, query, resultTypes, platforms) {
@@ -79,7 +81,9 @@ export function SearchSettings(taxon, query, resultTypes, platforms) {
   this.technologyTypes = [];
   this.selectedTech = platforms || [];
   this.annotations = [];
+  this.negativeAnnotations=[];
   this.categories = [];
+  this.negativeCategories = [];
   this.ignoreExcludedTerms = false;
 }
 
