@@ -31,9 +31,10 @@
             <template v-slot:prepend="{item,leaf}">
               <v-icon
                   v-if="leaf || debug"
+                  :disabled="disabled"
                   :class="iconForState(selection[item.id]|| 0)"
                   @click.stop="toggleSelection(item.id)"
-                  :color="selection[item.id]===-1 ? 'red darken-3' : ''"
+                  :color="[-1,3].includes(selection[item.id]) ? 'red darken-3' : ''"
               >
               </v-icon>
             </template>
@@ -221,14 +222,60 @@ export default {
     formatNumber,
     toggleSelection(id){
       let current = this.selection[id] || 0;
-      let next = current === 0 ? 1: current === 1 ? -1 : 0;
+      let next = current === 0 ? 1: current === 1 ? -1 : current === -1 ? 0: current === 2 ? 1 : current === 3 ? -1 : current === 4 ? 1 : 0
       this.$set(this.selection, id, next);
+
+      // if a parent id is clicked, apply the change to all children
+      this.rankedAnnotations
+          .filter(annot => {return annot.id === id})
+          .map(annot => {
+            annot.children.map(children => {
+              this.$set(this.selection, children.id, next);
+            })
+          })
+
+      // if a child id is clicked, check it's parent to figure out how to mark it
+      let split_id = id.split("|")
+      if(split_id.length > 1){
+        let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
+        let unselected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === -1  ))
+
+        let category = split_id[0]
+        let child_ids = this.rankedAnnotations
+            .filter(annot => {return annot.id === category})[0]
+            .children.map(child=>child.id)
+
+        // all/no children are selected are states 1,-1
+        // some children selected/unselected are states 2,3
+        // a mix of selected/unselected is state 4
+        if (child_ids.every(c=>selected.includes(c))){
+          this.$set(this.selection, category, 1);
+        } else if (child_ids.every(c=>unselected.includes(c))){
+          this.$set(this.selection, category, -1);
+        } else if (child_ids.some(c=>selected.includes(c)) && !child_ids.some(c=>unselected.includes(c))){
+          this.$set(this.selection, category, 2);
+        } else if(child_ids.some(c=>unselected.includes(c)) && !child_ids.some(c=>selected.includes(c))) {
+          this.$set(this.selection, category, 3);
+        } else if(child_ids.some(c=>unselected.includes(c)) && child_ids.some(c=>selected.includes(c))){
+          this.$set(this.selection, category, 4);
+        } else{
+          this.$set(this.selection, category, 0);
+        }
+
+      }
+
+
+
+
     },
     iconForState(state){
       let box_class = "v-icon notranslate v-treeview-node__checkbox v-icon--link theme--light mdi "
       switch (state){
         case 1: return box_class + 'accent--text mdi-checkbox-marked';   // positive
-        case -1: return box_class + 'mdi-minus-box';       // negative
+        case -1: return box_class + 'mdi-close-box';       // negative
+        case 2: return box_class + 'accent--text mdi-minus-box';
+        case 3: return box_class + 'mdi-minus-box';
+        case 4: return box_class + 'mdi-minus-box';
         default: return box_class + 'mdi-checkbox-blank-outline'; // unselected
       }
     },
@@ -336,6 +383,10 @@ export default {
       let oldSelected =  Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === 1  ))
       let oldUnselected = Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === -1  ))
 
+      // assign old selection here instead of the main watcher since it can skip steps while
+      // waiting for debounce otherise
+      this.oldSelection = Object.assign({},newVal);
+
       let sc = this.computeSelectedCategories(selected);
       let sa = this.computeSelectedAnnotations(selected, sc);
       let scOld = this.computeSelectedCategories(oldSelected);
@@ -387,12 +438,14 @@ export default {
       // make sure that newVal is an option
       this.selectedValues = newVal.map(term => this.getId(term));
     },
-    selection(newVal) {
-      if (!isEqual(newVal, this.oldSelection)) {
-        this.dispatchValues(newVal, this.oldSelection)
-        this.$set(this.oldSelection, Object.assign({}, newVal))
+    selection:{
+      handler:function(newVal) {
+        if (!isEqual(newVal, this.oldSelection)) {
+          this.dispatchValues(newVal, this.oldSelection);
+        }
+      },
+      deep: true
       }
-    }
   }
 };
 </script>
