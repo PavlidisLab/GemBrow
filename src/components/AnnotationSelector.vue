@@ -112,6 +112,7 @@ export default {
        */
       search: null,
       selection:{},
+      rootSelection: {},
       oldSelection:{},
       oldAnnotations:[],
       /**
@@ -262,13 +263,48 @@ export default {
       this.rankedAnnotations
           .filter(annot => {return annot.id === id})
           .map(annot => {
+            this.$set(this.rootSelection,annot.id,next)
             annot.children.map(children => {
               this.$set(this.selection, children.id, next);
             })
           })
 
       // if a child id is clicked, check it's parent to figure out how to mark it
-      this.markParent(id)
+      let split_id = id.split("|")
+      if(split_id.length > 1){
+        if(split_id.length > 1){
+          let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
+          let unselected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === -1  ))
+
+          let category = split_id[0]
+          let child_ids = this.rankedAnnotations
+              .filter(annot => {return annot.id === category})[0]
+              .children.map(child=>child.id)
+
+          // all/no children are selected are states 1,-1
+          // some children selected/unselected are states 2,3
+          // a mix of selected/unselected is state 4
+          if (child_ids.every(c=>selected.includes(c))){
+            this.$set(this.selection, category, 1);
+            this.$set(this.rootSelection,category,1);
+          } else if (child_ids.every(c=>unselected.includes(c))){
+            this.$set(this.selection, category, -1);
+            this.$set(this.rootSelection,category,-1);
+          } else if (child_ids.some(c=>selected.includes(c)) && !child_ids.some(c=>unselected.includes(c))){
+            this.$set(this.selection, category, 2);
+            this.$set(this.rootSelection,category,0);
+          } else if(child_ids.some(c=>unselected.includes(c)) && !child_ids.some(c=>selected.includes(c))) {
+            this.$set(this.selection, category, 3);
+            this.$set(this.rootSelection,category,0);
+          } else if(child_ids.some(c=>unselected.includes(c)) && child_ids.some(c=>selected.includes(c))){
+            this.$set(this.selection, category, 4);
+            this.$set(this.rootSelection,category,0);
+          } else{
+            this.$set(this.selection, category, 0);
+            this.$set(this.rootSelection,category,0);
+          }
+        }
+      }
     },
     iconForState(state){
       let box_class = "v-icon notranslate v-treeview-node__checkbox v-icon--link theme--light mdi "
@@ -429,17 +465,23 @@ export default {
   watch: {
     selectedAnnotations(newVal){
       let annot_ids = newVal.map(term => this.getId(term))
-      annot_ids.
-          map(id => {
+      annot_ids
+          .map(id => {
             this.$set(this.selection,id,1)
-            this.markParent(id)
-      })
+          })
+      //annot_ids
+      //    .map(id => {
+      //      this.markParent(id)
+      //    })
       let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
       selected.filter(s=>!annot_ids.includes(s))
           .map(s=>{
             this.$set(this.selection,s,0)
-            this.markParent(s)
           })
+      //selected.filter(s=>!annot_ids.includes(s))
+      //    .map(s=>{
+      //      this.markParent(s)
+      //    })
 
     },
     search(newVal) {
