@@ -60,7 +60,7 @@
                 v-show="false"
                 class="mb-1"/>
         <AnnotationSelector
-                v-model="searchSettings.annotations"
+                :selectedAnnotations.sync="searchSettings.annotations"
                 :negativeAnnotations.sync="searchSettings.negativeAnnotations"
                 :negativeCategories.sync="searchSettings.negativeCategories"
                 :annotations="annotations"

@@ -11,7 +11,7 @@
                 Counts in this section may be approximate. For more explanation see the help.
             </v-tooltip>
             <v-spacer></v-spacer>
-            <v-btn v-if="selectedValues.length > 0" @click="selectedValues = []" small text color="primary"
+            <v-btn v-if="Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] !== 0  )).length > 0" @click="selection = {}" small text color="primary"
                    :disabled="disabled">
                 Clear Selection
             </v-btn>
@@ -20,8 +20,7 @@
         <v-text-field v-model="search" dense label="Filter Annotations" outlined hide-details
                       prepend-inner-icon="filter_list" :disabled="disabled"
                       class="my-1"/>
-        <v-treeview v-model="selectedValues" :items="rankedAnnotations" :disabled="disabled" item-key="id"
-                    selectable
+        <v-treeview :items="rankedAnnotations" :disabled="disabled" item-key="id"
                     dense
                     :open.sync="open"
                     :search="search"
@@ -87,7 +86,10 @@ export default {
      *
      * Only selected terms are listed in the array, selected categories are handled separately.
      */
-    value: Array,
+    selectedAnnotations:Array,
+    negativeAnnotations: Array,
+    selectedCategories:Array,
+    negativeCategories:Array,
     /**
      * Annotations to be displayed in this selector.
      */
@@ -104,7 +106,6 @@ export default {
        * An array of selected values formatted as "categoryId|termId".
        * @type Array
        */
-      selectedValues: this.value.map(term => this.getId(term)),
       dispatchedSelectedAnnotations:{},
       /**
        * Search for annotations.
@@ -112,6 +113,7 @@ export default {
       search: null,
       selection:{},
       oldSelection:{},
+      oldAnnotations:[],
       /**
        * A list of opened categories.
        */
@@ -220,6 +222,37 @@ export default {
   },
   methods: {
     formatNumber,
+    markParent(id){
+      let split_id = id.split("|")
+      if(split_id.length > 1){
+        if(split_id.length > 1){
+          let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
+          let unselected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === -1  ))
+
+          let category = split_id[0]
+          let child_ids = this.rankedAnnotations
+              .filter(annot => {return annot.id === category})[0]
+              .children.map(child=>child.id)
+
+          // all/no children are selected are states 1,-1
+          // some children selected/unselected are states 2,3
+          // a mix of selected/unselected is state 4
+          if (child_ids.every(c=>selected.includes(c))){
+            this.$set(this.selection, category, 1);
+          } else if (child_ids.every(c=>unselected.includes(c))){
+            this.$set(this.selection, category, -1);
+          } else if (child_ids.some(c=>selected.includes(c)) && !child_ids.some(c=>unselected.includes(c))){
+            this.$set(this.selection, category, 2);
+          } else if(child_ids.some(c=>unselected.includes(c)) && !child_ids.some(c=>selected.includes(c))) {
+            this.$set(this.selection, category, 3);
+          } else if(child_ids.some(c=>unselected.includes(c)) && child_ids.some(c=>selected.includes(c))){
+            this.$set(this.selection, category, 4);
+          } else{
+            this.$set(this.selection, category, 0);
+          }
+        }
+      }
+    },
     toggleSelection(id){
       let current = this.selection[id] || 0;
       let next = current === 0 ? 1: current === 1 ? -1 : current === -1 ? 0: current === 2 ? 1 : current === 3 ? -1 : current === 4 ? 1 : 0
@@ -235,38 +268,7 @@ export default {
           })
 
       // if a child id is clicked, check it's parent to figure out how to mark it
-      let split_id = id.split("|")
-      if(split_id.length > 1){
-        let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
-        let unselected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === -1  ))
-
-        let category = split_id[0]
-        let child_ids = this.rankedAnnotations
-            .filter(annot => {return annot.id === category})[0]
-            .children.map(child=>child.id)
-
-        // all/no children are selected are states 1,-1
-        // some children selected/unselected are states 2,3
-        // a mix of selected/unselected is state 4
-        if (child_ids.every(c=>selected.includes(c))){
-          this.$set(this.selection, category, 1);
-        } else if (child_ids.every(c=>unselected.includes(c))){
-          this.$set(this.selection, category, -1);
-        } else if (child_ids.some(c=>selected.includes(c)) && !child_ids.some(c=>unselected.includes(c))){
-          this.$set(this.selection, category, 2);
-        } else if(child_ids.some(c=>unselected.includes(c)) && !child_ids.some(c=>selected.includes(c))) {
-          this.$set(this.selection, category, 3);
-        } else if(child_ids.some(c=>unselected.includes(c)) && child_ids.some(c=>selected.includes(c))){
-          this.$set(this.selection, category, 4);
-        } else{
-          this.$set(this.selection, category, 0);
-        }
-
-      }
-
-
-
-
+      this.markParent(id)
     },
     iconForState(state){
       let box_class = "v-icon notranslate v-treeview-node__checkbox v-icon--link theme--light mdi "
@@ -324,9 +326,10 @@ export default {
       }
     },
     getNumberCategorySelections(item) {
+      let marked = Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] !== 0  ))
       let classUri = item.classUri;
-      let selectedValuesClassUris = this.selectedValues.map(Values => Values.split("|")[0]);
-      return selectedValuesClassUris.filter(value => value.includes(classUri)).length;
+      let selectedValuesClassUris = marked.map(Values => Values.split("|")[0]);
+      return selectedValuesClassUris.filter(value => value.includes(classUri)).length-1;
     },
     /**
      * Selected annotations, excluding those in selected categories.
@@ -354,9 +357,9 @@ export default {
      * When other filters are applied, it may happen that a category becomes unexpectedly selected, so to prevent this
      * we require at least 10 terms in the category.
      */
-    computeSelectedCategories(newVal) {
+    computeSelectedCategories(newVal,annotations) {
       let s = new Set(newVal);
-      return this.annotations
+      return annotations
         .filter(a => a.children.length > 10 && a.children.every(b => s.has(this.getId(b))))
         .map(a => ({ classUri: a.classUri, className: a.className }));
     },
@@ -383,24 +386,22 @@ export default {
       let oldSelected =  Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === 1  ))
       let oldUnselected = Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === -1  ))
 
-      // assign old selection here instead of the main watcher since it can skip steps while
-      // waiting for debounce otherise
-      this.oldSelection = Object.assign({},newVal);
 
-      let sc = this.computeSelectedCategories(selected);
+
+      let sc = this.computeSelectedCategories(selected,this.annotations);
       let sa = this.computeSelectedAnnotations(selected, sc);
-      let scOld = this.computeSelectedCategories(oldSelected);
+      let scOld = this.computeSelectedCategories(oldSelected,this.oldAnnotations);
       let saOld = this.computeSelectedAnnotations(oldSelected, scOld);
       if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
-        this.$emit("input", sa);
+        this.$emit("update:selectedAnnotations", sa);
       }
       if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
         this.$emit("update:selectedCategories", sc);
       }
 
-      let unSc = this.computeSelectedCategories(unselected);
+      let unSc = this.computeSelectedCategories(unselected,this.annotations);
       let unsa = this.computeSelectedAnnotations(unselected,unSc);
-      let unScOld = this.computeSelectedCategories(oldUnselected);
+      let unScOld = this.computeSelectedCategories(oldUnselected,this.oldAnnotations);
       let unSaOld = this.computeSelectedAnnotations(oldUnselected,unScOld);
       if (!isEqual(unsa.map(this.getId), unSaOld.map(this.getId))) {
         this.$emit("update:negativeAnnotations", sa);
@@ -409,6 +410,10 @@ export default {
         this.$emit("update:negativeCategories", sc);
       }
 
+      // assign old selection here instead of the main watcher since it can skip steps while
+      // waiting for debounce otherise
+      this.oldSelection = Object.assign({},newVal);
+      this.oldAnnotations = this.annotations;
 
       let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
       let selectedURIs = marked.map(x => x.split(SEPARATOR)[1])
@@ -422,6 +427,21 @@ export default {
     },1000)
   },
   watch: {
+    selectedAnnotations(newVal){
+      let annot_ids = newVal.map(term => this.getId(term))
+      annot_ids.
+          map(id => {
+            this.$set(this.selection,id,1)
+            this.markParent(id)
+      })
+      let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
+      selected.filter(s=>!annot_ids.includes(s))
+          .map(s=>{
+            this.$set(this.selection,s,0)
+            this.markParent(s)
+          })
+
+    },
     search(newVal) {
       if (newVal) {
         if (this.previouslyOpen === null) {
@@ -433,10 +453,6 @@ export default {
         this.open = this.previouslyOpen;
         this.previouslyOpen = null;
       }
-    },
-    value(newVal) {
-      // make sure that newVal is an option
-      this.selectedValues = newVal.map(term => this.getId(term));
     },
     selection:{
       handler:function(newVal) {
