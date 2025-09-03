@@ -90,6 +90,7 @@ export default {
     negativeAnnotations: Array,
     selectedCategories:Array,
     negativeCategories:Array,
+    additionalAnnotations:Array,
     /**
      * Annotations to be displayed in this selector.
      */
@@ -113,6 +114,7 @@ export default {
       search: null,
       selection:{},
       rootSelection: {},
+      oldRoots: {},
       oldSelection:{},
       oldAnnotations:[],
       /**
@@ -268,6 +270,10 @@ export default {
               this.$set(this.selection, children.id, next);
             })
           })
+      // clear stray terms in selection
+      Object.keys(this.selection)
+          .filter(k=>k.split("|")[0] === id)
+          .map(k=>this.$set(this.selection,k,next))
 
       // if a child id is clicked, check it's parent to figure out how to mark it
       let split_id = id.split("|")
@@ -414,6 +420,7 @@ export default {
       return highlightedWords.join(" ");
     },
     dispatchValues:debounce(function(newVal,oldVal){
+
       let marked =   Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] !== 0  ))
       let selected =  Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === 1  ))
       let unselected = Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === -1  ))
@@ -422,11 +429,16 @@ export default {
       let oldSelected =  Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === 1  ))
       let oldUnselected = Object.keys(oldVal).filter((x,i)=>( Object.values(oldVal)[i] === -1  ))
 
+      let selectedRoots = Object.keys(this.rootSelection).filter((x,i)=>( Object.values(this.rootSelection)[i] === 1  ))
+      let unselectedRoots = Object.keys(this.rootSelection).filter((x,i)=>( Object.values(this.rootSelection)[i] === -1  ))
+
+      let oldSelectedRoots = Object.keys(this.oldRoots).filter((x,i)=>( Object.values(this.oldRoots)[i] === 1  ))
+      let oldUnselectedRoots = Object.keys(this.oldRoots).filter((x,i)=>( Object.values(this.oldRoots)[i] === -1  ))
 
 
-      let sc = this.computeSelectedCategories(selected,this.annotations);
+      let sc =  this.annotations.filter(annot=>selectedRoots.includes(annot.classUri))
       let sa = this.computeSelectedAnnotations(selected, sc);
-      let scOld = this.computeSelectedCategories(oldSelected,this.oldAnnotations);
+      let scOld = this.annotations.filter(annot=>oldSelectedRoots.includes(annot.classUri))
       let saOld = this.computeSelectedAnnotations(oldSelected, scOld);
       if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
         this.$emit("update:selectedAnnotations", sa);
@@ -434,10 +446,9 @@ export default {
       if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
         this.$emit("update:selectedCategories", sc);
       }
-
-      let unSc = this.computeSelectedCategories(unselected,this.annotations);
+      let unSc = this.annotations.filter(annot=>unselectedRoots.includes(annot.classUri))
       let unsa = this.computeSelectedAnnotations(unselected,unSc);
-      let unScOld = this.computeSelectedCategories(oldUnselected,this.oldAnnotations);
+      let unScOld = this.annotations.filter(annot=>oldUnselectedRoots.includes(annot.classUri))
       let unSaOld = this.computeSelectedAnnotations(oldUnselected,unScOld);
       if (!isEqual(unsa.map(this.getId), unSaOld.map(this.getId))) {
         this.$emit("update:negativeAnnotations", sa);
@@ -450,10 +461,10 @@ export default {
       // waiting for debounce otherise
       this.oldSelection = Object.assign({},newVal);
       this.oldAnnotations = this.annotations;
+      this.oldRoots = Object.assign({},this.rootSelection);
 
       let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
       let selectedURIs = marked.map(x => x.split(SEPARATOR)[1])
-
       this.dispatchedSelectedAnnotations =  allAnnots
           .filter(annot=>selectedURIs.includes(annot.termUri))
           .reduce((acc,annot)=>{
@@ -463,25 +474,49 @@ export default {
     },1000)
   },
   watch: {
-    selectedAnnotations(newVal){
-      let annot_ids = newVal.map(term => this.getId(term))
-      annot_ids
-          .map(id => {
-            this.$set(this.selection,id,1)
-          })
-      //annot_ids
-      //    .map(id => {
-      //      this.markParent(id)
-      //    })
-      let selected =  Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] === 1  ))
-      selected.filter(s=>!annot_ids.includes(s))
-          .map(s=>{
-            this.$set(this.selection,s,0)
-          })
-      //selected.filter(s=>!annot_ids.includes(s))
-      //    .map(s=>{
-      //      this.markParent(s)
-      //    })
+    annotations(newVal,oldVal){
+      if (!isEqual(newVal,oldVal)) {
+        let markedRoots = Object.keys(this.rootSelection).filter((x,i)=>( Object.values(this.rootSelection)[i] === 1 || Object.values(this.rootSelection)[i] === -1  ))
+        let selectedRoots = Object.keys(this.rootSelection).filter((x,i)=>( Object.values(this.rootSelection)[i] === 1  ))
+        let unselectedRoots = Object.keys(this.rootSelection).filter((x,i)=>( Object.values(this.rootSelection)[i] === -1  ))
+
+        // clear previous dispatched list for root selections since we don't want to accumulate terms for no reason
+        let dispatchAnnots = Object.assign({},this.dispatchedSelectedAnnotations)
+        Object.values(dispatchAnnots)
+            .filter((annot=>markedRoots.includes(annot.classUri)))
+            .map(annot=>this.$delete(this.dispatchedSelectedAnnotations,annot.id))
+
+
+        // if a root is selected, make sure any new additions are selected as well
+        newVal
+            .filter(annot=>selectedRoots.includes(annot.classUri))
+            .map(annot=>{
+              annot.children.map(child=>{
+                this.$set(this.selection,this.getId(child),1)
+              })
+            })
+        newVal
+            .filter(annot=>unselectedRoots.includes(annot.classUri))
+            .map(annot=>{
+              annot.children.map(child=>{
+                this.$set(this.selection,this.getId(child),-1)
+              })
+            })
+
+      }
+    },
+    additionalAnnotations(newVal,oldVal){
+      let newIds = newVal.map(this.getId)
+      let oldIds = oldVal.map(this.getId)
+      let removedIds = oldIds.filter(id=>!newIds.includes(id))
+
+      newIds.map(id=>{
+        this.$set(this.selection,id,1)
+      })
+
+      removedIds.map(id=>{
+        this.$set(this.selection,id,0)
+      })
 
     },
     search(newVal) {

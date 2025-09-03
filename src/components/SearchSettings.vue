@@ -66,6 +66,7 @@
                 :annotations="annotations"
                 :loading="annotationLoading"
                 :disabled="annotationDisabled"
+                :additionalAnnotations.sync="additionalAnnotations"
                 :selectedCategories.sync="searchSettings.categories"/>
         <div :class="debug ? '' : 'd-lg-none'">
             <div style="margin-bottom: 59px;"></div>
@@ -175,14 +176,6 @@ export default {
         this.$emit("input", newValue);
       },
       deep: true
-    },
-    additionalAnnotations: function(newVal,oldVal){
-      // remove annotations that are unselected
-      let newUris = newVal.map(annot=>annot.termUri)
-      let oldUris = oldVal.map(annot=>annot.termUri)
-      let removedUris = oldUris.filter(uri=>!newUris.includes(uri))
-      let annots = this.searchSettings.annotations.filter(annot =>!removedUris.includes(annot.termUri))
-      this.searchSettings.annotations = Object.assign([],annots,newVal)
     }
   }
 };
