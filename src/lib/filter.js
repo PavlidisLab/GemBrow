@@ -108,6 +108,50 @@ export function generateFilter(searchSettings) {
       filter.push(f);
     }
   }
+  if (searchSettings.negativeCategories.length>0){
+    let negativeCategories = searchSettings.negativeCategories
+    if (negativeCategories.length > MAX_URIS_IN_CLAUSE) {
+      console.warn(`Too many negative categories (${negativeCategories.length}) in clause, will only retain the first ${MAX_URIS_IN_CLAUSE} categories.`);
+      negativeCategories = negativeCategories.slice(0, MAX_URIS_IN_CLAUSE);
+    }
+    let idCategories = negativeCategories.filter(cat=>cat.classUri)
+    let nameCategories = negativeCategories
+        .filter(cat=>cat.classUri === null)
+        .filter(cat=>cat.className)
+    let idString = idCategories.map(cat=>cat.classUri).join(',')
+    let nameString =  nameCategories.map(cat=>cat.className).join(',')
+
+    if (idString){
+      filter.push( ["none(allCharacteristics.categoryUri in ("+ idString +"))"])
+    }
+    if(nameString){
+      filter.push( ["none(allCharacteristics.category in ("+ nameString +"))"])
+    }
+  }
+
+  if (searchSettings.negativeAnnotations.length>0){
+    let negativeAnnots = searchSettings.negativeAnnotations
+    if (negativeAnnots.length > MAX_URIS_IN_CLAUSE) {
+      console.warn(`Too many negative annotations (${negativeAnnots.length}) in clause, will only retain the first ${MAX_URIS_IN_CLAUSE} annotations.`);
+      negativeAnnots = negativeAnnots.slice(0, MAX_URIS_IN_CLAUSE);
+    }
+
+    let idAnnots = negativeAnnots.filter(annot=>annot.termUri)
+    let nameAnnots = negativeAnnots
+        .filter(annot=>annot.termUri === null)
+        .filter(annot=>annot.termName)
+
+    let idString = idAnnots.map(cat=>cat.termUri).join(',')
+    let nameString = nameAnnots.map(cat=>cat.termName).join(',')
+
+    if(idString){
+      filter.push(["none(allCharacteristics.valueUri in (" + idString + "))"])
+    }
+    if(nameString){
+      filter.push(["none(allCharacteristics.value in (" + nameString + "))"])
+    }
+  }
+
   let numberOfClauses = sumBy(filter, f => f.length);
   if (numberOfClauses > 100) {
     console.error("Too many clauses (" + numberOfClauses + ") in filter.");
