@@ -11,7 +11,7 @@
                 Counts in this section may be approximate. For more explanation see the help.
             </v-tooltip>
             <v-spacer></v-spacer>
-            <v-btn v-if="Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] !== 0  )).length > 0" @click="selection = {}" small text color="primary"
+            <v-btn v-if="Object.keys(this.selection).filter((x,i)=>( Object.values(this.selection)[i] !== 0  )).length > 0" @click="clearSelection()" small text color="primary"
                    :disabled="disabled">
                 Clear Selection
             </v-btn>
@@ -117,6 +117,7 @@ export default {
       oldRoots: {},
       oldSelection:{},
       oldAnnotations:[],
+      annotationComplete:{},
       /**
        * A list of opened categories.
        */
@@ -145,14 +146,15 @@ export default {
      * @returns {(*&{isCategory: boolean, children: *, id: *})[]}
      */
     rankedAnnotations() {
-      return this.annotations
+      return Object.values(this.annotationComplete)
         .map((a,i) => {
           let that = this;
           /**
            * Recursively construct a tree of annotations for a given category.
            */
+
           let relevantSelectedAnnots = Object.values(that.dispatchedSelectedAnnotations)
-              .filter(annot=> annot.classUri === that.annotations[i].classUri)
+              .filter(annot=> annot.classUri === Object.values(that.annotationComplete)[i].classUri)
           let selectedUris = relevantSelectedAnnots.map(annot => annot.termUri);
 
           function getChildren(a) {
@@ -161,7 +163,7 @@ export default {
                 ...c,
                 id: that.getId(c),
                 isCategory: false,
-                children: c.children && getChildren(c)
+                children: c.children ? c.children && getChildren(c) : null
               };
             })
             let unrankedUris = unrankedAnnots.map(annot => annot.termUri)
@@ -188,7 +190,7 @@ export default {
             ...a,
             id: getCategoryId(a),
             isCategory: true,
-            children: getChildren(a)
+            children: Object.keys(a.children).length >0 ? getChildren(a) : null
           };
         })
         .sort((a, b) => {
@@ -256,6 +258,11 @@ export default {
         }
       }
     },
+    clearSelection(){
+      this.dispatchedSelectedAnnotations={};
+      this.selection = {};
+      this.rootSelection={}
+    },
     toggleSelection(id){
       let current = this.selection[id] || 0;
       let next = current === 0 ? 1: current === 1 ? -1 : current === -1 ? 0: current === 2 ? 1 : current === 3 ? -1 : current === 4 ? 1 : 0
@@ -266,9 +273,11 @@ export default {
           .filter(annot => {return annot.id === id})
           .map(annot => {
             this.$set(this.rootSelection,annot.id,next)
-            annot.children.map(children => {
-              this.$set(this.selection, children.id, next);
-            })
+            if (annot.children){
+              annot.children.map(children => {
+                this.$set(this.selection, children.id, next);
+              })
+            }
           })
       // clear stray terms in selection
       Object.keys(this.selection)
@@ -420,7 +429,6 @@ export default {
       return highlightedWords.join(" ");
     },
     dispatchValues:debounce(function(newVal,oldVal){
-
       let marked =   Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] !== 0  ))
       let selected =  Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === 1  ))
       let unselected = Object.keys(newVal).filter((x,i)=>( Object.values(newVal)[i] === -1  ))
@@ -435,7 +443,6 @@ export default {
       let oldSelectedRoots = Object.keys(this.oldRoots).filter((x,i)=>( Object.values(this.oldRoots)[i] === 1  ))
       let oldUnselectedRoots = Object.keys(this.oldRoots).filter((x,i)=>( Object.values(this.oldRoots)[i] === -1  ))
 
-
       let sc =  this.annotations.filter(annot=>selectedRoots.includes(annot.classUri))
       let sa = this.computeSelectedAnnotations(selected, sc);
       let scOld = this.annotations.filter(annot=>oldSelectedRoots.includes(annot.classUri))
@@ -443,7 +450,7 @@ export default {
       if (!isEqual(sa.map(this.getId), saOld.map(this.getId))) {
         this.$emit("update:selectedAnnotations", sa);
       }
-      if (!isEqual(sc.map(getCategoryId), scOld.map(getCategoryId))) {
+      if (!isEqual(selectedRoots, oldSelectedRoots)) {
         this.$emit("update:selectedCategories", sc);
       }
       let unSc = this.annotations.filter(annot=>unselectedRoots.includes(annot.classUri))
@@ -451,10 +458,10 @@ export default {
       let unScOld = this.annotations.filter(annot=>oldUnselectedRoots.includes(annot.classUri))
       let unSaOld = this.computeSelectedAnnotations(oldUnselected,unScOld);
       if (!isEqual(unsa.map(this.getId), unSaOld.map(this.getId))) {
-        this.$emit("update:negativeAnnotations", sa);
+        this.$emit("update:negativeAnnotations", unsa);
       }
-      if (!isEqual(unSc.map(getCategoryId), unScOld.map(getCategoryId))) {
-        this.$emit("update:negativeCategories", sc);
+      if (!isEqual(unselectedRoots, oldUnselectedRoots)) {
+        this.$emit("update:negativeCategories", unSc);
       }
 
       // assign old selection here instead of the main watcher since it can skip steps while
@@ -464,9 +471,10 @@ export default {
       this.oldRoots = Object.assign({},this.rootSelection);
 
       let allAnnots = this.rankedAnnotations.reduce((acc,annot)=>(acc.concat(annot.children)),[])
-      let selectedURIs = marked.map(x => x.split(SEPARATOR)[1])
+      let selectedIds = marked.filter(x => x.split(SEPARATOR).length>1)
       this.dispatchedSelectedAnnotations =  allAnnots
-          .filter(annot=>selectedURIs.includes(annot.termUri))
+          .filter(annot=>annot)
+          .filter(annot=>selectedIds.includes(annot.id))
           .reduce((acc,annot)=>{
             acc[annot.classUri+"|"+annot.termUri] = annot
             return acc
@@ -502,6 +510,35 @@ export default {
                 this.$set(this.selection,this.getId(child),-1)
               })
             })
+
+        // add all terms to an annotationComplete object to keep track of missing parents,
+        // set children and counts to zero when a parent goes missing
+        // populate annotationComplete with missing IDs
+        newVal.map(annot=>
+            this.$set(this.annotationComplete,annot.classUri,annot)
+        )
+        let currentCats = newVal.map(annot=>annot.classUri)
+        Object
+           .keys(this.annotationComplete)
+           .filter(key=>!currentCats.includes(key))
+           .map(key=>{
+             let annot = this.annotationComplete[key]
+             annot.children = []
+             annot.numberOfExpressionExperiments= 0
+           })
+
+
+
+
+        let newClasses = newVal.map(annot=>annot.classUri)
+        let missingClasses = oldVal
+            .filter(annot => !newClasses.includes(annot.classUri))
+            .map(annot=>{
+              annot.children = {}
+              annot.numberOfExpressionExperiments = 0
+              return annot
+            })
+        this.annotations.concat(missingClasses)
 
       }
     },

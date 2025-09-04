@@ -60,6 +60,7 @@
                 v-show="false"
                 class="mb-1"/>
         <AnnotationSelector
+                ref = "annotationSelector"
                 :selectedAnnotations.sync="searchSettings.annotations"
                 :negativeAnnotations.sync="searchSettings.negativeAnnotations"
                 :negativeCategories.sync="searchSettings.negativeCategories"
@@ -156,10 +157,10 @@ export default {
     },
     clearAllSelections() {
       this.searchSettings.selectedTech = [];
-      this.searchSettings.annotations = [];
-      this.searchSettings.taxon = []; 
+      this.searchSettings.taxon = [];
       this.searchSettings.query = undefined;
       this.currentQuery = undefined;
+      this.$refs.annotationSelector.clearSelection();
     },
     isMobile() {
       if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
