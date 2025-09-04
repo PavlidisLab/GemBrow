@@ -228,6 +228,7 @@ export default {
   methods: {
     formatNumber,
     markParent(id){
+      // currently only used for additionalAnnotations to update parents accordingly
       let split_id = id.split("|")
       if(split_id.length > 1){
         if(split_id.length > 1){
@@ -244,16 +245,22 @@ export default {
           // a mix of selected/unselected is state 4
           if (child_ids.every(c=>selected.includes(c))){
             this.$set(this.selection, category, 1);
+            this.$set(this.rootSelection,category,1)
           } else if (child_ids.every(c=>unselected.includes(c))){
             this.$set(this.selection, category, -1);
+            this.$set(this.rootSelection,category,-1)
           } else if (child_ids.some(c=>selected.includes(c)) && !child_ids.some(c=>unselected.includes(c))){
             this.$set(this.selection, category, 2);
+            this.$set(this.rootSelection,category,0)
           } else if(child_ids.some(c=>unselected.includes(c)) && !child_ids.some(c=>selected.includes(c))) {
             this.$set(this.selection, category, 3);
+            this.$set(this.rootSelection,category,0)
           } else if(child_ids.some(c=>unselected.includes(c)) && child_ids.some(c=>selected.includes(c))){
             this.$set(this.selection, category, 4);
+            this.$set(this.rootSelection,category,0)
           } else{
             this.$set(this.selection, category, 0);
+            this.$set(this.rootSelection,category,0)
           }
         }
       }
@@ -549,10 +556,12 @@ export default {
 
       newIds.map(id=>{
         this.$set(this.selection,id,1)
+        this.markParent(id)
       })
 
       removedIds.map(id=>{
         this.$set(this.selection,id,0)
+        this.markParent(id)
       })
 
     },
