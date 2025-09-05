@@ -270,9 +270,14 @@ export default {
       this.selection = {};
       this.rootSelection={}
     },
-    toggleSelection(id){
+    toggleSelection(id,allowNegative = true){
       let current = this.selection[id] || 0;
-      let next = current === 0 ? 1: current === 1 ? -1 : current === -1 ? 0: current === 2 ? 1 : current === 3 ? -1 : current === 4 ? 1 : 0
+      let next = 0
+      if (allowNegative){
+        next = current === 0 ? 1: current === 1 ? -1 : current === -1 ? 0: current === 2 ? 1 : current === 3 ? -1 : current === 4 ? 1 : 0
+      } else {
+        next = current === 0 ? 1: 0
+      }
       this.$set(this.selection, id, next);
 
       // if a parent id is clicked, apply the change to all children

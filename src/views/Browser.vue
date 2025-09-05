@@ -2,7 +2,9 @@
     <v-layout>
         <v-navigation-drawer v-model="drawer" app width="400">
             <SearchSettings v-model="searchSettings"
+                            ref= "searchSettings"
                             class="py-3 px-3"
+                            :browserAnnotations="browserAnnotations"
                             :taxon-disabled="loadingTaxa"
                             :query-disabled="loadingDatasets"
                             :annotation-disabled="loadingAnnotation"
@@ -106,8 +108,8 @@
                                         :selected-categories="searchSettings.categories"
                                         :selected-annotations="searchSettings.annotations"
                                         :available-annotations="datasetsAnnotations"
-                                        @annotation-selected="selectTerm"
-                                        @annotation-unselected="unselectTerm"/>
+                                        @annotation-selected="$refs.searchSettings.toggleTerm"
+                                        @annotation-unselected="$refs.searchSettings.toggleTerm"/>
                     </td>
                 </template>
                 <template v-slot:item.isSingleCell="{ item }">
@@ -254,6 +256,7 @@ export default {
       tableWidth: "",
       inferredTermLabelsByCategory:{},
       hasDifferentialExpression:{},
+      browserAnnotations:[],
       /**
      * Basically a browse with a debounce when the user is actively typing a query.
      * @return {Promise|undefined} initially undefined, then a promise once the function has been invoked at least once
@@ -701,25 +704,6 @@ export default {
       return item.characteristics.some((characteristic)=>characteristic.valueUri === "http://www.ebi.ac.uk/efo/EFO_0008913")
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
-    selectTerm(previewTerm) {
-      this.searchSettings.annotations.push({
-        classUri: previewTerm.classUri,
-        className: previewTerm.className,
-        termUri: previewTerm.termUri,
-        termName: previewTerm.termName
-      });
-    },
-    unselectTerm(previewTerm) {
-      let categoryId = getCategoryId(previewTerm);
-      let termId = getTermId(previewTerm);
-      for (let [i, a] of this.searchSettings.annotations.entries()) {
-        if (getCategoryId(a) === categoryId && getTermId(a) === termId) {
-          this.searchSettings.annotations.splice(i, 1);
-          return;
-        }
-      }
-      console.warn(`${previewTerm} is not selected and thus cannot be unselected.`);
-    },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
     toggleAllDatasetsExpanded() {
       // check whether all datasets are expanded

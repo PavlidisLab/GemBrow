@@ -116,7 +116,8 @@ export default {
     annotationLoading: Boolean,
     platformLoading: Boolean,
     taxaLoading: Boolean,
-    totalNumberOfExpressionExperiments: Number
+    totalNumberOfExpressionExperiments: Number,
+    browserAnnotations:[Array]
   },
   emits: ["input"],
   data() {
@@ -148,6 +149,9 @@ export default {
     })
   },
   methods: {
+    toggleTerm(term){
+      this.$refs.annotationSelector.toggleSelection(this.$refs.annotationSelector.getId(term),false)
+    },
     setQuery(){
       this.searchSettings.query = this.searchSettings.currentQuery
     },
