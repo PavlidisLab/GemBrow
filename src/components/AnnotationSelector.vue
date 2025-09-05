@@ -146,7 +146,9 @@ export default {
      * @returns {(*&{isCategory: boolean, children: *, id: *})[]}
      */
     rankedAnnotations() {
-      return Object.values(this.annotationComplete)
+      let annots = this.debug ?  Object.assign({},this.annotationComplete): Object.assign({},this.annotations)
+
+      return Object.values(annots)
         .map((a,i) => {
           let that = this;
           /**
@@ -154,7 +156,7 @@ export default {
            */
 
           let relevantSelectedAnnots = Object.values(that.dispatchedSelectedAnnotations)
-              .filter(annot=> annot.classUri === Object.values(that.annotationComplete)[i].classUri)
+              .filter(annot=> annot.classUri === Object.values(annots)[i].classUri)
           let selectedUris = relevantSelectedAnnots.map(annot => annot.termUri);
 
           function getChildren(a) {
@@ -531,26 +533,13 @@ export default {
         )
         let currentCats = newVal.map(annot=>annot.classUri)
         Object
-           .keys(this.annotationComplete)
-           .filter(key=>!currentCats.includes(key))
-           .map(key=>{
-             let annot = this.annotationComplete[key]
-             annot.children = []
-             annot.numberOfExpressionExperiments= 0
-           })
-
-
-
-
-        let newClasses = newVal.map(annot=>annot.classUri)
-        let missingClasses = oldVal
-            .filter(annot => !newClasses.includes(annot.classUri))
-            .map(annot=>{
-              annot.children = {}
-              annot.numberOfExpressionExperiments = 0
-              return annot
+            .keys(this.annotationComplete)
+            .filter(key=>!currentCats.includes(key))
+            .map(key=>{
+              let annot = this.annotationComplete[key]
+              annot.children = []
+              annot.numberOfExpressionExperiments= 0
             })
-        this.annotations.concat(missingClasses)
 
       }
     },
