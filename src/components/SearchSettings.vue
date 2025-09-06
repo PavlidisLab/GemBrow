@@ -60,10 +60,14 @@
                 v-show="false"
                 class="mb-1"/>
         <AnnotationSelector
-                v-model="searchSettings.annotations"
+                ref = "annotationSelector"
+                :selectedAnnotations.sync="searchSettings.annotations"
+                :negativeAnnotations.sync="searchSettings.negativeAnnotations"
+                :negativeCategories.sync="searchSettings.negativeCategories"
                 :annotations="annotations"
                 :loading="annotationLoading"
                 :disabled="annotationDisabled"
+                :additionalAnnotations.sync="additionalAnnotations"
                 :selectedCategories.sync="searchSettings.categories"/>
         <div :class="debug ? '' : 'd-lg-none'">
             <div style="margin-bottom: 59px;"></div>
@@ -112,7 +116,8 @@ export default {
     annotationLoading: Boolean,
     platformLoading: Boolean,
     taxaLoading: Boolean,
-    totalNumberOfExpressionExperiments: Number
+    totalNumberOfExpressionExperiments: Number,
+    browserAnnotations:[Array]
   },
   emits: ["input"],
   data() {
@@ -144,6 +149,9 @@ export default {
     })
   },
   methods: {
+    toggleTerm(term){
+      this.$refs.annotationSelector.toggleSelection(this.$refs.annotationSelector.getId(term),false)
+    },
     setQuery(){
       this.searchSettings.query = this.searchSettings.currentQuery
     },
@@ -153,10 +161,10 @@ export default {
     },
     clearAllSelections() {
       this.searchSettings.selectedTech = [];
-      this.searchSettings.annotations = [];
-      this.searchSettings.taxon = []; 
+      this.searchSettings.taxon = [];
       this.searchSettings.query = undefined;
       this.currentQuery = undefined;
+      this.$refs.annotationSelector.clearSelection();
     },
     isMobile() {
       if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
@@ -173,14 +181,6 @@ export default {
         this.$emit("input", newValue);
       },
       deep: true
-    },
-    additionalAnnotations: function(newVal,oldVal){
-      // remove annotations that are unselected
-      let newUris = newVal.map(annot=>annot.termUri)
-      let oldUris = oldVal.map(annot=>annot.termUri)
-      let removedUris = oldUris.filter(uri=>!newUris.includes(uri))
-      let annots = this.searchSettings.annotations.filter(annot =>!removedUris.includes(annot.termUri))
-      this.searchSettings.annotations = Object.assign([],annots,newVal)
     }
   }
 };
