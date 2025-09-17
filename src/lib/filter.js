@@ -176,7 +176,7 @@ export function generateFilterSummary(searchSettings) {
   if (searchSettings.platforms.length > 0 || searchSettings.technologyTypes.length > 0) {
     filters.push("platforms");
   }
-  if (searchSettings.categories.length > 0 || searchSettings.annotations.length > 0) {
+  if (searchSettings.categories.length > 0 || searchSettings.annotations.length > 0 || searchSettings.negativeAnnotations.length > 0 || searchSettings.negativeCategories.length > 0) {
     filters.push("annotations");
   }
   if (filters.length > 0) {
