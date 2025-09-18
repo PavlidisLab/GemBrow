@@ -176,7 +176,7 @@ export function generateFilterSummary(searchSettings) {
   if (searchSettings.platforms.length > 0 || searchSettings.technologyTypes.length > 0) {
     filters.push("platforms");
   }
-  if (searchSettings.categories.length > 0 || searchSettings.annotations.length > 0) {
+  if (searchSettings.categories.length > 0 || searchSettings.annotations.length > 0 || searchSettings.negativeAnnotations.length > 0 || searchSettings.negativeCategories.length > 0) {
     filters.push("annotations");
   }
   if (filters.length > 0) {
@@ -226,8 +226,8 @@ export function generateFilterDescription(searchSettings,inferredTermLabelsByCat
       }
     }
   }
-  if (searchSettings.annotations.length > 0) {
-    const annotationGroups = searchSettings.annotations.reduce((acc, annotation) => {
+  function processAnnotationGroups(annots){
+    const annotationGroups = annots.reduce((acc, annotation) => {
       let { classUri, className, termName, termUri } = annotation;
       if (className) {
         className = capitalizeFirstLetter(pluralize(className));
@@ -252,7 +252,7 @@ export function generateFilterDescription(searchSettings,inferredTermLabelsByCat
     for (let classUri in inferredTermLabelsByCategory) {
       const inferredTerms = Object.values(inferredTermLabelsByCategory[classUri]);
       if (inferredTerms) {
-        let className = searchSettings.annotations.filter(a => a.classUri === classUri)[0]?.className;
+        let className =annots.filter(a => a.classUri === classUri)[0]?.className;
         if (className) {
           className = capitalizeFirstLetter(pluralize(className));
         } else if (classUri) {
@@ -260,22 +260,43 @@ export function generateFilterDescription(searchSettings,inferredTermLabelsByCat
         } else {
           className = "Uncategorized";
         }
-        if (annotationGroups[className] === undefined) {
-          annotationGroups[className] = [];
-        }
-        // include inferred terms
-        const annotations = annotationGroups[className];
-        const maxTermsToDisplay = 6 - annotations.length;
-        if (maxTermsToDisplay > 0) {
-          annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(capitalizeFirstLetter));
-        }
-        if (inferredTerms.length > maxTermsToDisplay) {
-          annotations.push((inferredTerms.length - maxTermsToDisplay) + " more terms...");
+        if (!annotationGroups[className] === undefined) {
+          // include inferred terms if the inferred term class is included in the annotation groups.
+          // this splits the inferredTermLabels by positive and negative selections
+          const annotations = annotationGroups[className];
+          const maxTermsToDisplay = 6 - annotations.length;
+          if (maxTermsToDisplay > 0) {
+            annotations.push(...inferredTerms.slice(0, maxTermsToDisplay).map(capitalizeFirstLetter));
+          }
+          if (inferredTerms.length > maxTermsToDisplay) {
+            annotations.push((inferredTerms.length - maxTermsToDisplay) + " more terms...");
+          }
         }
       }
     }
+    return annotationGroups
+  }
+  if (searchSettings.annotations.length > 0) {
+    const annotationGroups = processAnnotationGroups(searchSettings.annotations)
     for (const className in annotationGroups) {
       filter.push({ key: className, value: annotationGroups[className] });
+    }
+  }
+  if (searchSettings.negativeAnnotations.length > 0){
+    const annotationGroups = processAnnotationGroups(searchSettings.negativeAnnotations)
+    for (const className in annotationGroups) {
+      filter.push({ key: "NOT "+ className, value: annotationGroups[className] });
+    }
+  }
+  if(searchSettings.negativeCategories.length > 0){
+    for (let cat of searchSettings.negativeCategories) {
+      if(cat.className){
+        filter.push({key:"NOT "+ pluralize(cat.className),value:"ANY"})
+      } else if(cat.classUri){
+        filter.push({ key: "NOT "+ cat.classUri, value: "ANY" });
+      } else {
+        filter.push({ key: "NOT Uncategorized", value: "ANY" });
+      }
     }
   }
   return filter.map(({ key, value }) => {

@@ -21,7 +21,7 @@
                 <v-card-text>
                     <div v-for="(line, lineIndex) in filterDescription.split('\n')" :key="lineIndex">
                   <span v-for="(word, wordIndex) in line.split(' ')" :key="lineIndex + '-' + wordIndex"
-                        :class="{ andOrStyle: word === 'AND' || word === 'OR'}">
+                        :class="{ andOrNotStyle: word === 'AND' || word === 'OR' || word ==='NOT'}">
                     {{ word }}&nbsp;
                   </span>
                     </div>
@@ -227,7 +227,7 @@ export default {
     max-height: calc(100vh - 100px);
 }
 
-.andOrStyle {
+.andOrNotStyle {
     font-weight: bold;
     font-style: italic;
     color: rgb(42, 42, 223);
