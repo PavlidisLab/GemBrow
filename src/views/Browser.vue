@@ -701,7 +701,7 @@ export default {
       return baseUrl + "/expressionExperiment/showExpressionExperiment.html?id=" + encodeURIComponent(item.id);
     },
     isSingleCell(item){
-      return item.characteristics.some((characteristic)=>characteristic.valueUri === "http://www.ebi.ac.uk/efo/EFO_0008913")
+      return item.characteristics.some((characteristic)=>["http://purl.obolibrary.org/obo/OBI_0002631","http://purl.obolibrary.org/obo/OBI_0003105","http://purl.obolibrary.org/obo/OBI_0003108","http://purl.obolibrary.org/obo/OBI_0003109"].includes(characteristic.valueUri))
     },
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription", "setLastError"]),
     ...mapMutations(["setTitle", "setFilterSummary", "setFilterDescription"]),
