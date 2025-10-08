@@ -16,7 +16,7 @@
                   small
                   class="mb-1 mr-1"
                   @click="groupedClicked.includes(category) ? groupedClicked = groupedClicked.filter(x=>x!==category) : groupedClicked = groupedClicked.concat(category)">
-            {{ category }}
+            {{ pluralize(category) }}
             <v-icon v-if="groupedClicked.includes(category)">mdi-menu-left</v-icon>
             <v-icon v-if="!groupedClicked.includes(category)">mdi-menu-right</v-icon>
           </v-chip>
@@ -38,6 +38,7 @@
 
 <script>
 import { highlight } from "@/lib/highlight";
+import pluralize from "pluralize";
 import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import { getCategoryId, getTermId, swallowCancellation } from "@/lib/utils";
@@ -126,6 +127,7 @@ export default {
     })
   },
   methods: {
+    pluralize,
     ...mapMutations(["setLastError"]),
     getTerms() {
       const dataset = this.dataset.id;
