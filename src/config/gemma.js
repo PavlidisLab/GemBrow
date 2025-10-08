@@ -59,7 +59,6 @@ export let excludedCategories = [
   "http://www.ebi.ac.uk/efo/EFO_0000562", // labelling
   "http://www.ebi.ac.uk/efo/EFO_0000651", // phenotype
   "http://www.ebi.ac.uk/efo/EFO_0000724", // time point
-  "http://www.ebi.ac.uk/efo/EFO_0001426", // study design
   "http://www.ebi.ac.uk/efo/EFO_0001444", // measurement
   "http://www.ebi.ac.uk/efo/EFO_0001702", // temperature
   "http://www.ebi.ac.uk/efo/EFO_0004425", // initial time points
@@ -143,7 +142,10 @@ export let excludedTerms = [
   "http://www.ebi.ac.uk/efo/EFO_0004952", // disease recurrence
   "http://www.ebi.ac.uk/efo/EFO_0004972", // somatic genotype
   "http://www.ebi.ac.uk/efo/EFO_0004973", // germ line genotype
-  "http://www.ebi.ac.uk/efo/EFO_0005168" // wild type genotype
+  "http://www.ebi.ac.uk/efo/EFO_0005168", // wild type genotype,
+  "http://gemma.msl.ubc.ca/ont/TGEMO_00013", //DE_include,
+  "http://gemma.msl.ubc.ca/ont/TGEMO_00014", //DE_exclude,
+  "http://gemma.msl.ubc.ca/ont/TGEMO_00022" //SUBSET,
 ];
 
 export let annotationSelectorOrderArray = [
