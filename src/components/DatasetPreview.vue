@@ -10,12 +10,35 @@
             <v-icon v-if="isSelectable(term)" right>mdi-plus</v-icon>
             <v-icon v-else-if="isUnselectable(term)" right>mdi-minus</v-icon>
         </v-chip>
+        <span v-for="category in Object.keys(groupedTerms)"
+             :key="category">
+          <v-chip :key="category"
+                  small
+                  class="mb-1 mr-1"
+                  @click="groupedClicked.includes(category) ? groupedClicked = groupedClicked.filter(x=>x!==category) : groupedClicked = groupedClicked.concat(category)">
+            {{ pluralize(category) }}
+            <v-icon v-if="groupedClicked.includes(category)">mdi-menu-left</v-icon>
+            <v-icon v-if="!groupedClicked.includes(category)">mdi-menu-right</v-icon>
+          </v-chip>
+          <span v-if="groupedClicked.includes(category)">
+            <v-chip v-for="term in groupedTerms[category]" :key="getId(term)"
+                    @[getClickEventName(term)]="handleChipClick(term)"
+                    small :color="getChipColor(term.objectClass)"
+                    :title="getTitle(term)"
+                    class="mb-1 mr-1">
+              {{ getTermName(term) }}
+              <v-icon v-if="isSelectable(term)" right>mdi-plus</v-icon>
+              <v-icon v-else-if="isUnselectable(term)" right>mdi-minus</v-icon>
+            </v-chip>
+          </span>
+        </span>
         <div v-html="this.description"></div>
     </div>
 </template>
 
 <script>
 import { highlight } from "@/lib/highlight";
+import pluralize from "pluralize";
 import { axiosInst, baseUrl, marked } from "@/config/gemma";
 import { mapMutations, mapState } from "vuex";
 import { getCategoryId, getTermId, swallowCancellation } from "@/lib/utils";
@@ -49,6 +72,8 @@ export default {
   events: ["annotation-selected", "annotation-unselected"],
   data() {
     return {
+      groupedTerms:{},
+      groupedClicked:[],
       includedTerms: []
     };
   },
@@ -102,6 +127,7 @@ export default {
     })
   },
   methods: {
+    pluralize,
     ...mapMutations(["setLastError"]),
     getTerms() {
       const dataset = this.dataset.id;
@@ -174,13 +200,40 @@ export default {
     },
     updateTerms() {
       this.includedTerms = [];
+      this.groupedTerms = {};
       this.getTerms().then(terms => {
-        const uniqueTerms = chain(terms)
-          .sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass])
-          .groupBy(term => getCategoryId(term) + SEPARATOR + getTermId(term))
-          .mapValues(terms => terms[0])
-          .values()
-          .value();
+        const categoryCounts = terms.map(x=>x.className).reduce((acc,name)=>{
+          if (Object.keys(acc) ? Object.keys(acc).includes(name): false){
+            acc[name] = acc[name]+1
+          } else{
+            acc[name] = 1
+          }
+          return acc
+        },{})
+
+        const groupedCategories = Object.keys(categoryCounts).reduce((acc,cat)=>{
+          if(categoryCounts[cat]>5){
+            acc = acc.concat(cat)
+          }
+          return(acc)
+        },[])
+
+        function getUniqueTerms(terms){
+          return chain(terms)
+              .sort((a, b) => OBJECT_CLASS_PRIORITY[a.objectClass] - OBJECT_CLASS_PRIORITY[b.objectClass])
+              .groupBy(term => getCategoryId(term) + SEPARATOR + getTermId(term))
+              .mapValues(terms => terms[0])
+              .values()
+              .value();
+        }
+
+        this.groupedTerms = groupedCategories.reduce((acc,cat)=>{
+          acc[cat] = getUniqueTerms(terms.filter(x=>x.className === cat))
+          return acc
+        },{})
+        terms = terms.filter(x=>!groupedCategories.includes(x.className))
+
+        const uniqueTerms = getUniqueTerms(terms)
 
         this.includedTerms = uniqueTerms;
       });
