@@ -309,13 +309,13 @@ export default {
           text: "Number of Samples",
           value: "bioAssays.size",
           align: "center"
-        },
-        {
-          text: "Quality",
-          value: "geeq.publicQualityScore",
-          align: "center",
-          tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
-        }
+        }//,
+        //{
+          //text: "Quality",
+          //value: "geeq.publicQualityScore",
+          //align: "center",
+          //tip: "Quality refers to data quality, wherein the same study could have been done twice with the same technical parameters and in one case yield bad quality data, and in another high quality data"
+        //}
       );
       if (this.myself && this.myself.group === 'Administrators'){
         h.push(
