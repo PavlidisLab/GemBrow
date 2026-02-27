@@ -20,6 +20,7 @@
             </template>
             <template v-slot:append="{item}">
                 <div v-if="item.numberOfExpressionExperiments" class="text-right">
+                    <span v-if="item.annot">≥</span>
                     {{ formatNumber(item.numberOfExpressionExperiments) }}
                 </div>
             </template>
@@ -93,7 +94,8 @@ export default {
                     "id": annotation.termUri,
                     "annotation": true,
                     "technologyType": TECH_ADDITIONS[class_uri][term_uri].parent,
-                    "name": titleCase(annotation.termName)
+                    "name": titleCase(annotation.termName),
+                    "annot": true
                   });
               }).flat();
           }).flat();
